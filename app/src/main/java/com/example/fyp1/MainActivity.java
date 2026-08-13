@@ -1,0 +1,66 @@
+package com.example.fyp1;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
+/**
+ * The main login screen that handles user authentication.
+ */
+public class MainActivity extends AppCompatActivity {
+
+    private EditText etUsername, etPassword;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        etUsername = findViewById(R.id.etUsername);
+        etPassword = findViewById(R.id.etPassword);
+        Button btnLogin = findViewById(R.id.btnLogin);
+        TextView tvSignup = findViewById(R.id.tvSignup);
+
+        btnLogin.setOnClickListener(this::onClick);
+
+        tvSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void onClick(View v) {
+        String username = etUsername.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(MainActivity.this, getString(R.string.error_empty_fields), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate against UserPrefs SharedPreferences (Diploma Level "Database")
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String savedPassword = prefs.getString(username, null);
+
+        if (savedPassword != null && savedPassword.equals(password)) {
+            // Login Success
+            Toast.makeText(MainActivity.this, getString(R.string.msg_logging_in, username), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
+            intent.putExtra("USER_NAME", username);
+            startActivity(intent);
+        } else {
+            // Login Fail
+            Toast.makeText(MainActivity.this, getString(R.string.error_invalid_credentials), Toast.LENGTH_SHORT).show();
+        }
+    }
+}

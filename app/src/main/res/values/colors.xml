@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Primary / Secondary -->
+    <color name="campus_navy">#0F2C59</color>
+    <color name="campus_blue">#1E60AA</color>
+    <color name="accent_cyan">#00A8E8</color>
+
+    <!-- UI Surfaces & Neutrals -->
+    <color name="bg_page_light">#F8FAFC</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="border_slate">#E2E8F0</color>
+
+    <!-- Text Tones -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_light">#FFFFFF</color>
+
+    <!-- Semantic Status Colors -->
+    <color name="status_available">#10B981</color>       <!-- Emerald Green -->
+    <color name="status_not_available">#EF4444</color>   <!-- Modern Rose Red -->
+    <color name="btn_success">#059669</color>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btnBack" type="id" />
+    <item name="scrollViewChat" type="id" />
+    <item name="chatContainer" type="id" />
+    <item name="chipBookRoom" type="id" />
+    <item name="chipCheckSchedule" type="id" />
+    <item name="chipMyBookings" type="id" />
+    <item name="etMessageInput" type="id" />
+    <item name="btnSend" type="id" />
+</resources>

@@ -1,0 +1,172 @@
+<resources>
+    <string name="app_name">Fyp1</string>
+
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="confirm">Confirm</string>
+    <string name="close">Close</string>
+    <string name="ok">OK</string>
+    <string name="send">Send</string>
+    <string name="menu">Menu</string>
+
+    <!-- MainActivity -->
+    <string name="app_bar_title">Lab Reservation System</string>
+    <string name="login_card_title">Account Login</string>
+    <string name="login_card_subtitle">Enter your credentials to access lab bookings</string>
+    <string name="hint_username">ID / Username</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login_text">Sign In</string>
+    <string name="signup_prompt">Don\'t have an account? Sign Up</string>
+    <string name="toast_signup_screen">Go to Create Account screen</string>
+    <string name="error_empty_fields">Please enter username and password</string>
+    <string name="msg_logging_in">Logging in as %1$s...</string>
+    <string name="error_invalid_credentials">Invalid username or password.</string>
+
+    <!-- SignupActivity -->
+    <string name="signup_title">Create Account</string>
+    <string name="signup_subtitle">Join the Lab Reservation System</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="btn_signup_text">Register Now</string>
+    <string name="login_prompt">Already have an account? Log In</string>
+    <string name="error_password_mismatch">Passwords do not match!</string>
+    <string name="msg_signup_success">Account created! You can now log in.</string>
+
+    <!-- SecondPageActivity -->
+    <string name="user_greeting_placeholder">HI, %1$s! ></string>
+    <string name="nav_title_lab_directory">Lab Location Directory</string>
+    <string name="floor_ground">Ground Floor</string>
+    <string name="floor_second">Second Floor</string>
+    <string name="floor_third">Third Floor</string>
+    <string name="status_available">Available</string>
+    <string name="status_not_available">Not Available</string>
+    <string name="menu_my_booking">📅   My Booking</string>
+    <string name="menu_lecturers">👨‍🏫   Lecturers Directory</string>
+    <string name="menu_chatbot">🤖   AI Booking Assistant</string>
+    <string name="menu_about_us">👥   About Us</string>
+    <string name="menu_faq">❓   FAQ</string>
+    <string name="menu_support">💬   Help &amp; Support</string>
+    <string name="menu_logout">🚪   Log Out</string>
+    <string name="toast_lab_photo_clicked">Lab photo clicked</string>
+    <string name="dialog_my_bookings_title">📅  My Active Bookings</string>
+    <string name="msg_confirmed_reservations">You currently have %1$d confirmed reservation(s):\n\n</string>
+    <string name="facility_label">Facility: </string>
+    <string name="day_label">    Day: </string>
+    <string name="session_label">    Session: </string>
+    <string name="btn_clear_all">Clear All Bookings</string>
+    <string name="msg_no_bookings">You currently have no active lab bookings.\n\nClick on any lab card on the dashboard to reserve a time slot!</string>
+    <string name="error_loading_bookings">Error loading bookings.</string>
+    <string name="msg_reservations_cancelled">All reservations cancelled successfully.</string>
+    <string name="item_selected">%1$s selected</string>
+
+    <!-- ThirdPageActivity -->
+    <string name="nav_title_booking">Facility Booking</string>
+    <string name="schedule_heading">Weekly Schedule</string>
+    <string name="label_time">Time:</string>
+    <string name="label_day">Day:</string>
+    <string name="btn_confirm_booking">Confirm Booking</string>
+    <string name="btn_return_dashboard">Return to Dashboard</string>
+    <string name="msg_booking_added">Booking Added!\n%1$s on %2$s\n%3$s</string>
+    <string name="error_saving_booking">Error saving booking.</string>
+    <string name="error_clash_detected">Clash Detected! This lab is already booked for the selected time.</string>
+
+    <!-- ChatbotActivity -->
+    <string name="chatbot_title">AI Booking Assistant</string>
+    <string name="hint_type_message">Type your message...</string>
+    <string name="chip_book_room">Book Room</string>
+    <string name="chip_check_schedule">Check Schedule</string>
+    <string name="chip_my_bookings">My Bookings</string>
+    <string name="bot_greeting">Hi! I\'m your AI Booking Assistant. How can I help you with your schedule today?</string>
+    <string name="bot_msg_book_room">To reserve multiple rooms, return to the dashboard and select any available lab (DCN, NWL, Lab 1, PGL2, Lab 2, PGL1, HYP, Lab 3, or MML) to add time slots to your schedule!</string>
+    <string name="bot_msg_check_schedule_prompt">Please specify the lab and time to check availability (e.g., \'Is DCN free at 2:00 PM?\').</string>
+    <string name="bot_msg_identity">I\'m the AI Booking Assistant for the Fyp1 Lab Management System. My job is to make your lab reservations easier!</string>
+    <string name="bot_msg_welcome">Hello! I\'m your Lab Assistant. I can help you find labs, check your schedule, or give you directions. How can I assist you?</string>
+    <string name="bot_msg_thanks">You\'re very welcome! Let me know if you need anything else.</string>
+    <string name="bot_msg_help">You can ask me things like:\n• \'What are my bookings?\'\n• \'Is DCN free at 2pm?\'\n• \'Where is Lab 1?\'\n• \'Clear all my reservations\'</string>
+    <string name="bot_msg_special_event">For whole-day bookings or special events, you need administrative approval. Please visit the Lab Management Office to submit a formal request.</string>
+    <string name="bot_msg_fallback">I\'m not quite sure I understood that. You can try asking about a specific lab (e.g., \'Where is NWL?\') or type \'help\' for a list of commands.</string>
+    <string name="bot_msg_bookings_count">📅 You have %1$d confirmed reservation(s):\n\n</string>
+    <string name="bot_msg_booking_item">• %1$s | %2$s (%3$s)\n</string>
+    <string name="bot_msg_clear_hint">\n(Type \'clear bookings\' if you need to cancel all reservations.)</string>
+    <string name="bot_msg_no_bookings">You currently have no active lab bookings. Visit the dashboard and click on any lab card to reserve a slot!</string>
+    <string name="bot_msg_error_schedule">Sorry, there was an error reading your saved schedule.</string>
+    <string name="bot_msg_clear_success">Your active lab reservations have been successfully cleared.</string>
+    <string name="label_assistant">Assistant\n</string>
+    <string name="label_you">You\n</string>
+    <string name="bot_msg_lab_dcn">DCN (Data Communication &amp; Networking Lab) is located on the Ground Floor, near the main entrance.</string>
+    <string name="bot_msg_lab_nwl">NWL (Network Lab) is on the 1st Floor, Room 102.</string>
+    <string name="bot_msg_lab_pgl">PGL (Programming Labs) are located on the 2nd Floor. PGL1 is Room 201 and PGL2 is Room 202.</string>
+    <string name="bot_msg_lab_hyp">HYP (Hypermedia Lab) is a specialized multimedia facility on the 3rd Floor.</string>
+    <string name="bot_msg_lab_general">General purpose Labs 1, 2, and 3 are distributed across the 1st and 2nd floors for standard practical sessions.</string>
+    <string name="bot_msg_lab_mml">MML (Multimedia Lab) is on the 3rd Floor, equipped with high-end graphics workstations.</string>
+    <string name="bot_msg_availability_sim">Let me check... %1$s seems to have several open slots today. You can view the full timetable on the dashboard to confirm!</string>
+    <string name="bot_msg_ask_lab">Sure! Which lab would you like to book? (e.g., DCN, NWL, Lab 1, MML...)</string>
+    <string name="bot_msg_ask_day">Great. Which day? (Monday to Friday)</string>
+    <string name="bot_msg_ask_time">Understood. And what time slot? (e.g., 8:00 AM - 11:00 AM)</string>
+    <string name="bot_msg_booking_confirm">Confirming your booking: %1$s on %2$s at %3$s. Everything look correct? (Type \'yes\' to confirm or \'cancel\')</string>
+    <string name="bot_msg_booking_success">Perfect! Your booking for %1$s has been confirmed.</string>
+    <string name="bot_msg_booking_cancelled">No problem. Booking cancelled.</string>
+    <string name="bot_msg_invalid_lab">I couldn\'t recognize that lab. Please try one of these: DCN, NWL, Lab 1, Lab 2, Lab 3, PGL1, PGL2, HYP, or MML.</string>
+    <string name="bot_msg_invalid_day">Please specify a valid weekday (Monday - Friday).</string>
+
+    <!-- AboutUsActivity -->
+    <string name="title_about_us">About Us</string>
+    <string name="about_purpose_title">Our Purpose</string>
+    <string name="about_purpose_desc">This application is a final year project designed to manage lab reservations efficiently. It allows students and staff to browse available labs, check real-time availability, and book slots for their academic needs.</string>
+    <string name="about_dev_title">Developed By</string>
+    <string name="about_dev_team">FYP Student Team</string>
+    <string name="about_contact_title">Contact Us</string>
+    <string name="about_contact_email">support.labsystem@university.edu</string>
+    <string name="copyright_text">© 2026 Lab Management System</string>
+    <string name="version_text">Version 1.0.0</string>
+
+    <!-- FAQActivity -->
+    <string name="title_faq">Frequently Asked Questions</string>
+    <string name="faq_q1">How do I book a lab?</string>
+    <string name="faq_a1">You can book a lab by selecting the desired lab card on the home dashboard, then choosing an available day and time slot.</string>
+    <string name="faq_q2">Can I cancel a booking?</string>
+    <string name="faq_a2">Yes, you can cancel your bookings through the \'My Booking\' section in the side menu by clicking \'Clear All Bookings\'.</string>
+    <string name="faq_q3">What are the lab operating hours?</string>
+    <string name="faq_a3">Labs are typically open from 8:00 AM to 6:00 PM on weekdays. Please refer to the specific lab\'s schedule for weekend availability.</string>
+    <string name="faq_q4">Are there any specific lab rules?</string>
+    <string name="faq_a4">Yes. No food or drinks are allowed inside. Users must leave the lab clean and ensure all equipment is turned off after use.</string>
+    <string name="faq_q5">What should I do if the equipment is faulty?</string>
+    <string name="faq_a5">Please report any faulty equipment immediately to the lab technician or through the \'Help &amp; Support\' section.</string>
+    <string name="faq_q6">How many bookings can I make per day?</string>
+    <string name="faq_a6">Students are allowed a maximum of 2 active bookings per day to ensure fair access for everyone.</string>
+    <string name="faq_q7">What if I need the lab for the whole day for an activity?</string>
+    <string name="faq_a7">Whole-day bookings for special activities or events require administrative approval. Please visit the Lab Management Office to submit a formal request at least 3 days in advance.</string>
+
+    <!-- SupportActivity -->
+    <string name="title_support">Help &amp; Support</string>
+    <string name="support_contact_us">Contact Us</string>
+    <string name="support_email_title">Email Support</string>
+    <string name="support_email_desc">Report technical issues</string>
+    <string name="support_call_title">Call Lab Office</string>
+    <string name="support_call_desc">For urgent facility issues</string>
+    <string name="support_office_info">Office Information</string>
+    <string name="support_location_label">Location</string>
+    <string name="support_location_value">Block A, Level 2, Room 205</string>
+    <string name="support_hours_label">Operating Hours</string>
+    <string name="support_hours_value">Mon-Fri, 8:00 AM - 5:00 PM</string>
+    <string name="support_email_subject">Lab App - Support Request</string>
+    <string name="support_chooser_title">Send Email</string>
+
+    <!-- Lecturer Activities -->
+    <string name="title_lecturer_profile">Lecturer Profile</string>
+    <string name="title_lecturers_directory">Lecturers Directory</string>
+    <string name="status_in_office">Status: Available in Office</string>
+    <string name="status_not_in_office">Status: Not Available in Office</string>
+    <string name="label_name">Name:</string>
+    <string name="label_office">Office:</string>
+    <string name="label_lab_coordinator">Lab Coordinator:</string>
+    <string name="label_phone">No. Phone:</string>
+    <string name="label_ai_meeting">AI Recommended Meeting:</string>
+    <string name="btn_whatsapp">Contact via WhatsApp</string>
+    <string name="btn_ask_ai">Ask AI Assistant</string>
+    <string name="label_select_office">Select Office</string>
+    <string name="all_offices">All Offices</string>
+    <string name="office_1">Office 1</string>
+    <string name="office_2">Office 2</string>
+    <string name="id_username">ID / Username</string>
+
+</resources>
