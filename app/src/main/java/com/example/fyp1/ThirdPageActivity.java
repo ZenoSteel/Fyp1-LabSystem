@@ -1,6 +1,7 @@
 package com.example.fyp1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +41,7 @@ public class ThirdPageActivity extends AppCompatActivity {
         ImageButton btnBack = findViewById(R.id.btnBack);
         Button btnReturnMenu = findViewById(R.id.btnReturnMenu);
         btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
+        Button btnReportIssue = findViewById(R.id.btnReportIssue);
 
         String labName = getIntent().getStringExtra("LAB_NAME");
         if (labName != null && !labName.isEmpty()) {
@@ -47,10 +49,20 @@ public class ThirdPageActivity extends AppCompatActivity {
         }
         tvLabName.setText(currentLabName);
 
+        String userRole = getIntent().getStringExtra("USER_ROLE");
+        if (getString(R.string.role_student).equals(userRole)) {
+            btnConfirmBooking.setVisibility(View.GONE);
+        }
+
         // Populate time options customized for each lab
         setupSpinners(currentLabName);
 
         btnConfirmBooking.setOnClickListener(v -> saveBooking());
+        btnReportIssue.setOnClickListener(v -> {
+            Intent intent = new Intent(ThirdPageActivity.this, ReportIssueActivity.class);
+            intent.putExtra("LAB_NAME", currentLabName);
+            startActivity(intent);
+        });
         btnBack.setOnClickListener(v -> finish());
         btnReturnMenu.setOnClickListener(v -> finish());
     }

@@ -91,8 +91,13 @@ public class ChatbotActivity extends AppCompatActivity {
 
         chipBookRoom.setOnClickListener(v -> {
             addUserBubble(getString(R.string.chip_book_room));
-            currentState = STATE_ASK_LAB;
-            addBotBubble(getString(R.string.bot_msg_ask_lab));
+            String userRole = getIntent().getStringExtra("USER_ROLE");
+            if (getString(R.string.role_student).equals(userRole)) {
+                addBotBubble("Students can only view availability. To book a lab, please use the dashboard cards or contact faculty staff.");
+            } else {
+                currentState = STATE_ASK_LAB;
+                addBotBubble(getString(R.string.bot_msg_ask_lab));
+            }
         });
 
         chipCheckSchedule.setOnClickListener(v -> {
@@ -150,8 +155,13 @@ public class ChatbotActivity extends AppCompatActivity {
         }
 
         if (lower.contains("book") || lower.contains("reserve")) {
-            currentState = STATE_ASK_LAB;
-            addBotBubble(getString(R.string.bot_msg_ask_lab));
+            String userRole = getIntent().getStringExtra("USER_ROLE");
+            if (getString(R.string.role_student).equals(userRole)) {
+                addBotBubble("I'm sorry, but students can only check lab availability. Please contact a lecturer to make a formal booking.");
+            } else {
+                currentState = STATE_ASK_LAB;
+                addBotBubble(getString(R.string.bot_msg_ask_lab));
+            }
             return;
         }
 

@@ -713,6 +713,19 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/menuRetakeAssistant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:paddingVertical="14dp"
+            android:text="@string/menu_retake_assistant"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/menuAboutUs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

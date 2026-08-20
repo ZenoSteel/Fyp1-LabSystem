@@ -177,6 +177,19 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
+        <!-- New Report Issue Button -->
+        <Button
+            android:id="@+id/btnReportIssue"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/status_not_available"
+            android:text="@string/btn_report_room"
+            android:textAllCaps="false"
+            android:textColor="@color/text_light"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
         <!-- Secondary Return Button -->
         <Button
             android:id="@+id/btnReturnMenu"

@@ -87,6 +87,23 @@
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/label_select_role"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinnerRole"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_input_modern"
+                android:paddingStart="8dp" />
+
             <Button
                 android:id="@+id/btnSignup"
                 android:layout_width="match_parent"

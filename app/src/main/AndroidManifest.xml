@@ -50,11 +50,31 @@
             android:exported="false" />
 
         <activity
+            android:name=".LoadingActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".LecturerListActivity"
             android:exported="false" />
 
         <activity
             android:name=".LecturerDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RetakeAssistantActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ReportIssueActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdminActivity"
             android:exported="false" />
 
     </application>

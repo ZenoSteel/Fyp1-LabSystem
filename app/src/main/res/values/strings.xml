@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Fyp1</string>
+    <string name="app_name">Lab System Pro</string>
 
     <!-- Common -->
     <string name="back">Back</string>
@@ -30,6 +30,19 @@
     <string name="login_prompt">Already have an account? Log In</string>
     <string name="error_password_mismatch">Passwords do not match!</string>
     <string name="msg_signup_success">Account created! You can now log in.</string>
+    <string name="label_select_role">Select Role</string>
+    <string name="role_student">Student</string>
+    <string name="role_lecturer">Lecturer</string>
+    <string name="role_admin">Faculty Admin</string>
+    <string name="error_role_required">Please select a role</string>
+
+    <!-- AdminActivity -->
+    <string name="title_admin_dashboard">Admin Command Center</string>
+    <string name="header_ai_insights">AI System Insights</string>
+    <string name="label_active_alerts">Active AI Alerts: %1$d</string>
+    <string name="label_maintenance_needed">Labs Needing Maintenance: %1$d</string>
+    <string name="btn_broadcast_alert">Broadcast Faculty Alert</string>
+    <string name="header_reported_issues">AI Prioritized Issue Feed</string>
 
     <!-- SecondPageActivity -->
     <string name="user_greeting_placeholder">HI, %1$s! ></string>
@@ -40,6 +53,7 @@
     <string name="status_available">Available</string>
     <string name="status_not_available">Not Available</string>
     <string name="menu_my_booking">📅   My Booking</string>
+    <string name="menu_my_schedule">📅   My Schedule</string>
     <string name="menu_lecturers">👨‍🏫   Lecturers Directory</string>
     <string name="menu_chatbot">🤖   AI Booking Assistant</string>
     <string name="menu_about_us">👥   About Us</string>
@@ -48,15 +62,28 @@
     <string name="menu_logout">🚪   Log Out</string>
     <string name="toast_lab_photo_clicked">Lab photo clicked</string>
     <string name="dialog_my_bookings_title">📅  My Active Bookings</string>
+    <string name="dialog_my_schedule_title">📅  My Schedule</string>
     <string name="msg_confirmed_reservations">You currently have %1$d confirmed reservation(s):\n\n</string>
     <string name="facility_label">Facility: </string>
     <string name="day_label">    Day: </string>
     <string name="session_label">    Session: </string>
     <string name="btn_clear_all">Clear All Bookings</string>
     <string name="msg_no_bookings">You currently have no active lab bookings.\n\nClick on any lab card on the dashboard to reserve a time slot!</string>
+    <string name="msg_no_schedule">Your current schedule is empty.\n\nYou can check live lab availability by tapping on the lab cards on the dashboard.</string>
     <string name="error_loading_bookings">Error loading bookings.</string>
     <string name="msg_reservations_cancelled">All reservations cancelled successfully.</string>
     <string name="item_selected">%1$s selected</string>
+
+    <!-- ProfileActivity -->
+    <string name="title_profile">My Profile</string>
+    <string name="label_user_id">User ID</string>
+    <string name="label_email">Email Address</string>
+    <string name="label_joined">Joined Date</string>
+    <string name="placeholder_id">JTMK-2026-001</string>
+    <string name="placeholder_email">%1$s@poliku.edu.my</string>
+    <string name="placeholder_joined">August 2026</string>
+    <string name="btn_edit_profile">Edit Profile</string>
+    <string name="btn_change_password">Change Password</string>
 
     <!-- ThirdPageActivity -->
     <string name="nav_title_booking">Facility Booking</string>
@@ -169,4 +196,25 @@
     <string name="office_2">Office 2</string>
     <string name="id_username">ID / Username</string>
 
+    <string name="msg_loading_ai">Initializing AI Engine...</string>
+    <string name="msg_loading_sync">Syncing Lab Schedules...</string>
+    <!-- RetakeAssistantActivity -->
+    <string name="title_retake_assistant">AI Retake Assistant</string>
+    <string name="header_retake_subject">Which subject are you retaking?</string>
+    <string name="btn_analyze_schedule">Analyze for Gaps</string>
+    <string name="header_suggestions">AI Suggestions (Clash-Free)</string>
+    <string name="msg_no_gaps">No clash-free slots found. Please consult faculty.</string>
+    <string name="msg_select_subject">Please select a subject first.</string>
+    <string name="suggestion_item">Recommended: %1$s in %2$s</string>
+    <string name="menu_retake_assistant">🎓   Retake Assistant</string>
+
+    <!-- ReportIssueActivity -->
+    <string name="title_report_issue">Report Lab Issue</string>
+    <string name="header_report_desc">Describe the issue you encountered:</string>
+    <string name="hint_issue_comment">e.g. PC #5 monitor is flickering or Aircon is leaking...</string>
+    <string name="btn_submit_report">Submit AI Analysis</string>
+    <string name="msg_report_success">Report submitted! AI has prioritized this as %1$s.</string>
+    <string name="label_priority">Priority: </string>
+    <string name="label_category">Category: </string>
+    <string name="btn_report_room">Report Issue</string>
 </resources>

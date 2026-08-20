@@ -9,7 +9,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.fyp1"
+        applicationId = "com.example.fyp1.v2"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -37,7 +37,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
-    implementation(libs.constraintlayout)
+    implementation(libs.constraintlayout)6
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

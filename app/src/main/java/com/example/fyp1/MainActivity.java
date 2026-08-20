@@ -54,10 +54,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedPassword != null && savedPassword.equals(password)) {
             // Login Success
+            String role = prefs.getString(username + "_role", getString(R.string.role_student)); // Default to student
+            
             Toast.makeText(MainActivity.this, getString(R.string.msg_logging_in, username), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
+            
+            // Go to Loading/Splash Screen instead of directly to Dashboard
+            Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
             intent.putExtra("USER_NAME", username);
+            intent.putExtra("USER_ROLE", role);
             startActivity(intent);
+            finish(); // Optional: finish login activity so user can't go back to it
         } else {
             // Login Fail
             Toast.makeText(MainActivity.this, getString(R.string.error_invalid_credentials), Toast.LENGTH_SHORT).show();

@@ -32,6 +32,7 @@ public class SecondPageActivity extends AppCompatActivity {
     private ImageButton btnMenu;
     private ImageView ivLabPhoto;
     private TextView tvUserGreeting;
+    private String userRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +45,38 @@ public class SecondPageActivity extends AppCompatActivity {
         tvUserGreeting = findViewById(R.id.tvUserGreeting);
 
         String username = getIntent().getStringExtra("USER_NAME");
+        userRole = getIntent().getStringExtra("USER_ROLE");
+
         if (username != null && !username.isEmpty()) {
-            tvUserGreeting.setText(getString(R.string.user_greeting_placeholder, username.toUpperCase()));
+            String roleDisplay = userRole != null ? " (" + userRole + ")" : "";
+            tvUserGreeting.setText(getString(R.string.user_greeting_placeholder, username.toUpperCase() + roleDisplay));
+        }
+
+        // Open Profile when clicking the greeting
+        tvUserGreeting.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            Intent intent = new Intent(SecondPageActivity.this, ProfileActivity.class);
+            intent.putExtra("USER_NAME", username);
+            intent.putExtra("USER_ROLE", userRole);
+            startActivity(intent);
+        });
+
+        // Change menu text for students
+        if (getString(R.string.role_student).equals(userRole)) {
+            TextView menuMyBooking = findViewById(R.id.menuMyBooking);
+            if (menuMyBooking != null) {
+                menuMyBooking.setText(R.string.menu_my_schedule);
+            }
+            
+            // Show Retake Assistant for students
+            TextView menuRetake = findViewById(R.id.menuRetakeAssistant);
+            if (menuRetake != null) {
+                menuRetake.setVisibility(android.view.View.VISIBLE);
+                menuRetake.setOnClickListener(v -> {
+                    drawerLayout.closeDrawer(androidx.core.view.GravityCompat.START);
+                    startActivity(new Intent(SecondPageActivity.this, RetakeAssistantActivity.class));
+                });
+            }
         }
 
         btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
@@ -78,7 +109,9 @@ public class SecondPageActivity extends AppCompatActivity {
 
         findViewById(R.id.menuAIChatbot).setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(SecondPageActivity.this, ChatbotActivity.class));
+            Intent intent = new Intent(SecondPageActivity.this, ChatbotActivity.class);
+            intent.putExtra("USER_ROLE", userRole);
+            startActivity(intent);
         });
 
         findViewById(R.id.menuAboutUs).setOnClickListener(v -> {
@@ -157,7 +190,13 @@ public class SecondPageActivity extends AppCompatActivity {
         String existingBookingsJson = prefs.getString("BOOKING_LIST", "[]");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.dialog_my_bookings_title));
+        
+        // Dynamic title based on role
+        if (getString(R.string.role_student).equals(userRole)) {
+            builder.setTitle(getString(R.string.dialog_my_schedule_title));
+        } else {
+            builder.setTitle(getString(R.string.dialog_my_bookings_title));
+        }
 
         try {
             JSONArray bookingArray = new JSONArray(existingBookingsJson);
@@ -182,7 +221,11 @@ public class SecondPageActivity extends AppCompatActivity {
                 builder.setNegativeButton(getString(R.string.btn_clear_all), (dialog, which) -> cancelAllBookings());
 
             } else {
-                builder.setMessage(getString(R.string.msg_no_bookings));
+                if (getString(R.string.role_student).equals(userRole)) {
+                    builder.setMessage(getString(R.string.msg_no_schedule));
+                } else {
+                    builder.setMessage(getString(R.string.msg_no_bookings));
+                }
                 builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
             }
 
@@ -208,6 +251,7 @@ public class SecondPageActivity extends AppCompatActivity {
             card.setOnClickListener(v -> {
                 Intent intent = new Intent(SecondPageActivity.this, ThirdPageActivity.class);
                 intent.putExtra("LAB_NAME", labName);
+                intent.putExtra("USER_ROLE", userRole);
                 startActivity(intent);
             });
         }
