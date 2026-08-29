@@ -225,7 +225,7 @@
     <string name="header_retake_subject">Which subject are you retaking?</string>
     <string name="btn_analyze_schedule">Analyze for Gaps</string>
     <string name="header_suggestions">AI Suggestions (Clash-Free)</string>
-    <string name="msg_no_gaps">No clash-free slots found. Please consult faculty.</string>
+    <string name="msg_no_gaps">No clash-free slots found. Please consult faculty.\n\nTip: Consider looking for evening sessions or weekend workshops if available.</string>
     <string name="msg_select_subject">Please select a subject first.</string>
     <string name="suggestion_item">Recommended: %1$s in %2$s</string>
     <string name="menu_retake_assistant">🎓   Retake Assistant</string>

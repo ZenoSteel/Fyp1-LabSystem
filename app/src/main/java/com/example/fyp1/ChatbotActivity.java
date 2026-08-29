@@ -131,18 +131,22 @@ public class ChatbotActivity extends AppCompatActivity {
     private void respondToUser(String query) {
         String lower = query.toLowerCase().trim();
 
+        // 1. GLOBAL COMMANDS (Always work)
+        boolean isClear = Pattern.compile("\\b(clear|delete|wipe|cancel)\\b").matcher(lower).find();
+        if (isClear) {
+            clearAllBookings();
+            clearChatHistory();
+            currentState = STATE_IDLE; // Reset state just in case
+            return;
+        }
+
+        // 2. STATE MACHINE (If we are in a middle of a flow)
         if (currentState != STATE_IDLE) {
             handleBookingFlow(lower);
             return;
         }
 
-        boolean isClear = Pattern.compile("\\b(clear|delete|wipe|cancel)\\b").matcher(lower).find();
-        if (isClear) {
-            clearAllBookings();
-            clearChatHistory();
-            return;
-        }
-
+        // 3. REGULAR INTENTS
         if (handleAdvancedQuery(lower)) {
             return;
         }
@@ -279,14 +283,11 @@ public class ChatbotActivity extends AppCompatActivity {
     }
 
     private String detectLab(String input) {
-        String[] labs = {"dcn", "nwl", "lab 1", "pgl2", "lab 2", "pgl1", "hyp", "lab 3", "mml"};
-        for (String lab : labs) {
-            if (input.contains(lab)) {
-                lastMentionedLab = lab.toUpperCase();
-                return lastMentionedLab;
-            }
+        String lab = BotBrain.detectLabSmart(input);
+        if (lab != null) {
+            lastMentionedLab = lab;
         }
-        return null;
+        return lab;
     }
 
     private String detectDay(String input) {
@@ -328,14 +329,20 @@ public class ChatbotActivity extends AppCompatActivity {
     }
 
     private boolean handleLabInfoQuery(String query) {
-        if (query.contains("dcn")) addBotBubble(getString(R.string.bot_msg_lab_dcn));
-        else if (query.contains("nwl")) addBotBubble(getString(R.string.bot_msg_lab_nwl));
-        else if (query.contains("pgl")) addBotBubble(getString(R.string.bot_msg_lab_pgl));
-        else if (query.contains("hyp")) addBotBubble(getString(R.string.bot_msg_lab_hyp));
-        else if (query.contains("lab 1") || query.contains("lab 2") || query.contains("lab 3")) addBotBubble(getString(R.string.bot_msg_lab_general));
-        else if (query.contains("mml")) addBotBubble(getString(R.string.bot_msg_lab_mml));
-        else return false;
-        return true;
+        String lab = BotBrain.detectLabSmart(query);
+        if (lab == null) return false;
+
+        if (BotBrain.isInformationalQuery(query)) {
+            switch (lab) {
+                case "DCN": addBotBubble(getString(R.string.bot_msg_lab_dcn)); break;
+                case "NWL": addBotBubble(getString(R.string.bot_msg_lab_nwl)); break;
+                case "MML": addBotBubble(getString(R.string.bot_msg_lab_mml)); break;
+                case "HYP": addBotBubble(getString(R.string.bot_msg_lab_hyp)); break;
+                default: addBotBubble(getString(R.string.bot_msg_lab_general)); break;
+            }
+            return true;
+        }
+        return false;
     }
 
     private void checkUserBookings() {

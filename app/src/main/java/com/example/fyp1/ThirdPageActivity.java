@@ -208,7 +208,8 @@ public class ThirdPageActivity extends AppCompatActivity {
 
             if (activeSession != null) {
                 cardOccupied.setVisibility(View.VISIBLE);
-                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, "Encik Nizam"));
+                String bookedBy = activeSession.optString("bookedBy", "Faculty Staff");
+                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, bookedBy));
                 tvOccupiedSubject.setText(getString(R.string.label_subject, currentLabName + " Session"));
                 
                 String timeStr = activeSession.optString("time", "Unknown");
@@ -344,14 +345,36 @@ public class ThirdPageActivity extends AppCompatActivity {
         String end = spinnerEndTime.getSelectedItem().toString();
         String finalTime = BookingUtils.formatProfessionalTime(start + " - " + end);
 
+        // Get actual user name for the booking record
+        String username = getIntent().getStringExtra("USER_NAME");
+        if (username == null || username.isEmpty()) username = "Authorized User";
+
         SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
         try {
             JSONArray array = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            
+            // FINAL SECURITY CHECK: Verify no clash exists before saving
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject existing = array.getJSONObject(i);
+                int bOffset = existing.optInt("week_offset", 0);
+                
+                if (existing.getString("lab").equals(currentLabName) && 
+                    existing.getString("day").equals(selectedDay) && 
+                    bOffset == currentWeekOffset) {
+                    
+                    if (BookingUtils.isOverlap(finalTime, existing.getString("time"))) {
+                        Toast.makeText(this, getString(R.string.error_clash_detected), Toast.LENGTH_LONG).show();
+                        return; // ABORT BOOKING
+                    }
+                }
+            }
+
             JSONObject b = new JSONObject();
             b.put("lab", currentLabName);
             b.put("day", selectedDay);
             b.put("time", finalTime);
             b.put("week_offset", currentWeekOffset);
+            b.put("bookedBy", username); // Save the real name!
             array.put(b);
             
             prefs.edit().putString("BOOKING_LIST", array.toString()).apply();

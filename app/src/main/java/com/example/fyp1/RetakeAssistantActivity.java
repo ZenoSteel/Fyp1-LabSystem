@@ -48,18 +48,8 @@ public class RetakeAssistantActivity extends AppCompatActivity {
     }
 
     private void setupMockData() {
-        masterTimetable = new ArrayList<>();
-        // Mock data for all Sem 1-4 subjects
-        masterTimetable.add(new ClassSession("Programming 1", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
-        masterTimetable.add(new ClassSession("Programming 1", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
-        masterTimetable.add(new ClassSession("Database Systems", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
-        masterTimetable.add(new ClassSession("Networking", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
-        masterTimetable.add(new ClassSession("Operating Systems", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
-
-        // Mock data for Student's current Sem 5 schedule (Constraining factors)
-        studentCurrentSchedule = new ArrayList<>();
-        studentCurrentSchedule.add(new ClassSession("Project 1", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
-        studentCurrentSchedule.add(new ClassSession("Security", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
+        masterTimetable = ScheduleManager.getMasterTimetable();
+        studentCurrentSchedule = ScheduleManager.getStudentSchedule(this);
     }
 
     private void setupSpinner() {
@@ -107,8 +97,9 @@ public class RetakeAssistantActivity extends AppCompatActivity {
         
         if (slots.isEmpty()) {
             TextView tv = new TextView(this);
-            tv.setText(R.string.msg_no_gaps);
+            tv.setText(getString(R.string.msg_no_gaps));
             tv.setTextColor(Color.RED);
+            tv.setPadding(32, 32, 32, 32);
             layoutSuggestions.addView(tv);
             return;
         }
@@ -117,19 +108,32 @@ public class RetakeAssistantActivity extends AppCompatActivity {
             CardView card = new CardView(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(0, 0, 0, 16);
+            params.setMargins(0, 0, 0, 24);
             card.setLayoutParams(params);
-            card.setRadius(12f);
-            card.setCardElevation(4f);
+            card.setRadius(16f);
+            card.setCardElevation(6f);
+            card.setCardBackgroundColor(Color.WHITE);
 
-            TextView tv = new TextView(this);
-            String text = getString(R.string.suggestion_item, slot.toString(), slot.getLabLocation());
-            tv.setText(text);
-            tv.setPadding(32, 32, 32, 32);
-            tv.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_navy));
-            tv.setTextSize(14);
+            LinearLayout innerLayout = new LinearLayout(this);
+            innerLayout.setOrientation(LinearLayout.VERTICAL);
+            innerLayout.setPadding(40, 40, 40, 40);
 
-            card.addView(tv);
+            TextView tvTitle = new TextView(this);
+            tvTitle.setText(slot.getSubjectName());
+            tvTitle.setTextSize(18);
+            tvTitle.setTransformationMethod(null);
+            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_navy));
+            tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+
+            TextView tvDetails = new TextView(this);
+            tvDetails.setText(slot.getDay() + " | " + slot.getTimeSlot() + "\nLocation: " + slot.getLabLocation());
+            tvDetails.setTextSize(14);
+            tvDetails.setPadding(0, 8, 0, 8);
+
+            innerLayout.addView(tvTitle);
+            innerLayout.addView(tvDetails);
+            
+            card.addView(innerLayout);
             layoutSuggestions.addView(card);
         }
     }
