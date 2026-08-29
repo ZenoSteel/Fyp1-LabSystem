@@ -43,11 +43,18 @@
     <string name="label_maintenance_needed">Labs Needing Maintenance: %1$d</string>
     <string name="btn_broadcast_alert">Broadcast Faculty Alert</string>
     <string name="header_reported_issues">AI Prioritized Issue Feed</string>
+    <string name="panel_system_control">System Control Panel</string>
+    <string name="label_high_alerts">High Alerts</string>
+    <string name="label_in_maint">In Maint.</string>
+    <string name="label_todays_use">Today\'s Use</string>
+    <string name="label_ai_status">AI Status</string>
+    <string name="status_stable">Stable</string>
 
     <!-- SecondPageActivity -->
     <string name="user_greeting_placeholder">HI, %1$s! ></string>
     <string name="nav_title_lab_directory">Lab Location Directory</string>
     <string name="floor_ground">Ground Floor</string>
+    <string name="floor_first">First Floor</string>
     <string name="floor_second">Second Floor</string>
     <string name="floor_third">Third Floor</string>
     <string name="status_available">Available</string>
@@ -95,6 +102,21 @@
     <string name="msg_booking_added">Booking Added!\n%1$s on %2$s\n%3$s</string>
     <string name="error_saving_booking">Error saving booking.</string>
     <string name="error_clash_detected">Clash Detected! This lab is already booked for the selected time.</string>
+    <string name="title_lab_schedule">%1$s Schedule</string>
+    <string name="chip_day_format">%1$s %2$d</string>
+    <string name="btn_this_week">This Week</string>
+    <string name="btn_next_week">Next Week</string>
+    <string name="header_currently_occupied">🔴 CURRENTLY OCCUPIED</string>
+    <string name="label_lecturer">Lecturer: %1$s</string>
+    <string name="label_subject">Subject: %1$s</string>
+    <string name="label_time_range">Time: %1$s - %2$s</string>
+    <string name="header_ai_recommendation">💡 AI RECOMMENDATION</string>
+    <string name="msg_next_free_window">Next free window is %1$s - %2$s.</string>
+    <string name="btn_auto_fill_template">Tap to Auto-Fill %1$s - %2$s</string>
+    <string name="label_start_time">Start Time:</string>
+    <string name="label_end_time">End Time:</string>
+    <string name="label_total_duration">Total Duration: %1$d Hours</string>
+    <string name="error_overlap_conflict">Overlap Conflict: %1$s is using %2$s until %3$s. Start time adjusted to %3$s.</string>
 
     <!-- ChatbotActivity -->
     <string name="chatbot_title">AI Booking Assistant</string>
@@ -217,4 +239,17 @@
     <string name="label_priority">Priority: </string>
     <string name="label_category">Category: </string>
     <string name="btn_report_room">Report Issue</string>
+
+    <!-- Lab Names -->
+    <string name="lab_dcn">DCN</string>
+    <string name="lab_nwl">NWL</string>
+    <string name="lab_lab1">Lab 1</string>
+    <string name="lab_sad">SAD Lab</string>
+    <string name="lab_network">Network Lab</string>
+    <string name="lab_pgl1">PGL 1</string>
+    <string name="lab_pgl2">PGL 2</string>
+    <string name="lab_lab2">Lab 2</string>
+    <string name="lab_lab3">Lab 3</string>
+    <string name="lab_hyp">HYP</string>
+    <string name="lab_mml">MML</string>
 </resources>

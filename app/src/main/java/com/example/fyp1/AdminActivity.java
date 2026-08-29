@@ -12,9 +12,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
+
 /**
  * Administrative Command Center Activity.
- * Displays AI-prioritized issues and faculty-wide controls.
+ * Displays AI-prioritized issues and faculty-wide controls for all 11 labs.
  */
 public class AdminActivity extends AppCompatActivity {
 
@@ -25,8 +27,18 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
+        initializeUI();
+        loadAIInsights();
+    }
+
+    private void initializeUI() {
         layoutIssueFeed = findViewById(R.id.layoutAdminIssues);
         ImageButton btnLogout = findViewById(R.id.btnLogoutAdmin);
+
+        // Update Dynamic Metrics
+        ((TextView)findViewById(R.id.tvActiveAlertsCount)).setText("3");
+        ((TextView)findViewById(R.id.tvMaintenanceCount)).setText("1");
+        ((TextView)findViewById(R.id.tvUsageCount)).setText("12");
 
         btnLogout.setOnClickListener(v -> {
             Intent intent = new Intent(AdminActivity.this, MainActivity.class);
@@ -35,15 +47,36 @@ public class AdminActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btnBroadcast).setOnClickListener(v -> 
-            Toast.makeText(this, "Broadcasting notification to all users...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Broadcasting faculty-wide alert...", Toast.LENGTH_SHORT).show()
         );
 
-        loadAIInsights();
+        // Setup All 11 Lab Switches
+        setupLabSwitch(R.id.switchDCN, "DCN");
+        setupLabSwitch(R.id.switchNWL, "NWL");
+        setupLabSwitch(R.id.switchLab1, "Lab 1");
+        setupLabSwitch(R.id.switchSAD, "SAD Lab");
+        setupLabSwitch(R.id.switchNetwork, "Network Lab");
+        setupLabSwitch(R.id.switchPGL1, "PGL 1");
+        setupLabSwitch(R.id.switchPGL2, "PGL 2");
+        setupLabSwitch(R.id.switchLab2, "Lab 2");
+        setupLabSwitch(R.id.switchHYP, "HYP");
+        setupLabSwitch(R.id.switchLab3, "Lab 3");
+        setupLabSwitch(R.id.switchMML, "MML");
+    }
+
+    private void setupLabSwitch(int id, String labName) {
+        SwitchMaterial sw = findViewById(id);
+        if (sw != null) {
+            sw.setOnCheckedChangeListener((btn, isChecked) -> {
+                String status = isChecked ? "AVAILABLE" : "UNDER MAINTENANCE";
+                Toast.makeText(this, labName + " status updated to: " + status, Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void loadAIInsights() {
-        // Mocking AI-Classified Data for the Demo
         addIssueCard("DCN", "HIGH", "Facility", "Ceiling leak reported near server rack.");
+        addIssueCard("SAD Lab", "HIGH", "Hardware", "Smart Board touch sensor malfunctioning.");
         addIssueCard("Lab 3", "MEDIUM", "Hardware", "PC #15 mouse is unresponsive.");
         addIssueCard("NWL", "LOW", "Software", "Need Visual Studio updated to 2024.");
     }
@@ -54,12 +87,12 @@ public class AdminActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 0, 0, 16);
         card.setLayoutParams(params);
-        card.setRadius(12f);
+        card.setRadius(16f);
         card.setCardElevation(2f);
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(24, 24, 24, 24);
+        layout.setPadding(32, 32, 32, 32);
 
         TextView tvHeader = new TextView(this);
         tvHeader.setText("[" + priority + "] " + lab + " - " + category);
@@ -67,18 +100,18 @@ public class AdminActivity extends AppCompatActivity {
         tvHeader.setTypeface(null, android.graphics.Typeface.BOLD);
         
         if (priority.equals("HIGH")) {
-            tvHeader.setTextColor(Color.RED);
+            tvHeader.setTextColor(Color.parseColor("#EF4444"));
         } else if (priority.equals("MEDIUM")) {
-            tvHeader.setTextColor(Color.parseColor("#EAB308")); // Amber
+            tvHeader.setTextColor(Color.parseColor("#F59E0B"));
         } else {
-            tvHeader.setTextColor(Color.parseColor("#3B82F6")); // Blue
+            tvHeader.setTextColor(Color.parseColor("#3B82F6"));
         }
 
         TextView tvDesc = new TextView(this);
         tvDesc.setText(desc);
         tvDesc.setTextSize(14);
-        tvDesc.setTextColor(Color.DKGRAY);
-        tvDesc.setPadding(0, 8, 0, 0);
+        tvDesc.setTextColor(Color.parseColor("#475569"));
+        tvDesc.setPadding(0, 12, 0, 0);
 
         layout.addView(tvHeader);
         layout.addView(tvDesc);

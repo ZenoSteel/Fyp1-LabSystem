@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.fyp1"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.fyp1.v2"
@@ -37,7 +35,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
-    implementation(libs.constraintlayout)6
+    implementation(libs.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

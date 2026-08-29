@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -15,17 +16,22 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
 /**
- * Activity that provides an AI Booking Assistant interface for lab reservations.
- * Users can interact with the chatbot to check availability, view their bookings,
- * and clear their current schedule.
+ * Activity that provides a Persistent AI Booking Assistant interface.
+ * Uses Regex for precise intent detection and supports contextual memory.
+ * Restricted to weekdays only for booking and checks.
  */
 public class ChatbotActivity extends AppCompatActivity {
 
     private static final String TAG = "ChatbotActivity";
+    private static final String PREF_CHAT_HISTORY = "chat_history";
 
     // Booking States
     private static final int STATE_IDLE = 0;
@@ -33,53 +39,44 @@ public class ChatbotActivity extends AppCompatActivity {
     private static final int STATE_ASK_DAY = 2;
     private static final int STATE_ASK_TIME = 3;
     private static final int STATE_CONFIRM = 4;
+    private static final int STATE_PROPOSE_BOOKING = 5;
 
     private int currentState = STATE_IDLE;
     private String pendingLab, pendingDay, pendingTime;
+    private String lastMentionedLab = null;
 
-    /** Container for displaying chat message bubbles. */
     private LinearLayout chatContainer;
-    /** ScrollView that holds the chat container for vertical scrolling. */
     private ScrollView scrollViewChat;
-    /** Input field for the user to type messages. */
     private EditText etMessageInput;
-    /** Button to send the user's message. */
-    private ImageButton btnSend;
-    /** Button to return to the previous screen. */
-    private ImageButton btnBack;
-    /** Quick action chip for booking a room. */
-    private Button chipBookRoom;
-    /** Quick action chip for checking lab schedules. */
-    private Button chipCheckSchedule;
-    /** Quick action chip for viewing user's bookings. */
-    private Button chipMyBookings;
+    private ImageButton btnSend, btnBack;
+    private Button chipBookRoom, chipCheckSchedule, chipMyBookings;
 
-    /**
-     * Initializes the activity, sets up UI components, and handles click events.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle contains the data it most
-     *                           recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatbot);
 
+        initializeViews();
+        setupClickListeners();
+
+        if (!loadChatHistory()) {
+            addBotBubble(getString(R.string.bot_greeting));
+        }
+    }
+
+    private void initializeViews() {
         chatContainer = findViewById(R.id.chatContainer);
         scrollViewChat = findViewById(R.id.scrollViewChat);
         etMessageInput = findViewById(R.id.etMessageInput);
         btnSend = findViewById(R.id.btnSend);
         btnBack = findViewById(R.id.btnBack);
-
         chipBookRoom = findViewById(R.id.chipBookRoom);
         chipCheckSchedule = findViewById(R.id.chipCheckSchedule);
         chipMyBookings = findViewById(R.id.chipMyBookings);
+    }
 
+    private void setupClickListeners() {
         btnBack.setOnClickListener(v -> finish());
-
-        addBotBubble(getString(R.string.bot_greeting));
-
         btnSend.setOnClickListener(v -> {
             String msg = etMessageInput.getText().toString().trim();
             if (!msg.isEmpty()) {
@@ -88,349 +85,367 @@ public class ChatbotActivity extends AppCompatActivity {
                 respondToUser(msg);
             }
         });
-
         chipBookRoom.setOnClickListener(v -> {
             addUserBubble(getString(R.string.chip_book_room));
-            String userRole = getIntent().getStringExtra("USER_ROLE");
-            if (getString(R.string.role_student).equals(userRole)) {
-                addBotBubble("Students can only view availability. To book a lab, please use the dashboard cards or contact faculty staff.");
-            } else {
-                currentState = STATE_ASK_LAB;
-                addBotBubble(getString(R.string.bot_msg_ask_lab));
-            }
+            startBookingFlow("");
         });
-
         chipCheckSchedule.setOnClickListener(v -> {
             addUserBubble(getString(R.string.chip_check_schedule));
             addBotBubble(getString(R.string.bot_msg_check_schedule_prompt));
         });
-
         chipMyBookings.setOnClickListener(v -> {
             addUserBubble(getString(R.string.chip_my_bookings));
             checkUserBookings();
         });
     }
 
-    /**
-     * Processes the user's text query and triggers appropriate bot responses.
-     * Implements basic natural language processing using keyword matching.
-     *
-     * @param query The message string entered by the user.
-     */
+    private void startBookingFlow(String initialQuery) {
+        String userRole = getIntent().getStringExtra("USER_ROLE");
+        if (getString(R.string.role_student).equals(userRole)) {
+            addBotBubble("Students can only view availability. To book a lab, please use the dashboard cards or contact faculty staff.");
+        } else {
+            String lab = detectLab(initialQuery);
+            String day = detectDay(initialQuery);
+            
+            if (isWeekend(day)) {
+                addBotBubble("I'm sorry, but labs are closed on " + day + ". Please select a weekday (Monday to Friday) for your booking.");
+                return;
+            }
+
+            if (lab != null && day != null) {
+                pendingLab = lab;
+                pendingDay = day;
+                currentState = STATE_ASK_TIME;
+                addBotBubble("Excellent! I've noted " + lab + " for " + day + ". What time slot should I record? (e.g. 8 to 10)");
+            } else if (lab != null) {
+                pendingLab = lab;
+                currentState = STATE_ASK_DAY;
+                addBotBubble("Sure! I've noted " + lab + ". Which day would you like to book? (Monday - Friday)");
+            } else {
+                currentState = STATE_ASK_LAB;
+                addBotBubble(getString(R.string.bot_msg_ask_lab));
+            }
+        }
+    }
+
     private void respondToUser(String query) {
         String lower = query.toLowerCase().trim();
 
-        // Handle Booking Flow
         if (currentState != STATE_IDLE) {
             handleBookingFlow(lower);
             return;
         }
 
-        // 1. Basic Greetings & Identity
-        if (lower.matches(".*\\b(hi|hello|hey|greetings)\\b.*")) {
+        boolean isClear = Pattern.compile("\\b(clear|delete|wipe|cancel)\\b").matcher(lower).find();
+        if (isClear) {
+            clearAllBookings();
+            clearChatHistory();
+            return;
+        }
+
+        if (handleAdvancedQuery(lower)) {
+            return;
+        }
+
+        boolean isGreeting = Pattern.compile("\\b(hi|hello|hey|yo|morning)\\b").matcher(lower).find();
+        if (isGreeting) {
             addBotBubble(getString(R.string.bot_msg_welcome));
             return;
         }
 
-        if (lower.contains("who are you") || lower.contains("your name")) {
-            addBotBubble(getString(R.string.bot_msg_identity));
-            return;
+        boolean isBook = Pattern.compile("\\b(book|reserve|make)\\b").matcher(lower).find();
+        if (isBook && !lower.contains("booking")) {
+             startBookingFlow(lower);
+             return;
         }
 
-        if (lower.contains("thank") || lower.contains("thanks")) {
-            addBotBubble(getString(R.string.bot_msg_thanks));
-            return;
-        }
-
-        // 2. Help Command
-        if (lower.contains("help") || lower.equals("?")) {
-            addBotBubble(getString(R.string.bot_msg_help));
-            return;
-        }
-
-        // 3. Booking Management
-        if (lower.contains("my booking") || lower.contains("show booking") || lower.contains("check schedule")) {
+        if (lower.contains("my booking") || lower.contains("my schedule")) {
             checkUserBookings();
             return;
         }
 
-        if (lower.contains("book") || lower.contains("reserve")) {
-            String userRole = getIntent().getStringExtra("USER_ROLE");
-            if (getString(R.string.role_student).equals(userRole)) {
-                addBotBubble("I'm sorry, but students can only check lab availability. Please contact a lecturer to make a formal booking.");
-            } else {
-                currentState = STATE_ASK_LAB;
-                addBotBubble(getString(R.string.bot_msg_ask_lab));
-            }
-            return;
-        }
-
-        if (lower.contains("cancel") || lower.contains("clear") || lower.contains("delete")) {
-            clearAllBookings();
-            return;
-        }
-
-        // 4. Lab Location / Info Queries
         if (handleLabInfoQuery(lower)) {
             return;
         }
 
-        // 5. Special Activity / Whole Day Queries
-        if (lower.contains("whole day") || lower.contains("all day") || lower.contains("event") || lower.contains("activity")) {
-            addBotBubble(getString(R.string.bot_msg_special_event));
-            return;
+        if (lower.contains("help") || lower.equals("?")) {
+            addBotBubble(getString(R.string.bot_msg_help));
+        } else {
+            addBotBubble(getString(R.string.bot_msg_fallback));
         }
-
-        // 6. Availability Queries (Simulated check)
-        if (handleAvailabilityQuery(lower)) {
-            return;
-        }
-
-        // 6. Default Fallback
-        addBotBubble(getString(R.string.bot_msg_fallback));
     }
 
     private void handleBookingFlow(String input) {
         switch (currentState) {
-            case STATE_ASK_LAB:
-                String detectedLab = detectLab(input);
-                if (detectedLab != null) {
-                    pendingLab = detectedLab;
-                    currentState = STATE_ASK_DAY;
-                    addBotBubble(getString(R.string.bot_msg_ask_day));
-                } else {
-                    addBotBubble(getString(R.string.bot_msg_invalid_lab));
-                }
-                break;
-
-            case STATE_ASK_DAY:
-                String detectedDay = detectDay(input);
-                if (detectedDay != null) {
-                    pendingDay = detectedDay;
+            case STATE_PROPOSE_BOOKING:
+                if (input.contains("yes") || input.contains("ok") || input.contains("sure") || input.contains("want")) {
                     currentState = STATE_ASK_TIME;
                     addBotBubble(getString(R.string.bot_msg_ask_time));
                 } else {
-                    addBotBubble(getString(R.string.bot_msg_invalid_day));
+                    addBotBubble("Understood. Let me know if you need anything else!");
+                    currentState = STATE_IDLE;
                 }
                 break;
 
+            case STATE_ASK_LAB:
+                String lab = detectLab(input);
+                if (lab != null) {
+                    pendingLab = lab;
+                    currentState = STATE_ASK_DAY;
+                    addBotBubble(getString(R.string.bot_msg_ask_day));
+                } else addBotBubble(getString(R.string.bot_msg_invalid_lab));
+                break;
+
+            case STATE_ASK_DAY:
+                String day = detectDay(input);
+                if (day != null) {
+                    if (isWeekend(day)) {
+                        addBotBubble("The labs are not open on weekends. Please choose a weekday (Monday to Friday).");
+                        return;
+                    }
+                    pendingDay = day;
+                    currentState = STATE_ASK_TIME;
+                    addBotBubble(getString(R.string.bot_msg_ask_time));
+                } else addBotBubble(getString(R.string.bot_msg_invalid_day));
+                break;
+
             case STATE_ASK_TIME:
-                // Format the user's time input to be professional
-                pendingTime = BookingUtils.formatProfessionalTime(input); 
+                pendingTime = BookingUtils.formatProfessionalTime(input);
                 currentState = STATE_CONFIRM;
                 addBotBubble(getString(R.string.bot_msg_booking_confirm, pendingLab, pendingDay, pendingTime));
                 break;
 
             case STATE_CONFIRM:
                 if (input.contains("yes") || input.contains("confirm") || input.contains("ok")) {
-                    boolean success = saveBookingDirectly(pendingLab, pendingDay, pendingTime);
-                    if (success) {
+                    if (saveBookingDirectly(pendingLab, pendingDay, pendingTime)) {
                         addBotBubble(getString(R.string.bot_msg_booking_success, pendingLab));
                     }
-                    currentState = STATE_IDLE;
-                } else {
-                    addBotBubble(getString(R.string.bot_msg_booking_cancelled));
-                    currentState = STATE_IDLE;
-                }
+                } else addBotBubble(getString(R.string.bot_msg_booking_cancelled));
+                currentState = STATE_IDLE;
                 break;
+        }
+    }
+
+    private boolean handleAdvancedQuery(String query) {
+        boolean isAskingFree = Pattern.compile("\\b(free|available|vacant|schedule|busy)\\b").matcher(query).find();
+        if (!isAskingFree) return false;
+
+        String lab = detectLab(query);
+        if (lab == null) lab = lastMentionedLab;
+        
+        String day = detectDay(query);
+        if (day == null) day = detectDay("today");
+
+        if (lab != null) {
+            if (isWeekend(day)) {
+                addBotBubble("The labs are closed on " + day + ". Feel free to check any weekday instead!");
+                return true;
+            }
+            checkRealTimeAvailability(lab, day);
+            return true;
+        }
+        return false;
+    }
+
+    private void checkRealTimeAvailability(String lab, String day) {
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+        try {
+            JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            List<String> occupied = new ArrayList<>();
+            for (int i = 0; i < bookings.length(); i++) {
+                JSONObject b = bookings.getJSONObject(i);
+                if (b.getString("lab").equalsIgnoreCase(lab) && b.getString("day").equalsIgnoreCase(day)) {
+                    occupied.add(b.getString("time"));
+                }
+            }
+
+            if (occupied.isEmpty()) {
+                addBotBubble("Analyzing... 🤖\n" + lab + " is completely free on " + day + "! Would you like me to start a booking for you?");
+                pendingLab = lab;
+                pendingDay = day;
+                currentState = STATE_PROPOSE_BOOKING;
+            } else {
+                StringBuilder sb = new StringBuilder("On " + day + ", " + lab + " is busy during:\n");
+                for (String s : occupied) sb.append("• ").append(s).append("\n");
+                sb.append("\nYou can book any other time today.");
+                pendingLab = lab;
+                pendingDay = day;
+                currentState = STATE_PROPOSE_BOOKING;
+                addBotBubble(sb.toString());
+            }
+        } catch (Exception e) {
+            addBotBubble("I'm sorry, I had trouble reading the database. Try again?");
         }
     }
 
     private String detectLab(String input) {
         String[] labs = {"dcn", "nwl", "lab 1", "pgl2", "lab 2", "pgl1", "hyp", "lab 3", "mml"};
         for (String lab : labs) {
-            if (input.contains(lab)) return lab.toUpperCase();
+            if (input.contains(lab)) {
+                lastMentionedLab = lab.toUpperCase();
+                return lastMentionedLab;
+            }
         }
         return null;
     }
 
     private String detectDay(String input) {
-        String[] days = {"monday", "tuesday", "wednesday", "thursday", "friday"};
-        for (String day : days) {
-            if (input.contains(day)) return day.substring(0, 1).toUpperCase() + day.substring(1);
+        String day = null;
+        if (input.contains("today")) {
+            day = new java.text.SimpleDateFormat("EEEE", Locale.US).format(java.util.Calendar.getInstance().getTime());
+        } else if (input.contains("tomorrow")) {
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            c.add(java.util.Calendar.DATE, 1);
+            day = new java.text.SimpleDateFormat("EEEE", Locale.US).format(c.getTime());
+        } else {
+            String[] days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
+            for (String d : days) {
+                if (input.contains(d)) {
+                    day = d.substring(0, 1).toUpperCase() + d.substring(1);
+                    break;
+                }
+            }
         }
-        return null;
+        return day;
+    }
+
+    private boolean isWeekend(String day) {
+        return day != null && (day.equalsIgnoreCase("Saturday") || day.equalsIgnoreCase("Sunday"));
     }
 
     private boolean saveBookingDirectly(String lab, String day, String time) {
         SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
-        String existingBookingsJson = prefs.getString("BOOKING_LIST", "[]");
         try {
-            JSONArray bookingArray = new JSONArray(existingBookingsJson);
-
-            // Clash Detection
-            for (int i = 0; i < bookingArray.length(); i++) {
-                JSONObject existing = bookingArray.getJSONObject(i);
-                if (existing.getString("lab").equalsIgnoreCase(lab) &&
-                    existing.getString("day").equalsIgnoreCase(day)) {
-                    
-                    if (BookingUtils.isOverlap(existing.getString("time"), time)) {
-                        addBotBubble("Wait! I just checked and there's a clash. " + lab + " is already booked for " + day + " during that time.");
-                        return false;
-                    }
-                }
-            }
-
-            JSONObject newBooking = new JSONObject();
-            newBooking.put("lab", lab);
-            newBooking.put("day", day);
-            newBooking.put("time", time);
-            bookingArray.put(newBooking);
-
-            prefs.edit().putString("BOOKING_LIST", bookingArray.toString()).apply();
+            JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            JSONObject nb = new JSONObject();
+            nb.put("lab", lab);
+            nb.put("day", day);
+            nb.put("time", time);
+            bookings.put(nb);
+            prefs.edit().putString("BOOKING_LIST", bookings.toString()).apply();
             return true;
-        } catch (JSONException e) {
-            Log.e(TAG, "Error saving booking from bot", e);
-            return false;
-        }
+        } catch (Exception e) { return false; }
     }
 
-    /**
-     * Handles queries about lab locations and general information.
-     */
     private boolean handleLabInfoQuery(String query) {
-        if (query.contains("dcn")) {
-            addBotBubble(getString(R.string.bot_msg_lab_dcn));
-            return true;
-        } else if (query.contains("nwl")) {
-            addBotBubble(getString(R.string.bot_msg_lab_nwl));
-            return true;
-        } else if (query.contains("pgl1") || query.contains("pgl2")) {
-            addBotBubble(getString(R.string.bot_msg_lab_pgl));
-            return true;
-        } else if (query.contains("hyp")) {
-            addBotBubble(getString(R.string.bot_msg_lab_hyp));
-            return true;
-        } else if (query.contains("lab 1") || query.contains("lab 2") || query.contains("lab 3")) {
-            addBotBubble(getString(R.string.bot_msg_lab_general));
-            return true;
-        } else if (query.contains("mml")) {
-            addBotBubble(getString(R.string.bot_msg_lab_mml));
-            return true;
-        }
-        return false;
+        if (query.contains("dcn")) addBotBubble(getString(R.string.bot_msg_lab_dcn));
+        else if (query.contains("nwl")) addBotBubble(getString(R.string.bot_msg_lab_nwl));
+        else if (query.contains("pgl")) addBotBubble(getString(R.string.bot_msg_lab_pgl));
+        else if (query.contains("hyp")) addBotBubble(getString(R.string.bot_msg_lab_hyp));
+        else if (query.contains("lab 1") || query.contains("lab 2") || query.contains("lab 3")) addBotBubble(getString(R.string.bot_msg_lab_general));
+        else if (query.contains("mml")) addBotBubble(getString(R.string.bot_msg_lab_mml));
+        else return false;
+        return true;
     }
 
-    /**
-     * Handles queries about lab availability at specific times.
-     */
-    private boolean handleAvailabilityQuery(String query) {
-        String[] labs = {"dcn", "nwl", "lab 1", "pgl2", "lab 2", "pgl1", "hyp", "lab 3", "mml"};
-        String detectedLab = null;
-
-        for (String lab : labs) {
-            if (query.contains(lab)) {
-                detectedLab = lab.toUpperCase();
-                break;
-            }
-        }
-
-        if (detectedLab != null && (query.contains("free") || query.contains("available") || query.contains("vacant"))) {
-            // Simulated dynamic response
-            addBotBubble(getString(R.string.bot_msg_availability_sim, detectedLab));
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Retrieves the user's saved lab bookings from SharedPreferences and displays them in the chat.
-     */
     private void checkUserBookings() {
         SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
-        String existingBookingsJson = prefs.getString("BOOKING_LIST", "[]");
-
         try {
-            JSONArray bookingArray = new JSONArray(existingBookingsJson);
-
-            if (bookingArray.length() > 0) {
-                StringBuilder response = new StringBuilder(getString(R.string.bot_msg_bookings_count, bookingArray.length()));
-
-                for (int i = 0; i < bookingArray.length(); i++) {
-                    JSONObject booking = bookingArray.getJSONObject(i);
-                    String lab = booking.getString("lab");
-                    String day = booking.getString("day");
-                    String time = booking.getString("time");
-
-                    response.append(getString(R.string.bot_msg_booking_item, lab, day, time));
+            JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            if (bookings.length() > 0) {
+                StringBuilder sb = new StringBuilder(getString(R.string.bot_msg_bookings_count, bookings.length()));
+                for (int i = 0; i < bookings.length(); i++) {
+                    JSONObject b = bookings.getJSONObject(i);
+                    sb.append(getString(R.string.bot_msg_booking_item, b.getString("lab"), b.getString("day"), b.getString("time")));
                 }
-
-                response.append(getString(R.string.bot_msg_clear_hint));
-                addBotBubble(response.toString());
-
-            } else {
-                addBotBubble(getString(R.string.bot_msg_no_bookings));
-            }
-
-        } catch (JSONException e) {
-            Log.e(TAG, "Error reading bookings", e);
-            addBotBubble(getString(R.string.bot_msg_error_schedule));
-        }
+                sb.append(getString(R.string.bot_msg_clear_hint));
+                addBotBubble(sb.toString());
+            } else addBotBubble(getString(R.string.bot_msg_no_bookings));
+        } catch (Exception e) { addBotBubble(getString(R.string.bot_msg_error_schedule)); }
     }
 
-    /**
-     * Clears all active lab reservations from SharedPreferences.
-     */
     private void clearAllBookings() {
-        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
-        prefs.edit().clear().apply();
+        getSharedPreferences("LabBookings", Context.MODE_PRIVATE).edit().clear().apply();
         addBotBubble(getString(R.string.bot_msg_clear_success));
     }
 
-    /**
-     * Adds a bot message bubble to the chat container.
-     *
-     * @param text The message text to be displayed.
-     */
+    private void saveChatMessage(String sender, String text) {
+        SharedPreferences prefs = getSharedPreferences("ChatHistory", Context.MODE_PRIVATE);
+        try {
+            JSONArray history = new JSONArray(prefs.getString(PREF_CHAT_HISTORY, "[]"));
+            JSONObject m = new JSONObject();
+            m.put("sender", sender);
+            m.put("text", text);
+            history.put(m);
+            prefs.edit().putString(PREF_CHAT_HISTORY, history.toString()).apply();
+        } catch (Exception ignored) {}
+    }
+
+    private boolean loadChatHistory() {
+        SharedPreferences prefs = getSharedPreferences("ChatHistory", Context.MODE_PRIVATE);
+        try {
+            JSONArray history = new JSONArray(prefs.getString(PREF_CHAT_HISTORY, "[]"));
+            if (history.length() == 0) return false;
+            for (int i = 0; i < history.length(); i++) {
+                JSONObject m = history.getJSONObject(i);
+                if (m.getString("sender").equals("bot")) renderBotBubble(m.getString("text"));
+                else renderUserBubble(m.getString("text"));
+            }
+            return true;
+        } catch (Exception e) { return false; }
+    }
+
+    private void clearChatHistory() {
+        getSharedPreferences("ChatHistory", Context.MODE_PRIVATE).edit().clear().apply();
+    }
+
     private void addBotBubble(String text) {
-        TextView bubble = new TextView(this);
-        bubble.setText(getString(R.string.label_assistant) + text);
-        bubble.setBackgroundColor(0xFFE2E8F0);
-        bubble.setTextColor(0xFF0F172A);
-        bubble.setPadding(36, 24, 36, 24);
-        bubble.setTextSize(14f);
+        renderBotBubble(text);
+        saveChatMessage("bot", text);
+    }
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(0, 8, 96, 8);
-        params.gravity = Gravity.START;
-        bubble.setLayoutParams(params);
+    private void renderBotBubble(String text) {
+        TextView b = new TextView(this);
+        b.setText(getString(R.string.label_assistant) + text);
+        b.setBackgroundResource(R.drawable.bg_chat_bubble_bot);
+        b.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_primary));
 
-        chatContainer.addView(bubble);
+        int pLR = (int) (16 * getResources().getDisplayMetrics().density);
+        int pTB = (int) (12 * getResources().getDisplayMetrics().density);
+        b.setPadding(pLR, pTB, pLR, pTB);
+        b.setTextSize(14f);
+        b.setLineSpacing(0, 1.2f);
+
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-2, -2);
+        int marginSides = (int) (48 * getResources().getDisplayMetrics().density);
+        int marginVertical = (int) (8 * getResources().getDisplayMetrics().density);
+        p.setMargins(0, marginVertical, marginSides, marginVertical);
+        p.gravity = Gravity.START;
+        b.setLayoutParams(p);
+        chatContainer.addView(b);
         scrollToBottom();
     }
 
-    /**
-     * Adds a user message bubble to the chat container.
-     *
-     * @param text The message text to be displayed.
-     */
     private void addUserBubble(String text) {
-        TextView bubble = new TextView(this);
-        bubble.setText(getString(R.string.label_you) + text);
-        bubble.setBackgroundColor(0xFF1E60AA);
-        bubble.setTextColor(0xFFFFFFFF);
-        bubble.setPadding(36, 24, 36, 24);
-        bubble.setTextSize(14f);
+        renderUserBubble(text);
+        saveChatMessage("user", text);
+    }
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+    private void renderUserBubble(String text) {
+        TextView b = new TextView(this);
+        b.setText(getString(R.string.label_you) + text);
+        b.setBackgroundResource(R.drawable.bg_chat_bubble_user);
+        b.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_light));
+
+        int pLR = (int) (16 * getResources().getDisplayMetrics().density);
+        int pTB = (int) (12 * getResources().getDisplayMetrics().density);
+        b.setPadding(pLR, pTB, pLR, pTB);
+        b.setTextSize(14f);
+        b.setLineSpacing(0, 1.2f);
+
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        params.setMargins(96, 8, 0, 8);
-        params.gravity = Gravity.END;
-        bubble.setLayoutParams(params);
-
-        chatContainer.addView(bubble);
+        int marginSides = (int) (48 * getResources().getDisplayMetrics().density);
+        int marginVertical = (int) (8 * getResources().getDisplayMetrics().density);
+        p.setMargins(marginSides, marginVertical, 0, marginVertical);
+        p.gravity = Gravity.END;
+        b.setLayoutParams(p);
+        chatContainer.addView(b);
         scrollToBottom();
     }
 
-    /**
-     * Automatically scrolls the chat ScrollView to the bottom to show new messages.
-     */
     private void scrollToBottom() {
         scrollViewChat.post(() -> scrollViewChat.fullScroll(ScrollView.FOCUS_DOWN));
     }

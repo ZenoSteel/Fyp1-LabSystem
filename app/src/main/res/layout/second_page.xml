@@ -72,7 +72,7 @@
                     tools:ignore="ContentDescription" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Floor Section 1: Ground Floor -->
+            <!-- Ground Floor -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
                 android:paddingEnd="12dp"
                 android:weightSum="3">
 
-                <!-- Lab Card Item (Repeatable Style) -->
+                <!-- DCN Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -100,7 +100,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardDCN"
                         android:layout_width="match_parent"
@@ -111,36 +110,11 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue"
-                            tools:ignore="ContentDescription" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusDCN"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="DCN"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusDCN" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_dcn" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -153,7 +127,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardNWL"
                         android:layout_width="match_parent"
@@ -164,36 +137,11 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue"
-                            tools:ignore="ContentDescription" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusNWL"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="NWL"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusNWL" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_nwl" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -206,7 +154,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardLab1"
                         android:layout_width="match_parent"
@@ -217,42 +164,92 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue"
-                            tools:ignore="ContentDescription" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusLab1"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Lab 1"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusLab1" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_lab1" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Floor Section 2: Second Floor -->
+            <!-- First Floor -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/floor_first"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:weightSum="3">
+
+                <!-- SAD Lab Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:id="@+id/cardSAD"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/surface_white"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusSAD" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_sad" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Network Lab Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:id="@+id/cardNetwork"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/surface_white"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusNetwork" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_network" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <!-- Second Floor -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -280,7 +277,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardPGL2"
                         android:layout_width="match_parent"
@@ -291,35 +287,11 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusPGL2"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="PGL2"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusPGL2" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_pgl2" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -332,7 +304,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardLab2"
                         android:layout_width="match_parent"
@@ -343,35 +314,11 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusLab2"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Lab 2"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusLab2" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_lab2" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -384,7 +331,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardPGL1"
                         android:layout_width="match_parent"
@@ -395,41 +341,17 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusPGL1"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="PGL1"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusPGL1" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_pgl1" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Floor Section 3: Third Floor -->
+            <!-- Third Floor -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -457,7 +379,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardHYP"
                         android:layout_width="match_parent"
@@ -468,35 +389,11 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusHYP"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="HYP"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusHYP" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_hyp" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -509,7 +406,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardLab3"
                         android:layout_width="match_parent"
@@ -520,35 +416,11 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusLab3"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Lab 3"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusLab3" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_lab3" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -561,7 +433,6 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
-
                     <LinearLayout
                         android:id="@+id/cardMML"
                         android:layout_width="match_parent"
@@ -572,35 +443,11 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="@color/campus_blue" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:id="@+id/statusMML"
-                                android:layout_width="8dp"
-                                android:layout_height="8dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@color/status_available" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="MML"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                        android:padding="8dp">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/campus_blue" />
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                            <View android:id="@+id/statusMML" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_mml" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

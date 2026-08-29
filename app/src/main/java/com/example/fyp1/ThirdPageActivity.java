@@ -15,203 +15,382 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Redesigned Facility Booking screen.
+ * Optimized for stability with empty and legacy data.
+ */
 public class ThirdPageActivity extends AppCompatActivity {
 
     private static final String TAG = "ThirdPageActivity";
 
-    private TextView tvLabName;
-    private Spinner spinnerTime, spinnerDay;
-    private Button btnConfirmBooking;
+    private TextView tvNavTitle, tvOccupiedLecturer, tvOccupiedSubject, tvOccupiedTime, tvRecommendationMsg, tvTotalDuration;
+    private TextView tvThisWeek, tvNextWeek, tvPrevWeek, tvNextWeekArrow;
+    private Spinner spinnerStartTime, spinnerEndTime;
+    private CardView cardOccupied, cardRecommendation;
+    private Button btnConfirmBooking, btnAutoFill;
+    private ChipGroup chipGroupDays;
 
     private String currentLabName = "DCN";
+    private String selectedDay = "Monday";
+    private int currentWeekOffset = 0;
+    
+    private final List<String> timeOptions = Arrays.asList(
+            "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+            "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_third_page);
 
-        tvLabName = findViewById(R.id.tvLabName);
-        spinnerTime = findViewById(R.id.spinnerTime);
-        spinnerDay = findViewById(R.id.spinnerDay);
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        Button btnReturnMenu = findViewById(R.id.btnReturnMenu);
-        btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
-        Button btnReportIssue = findViewById(R.id.btnReportIssue);
+        initializeViews();
+        setupLabData();
+        setupListeners();
+        setupDaySelector(); // Do this after listeners to avoid early triggers
+        updateDayChipLabels();
+        
+        analyzeLabAvailability();
+    }
 
+    private void initializeViews() {
+        tvNavTitle = findViewById(R.id.tvNavTitle);
+        tvOccupiedLecturer = findViewById(R.id.tvOccupiedLecturer);
+        tvOccupiedSubject = findViewById(R.id.tvOccupiedSubject);
+        tvOccupiedTime = findViewById(R.id.tvOccupiedTime);
+        tvRecommendationMsg = findViewById(R.id.tvRecommendationMsg);
+        tvTotalDuration = findViewById(R.id.tvTotalDuration);
+        
+        tvThisWeek = findViewById(R.id.tvThisWeek);
+        tvNextWeek = findViewById(R.id.tvNextWeek);
+        tvPrevWeek = findViewById(R.id.tvPrevWeek);
+        tvNextWeekArrow = findViewById(R.id.tvNextWeekArrow);
+        
+        spinnerStartTime = findViewById(R.id.spinnerStartTime);
+        spinnerEndTime = findViewById(R.id.spinnerEndTime);
+        
+        cardOccupied = findViewById(R.id.cardOccupied);
+        cardRecommendation = findViewById(R.id.cardRecommendation);
+        
+        btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
+        btnAutoFill = findViewById(R.id.btnAutoFill);
+        chipGroupDays = findViewById(R.id.chipGroupDays);
+    }
+
+    private void setupLabData() {
         String labName = getIntent().getStringExtra("LAB_NAME");
-        if (labName != null && !labName.isEmpty()) {
-            currentLabName = labName;
-        }
-        tvLabName.setText(currentLabName);
+        if (labName != null) currentLabName = labName;
+        if (tvNavTitle != null) tvNavTitle.setText(getString(R.string.title_lab_schedule, currentLabName));
 
         String userRole = getIntent().getStringExtra("USER_ROLE");
         if (getString(R.string.role_student).equals(userRole)) {
-            btnConfirmBooking.setVisibility(View.GONE);
-        }
-
-        // Populate time options customized for each lab
-        setupSpinners(currentLabName);
-
-        btnConfirmBooking.setOnClickListener(v -> saveBooking());
-        btnReportIssue.setOnClickListener(v -> {
-            Intent intent = new Intent(ThirdPageActivity.this, ReportIssueActivity.class);
-            intent.putExtra("LAB_NAME", currentLabName);
-            startActivity(intent);
-        });
-        btnBack.setOnClickListener(v -> finish());
-        btnReturnMenu.setOnClickListener(v -> finish());
-    }
-
-    /**
-     * Refreshes the time spinner to mark slots that are already booked for the selected day.
-     */
-    private void refreshTimeSpinner(String labName, String selectedDay) {
-        String[] baseOptions = getBaseTimeOptions(labName);
-        String[] displayOptions = new String[baseOptions.length];
-
-        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
-        String existingBookingsJson = prefs.getString("BOOKING_LIST", "[]");
-
-        try {
-            JSONArray bookingArray = new JSONArray(existingBookingsJson);
-
-            for (int i = 0; i < baseOptions.length; i++) {
-                String slot = baseOptions[i];
-                boolean isOccupied = false;
-
-                for (int j = 0; j < bookingArray.length(); j++) {
-                    JSONObject booking = bookingArray.getJSONObject(j);
-                    if (booking.getString("lab").equals(labName) && booking.getString("day").equals(selectedDay)) {
-                        if (BookingUtils.isOverlap(booking.getString("time"), slot)) {
-                            isOccupied = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (isOccupied) {
-                    displayOptions[i] = slot + " [OCCUPIED]";
-                } else {
-                    displayOptions[i] = slot;
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "Error checking occupied slots", e);
-            displayOptions = baseOptions;
-        }
-
-        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, displayOptions);
-        spinnerTime.setAdapter(timeAdapter);
-    }
-
-    private String[] getBaseTimeOptions(String labName) {
-        switch (labName) {
-            case "DCN":
-            case "NWL":
-                return new String[]{
-                        "8:00 AM - 11:00 AM (3 hrs)",
-                        "11:00 AM - 2:00 PM (3 hrs)",
-                        "2:00 PM - 5:00 PM (3 hrs)"
-                };
-            case "Lab 1":
-            case "Lab 2":
-            case "Lab 3":
-                return new String[]{
-                        "8:00 AM - 10:00 AM (2 hrs)",
-                        "10:00 AM - 12:00 PM (2 hrs)",
-                        "2:00 PM - 4:00 PM (2 hrs)"
-                };
-            case "MML":
-            case "HYP":
-                return new String[]{
-                        "9:00 AM - 12:00 PM (3 hrs)",
-                        "1:00 PM - 3:00 PM (2 hrs)",
-                        "3:00 PM - 5:00 PM (2 hrs)",
-                        "Full Day (9:00 AM - 5:00 PM)"
-                };
-            default:
-                return new String[]{
-                        "8:00 AM - 10:00 AM (2 hrs)",
-                        "11:00 AM - 2:00 PM (3 hrs)",
-                        "2:00 PM - 5:00 PM (3 hrs)"
-                };
+            if (btnConfirmBooking != null) btnConfirmBooking.setVisibility(View.GONE);
         }
     }
 
-    // ================= APPEND BOOKING TO JSON LIST =================
-    private void saveBooking() {
-        String selectedTimeRaw = spinnerTime.getSelectedItem().toString();
+    private void setupDaySelector() {
+        if (chipGroupDays == null) return;
         
-        if (selectedTimeRaw.contains("[OCCUPIED]")) {
-            Toast.makeText(this, "This slot is already occupied!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String selectedDay = spinnerDay.getSelectedItem().toString();
-
-        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
-        String existingBookingsJson = prefs.getString("BOOKING_LIST", "[]");
-
-        try {
-            JSONArray bookingArray = new JSONArray(existingBookingsJson);
-
-            // Double check Clash Detection (Safety)
-            for (int i = 0; i < bookingArray.length(); i++) {
-                JSONObject existing = bookingArray.getJSONObject(i);
-                if (existing.getString("lab").equals(currentLabName) &&
-                    existing.getString("day").equals(selectedDay)) {
-                    
-                    if (BookingUtils.isOverlap(existing.getString("time"), selectedTimeRaw)) {
-                        Toast.makeText(this, getString(R.string.error_clash_detected), Toast.LENGTH_LONG).show();
-                        return;
-                    }
+        chipGroupDays.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (!checkedIds.isEmpty()) {
+                Chip chip = findViewById(checkedIds.get(0));
+                if (chip != null) {
+                    selectedDay = parseDayFromChip(chip.getText().toString());
+                    analyzeLabAvailability();
+                    refreshBoundaries();
                 }
             }
-
-            JSONObject newBooking = new JSONObject();
-            newBooking.put("lab", currentLabName);
-            newBooking.put("day", selectedDay);
-            newBooking.put("time", selectedTimeRaw);
-
-            bookingArray.put(newBooking);
-
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("BOOKING_LIST", bookingArray.toString());
-            editor.putBoolean("HAS_ACTIVE_BOOKING", true);
-            editor.apply();
-
-            String confirmationMessage = getString(R.string.msg_booking_added, currentLabName, selectedDay, selectedTimeRaw);
-            Toast.makeText(this, confirmationMessage, Toast.LENGTH_LONG).show();
-            
-            // Refresh spinner immediately after successful booking
-            refreshTimeSpinner(currentLabName, selectedDay);
-
-        } catch (JSONException e) {
-            Log.e(TAG, "Error saving booking", e);
-            Toast.makeText(this, getString(R.string.error_saving_booking), Toast.LENGTH_SHORT).show();
-        }
+        });
+        chipGroupDays.check(R.id.chipMon);
     }
 
-    private void setupSpinners(String labName) {
-        String[] dayOptions = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
-        ArrayAdapter<String> dayAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, dayOptions);
-        spinnerDay.setAdapter(dayAdapter);
+    private void setupListeners() {
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        spinnerDay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        Button btnReturn = findViewById(R.id.btnReturnMenu);
+        if (btnReturn != null) btnReturn.setOnClickListener(v -> finish());
+
+        Button btnReport = findViewById(R.id.btnReportIssue);
+        if (btnReport != null) {
+            btnReport.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ReportIssueActivity.class);
+                intent.putExtra("LAB_NAME", currentLabName);
+                startActivity(intent);
+            });
+        }
+
+        if (tvNextWeek != null) tvNextWeek.setOnClickListener(v -> switchWeek(1));
+        if (tvNextWeekArrow != null) tvNextWeekArrow.setOnClickListener(v -> switchWeek(1));
+        if (tvThisWeek != null) tvThisWeek.setOnClickListener(v -> switchWeek(0));
+        if (tvPrevWeek != null) tvPrevWeek.setOnClickListener(v -> switchWeek(0));
+
+        if (btnAutoFill != null) btnAutoFill.setOnClickListener(v -> performAutoFill());
+        if (btnConfirmBooking != null) btnConfirmBooking.setOnClickListener(v -> processBooking());
+
+        // Setup Spinner
+        ArrayAdapter<String> startAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, timeOptions.subList(0, timeOptions.size() - 1));
+        spinnerStartTime.setAdapter(startAdapter);
+
+        spinnerStartTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                refreshTimeSpinner(labName, dayOptions[position]);
+                enforceBoundaryLogic(timeOptions.get(position));
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        spinnerEndTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateDurationDisplay();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void switchWeek(int offset) {
+        currentWeekOffset = offset;
+        updateDayChipLabels();
+        if (offset == 0) {
+            tvThisWeek.setTypeface(null, android.graphics.Typeface.BOLD);
+            tvThisWeek.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_navy));
+            tvNextWeek.setTypeface(null, android.graphics.Typeface.NORMAL);
+            tvNextWeek.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_secondary));
+        } else {
+            tvNextWeek.setTypeface(null, android.graphics.Typeface.BOLD);
+            tvNextWeek.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_navy));
+            tvThisWeek.setTypeface(null, android.graphics.Typeface.NORMAL);
+            tvThisWeek.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_secondary));
+        }
+        analyzeLabAvailability();
+        refreshBoundaries();
+    }
+
+    private void refreshBoundaries() {
+        if (spinnerStartTime != null && spinnerStartTime.getSelectedItem() != null) {
+            enforceBoundaryLogic(spinnerStartTime.getSelectedItem().toString());
+        }
+    }
+
+    private void analyzeLabAvailability() {
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+        String bookingsJson = prefs.getString("BOOKING_LIST", "[]");
+        
+        try {
+            JSONArray bookings = new JSONArray(bookingsJson);
+            JSONObject activeSession = null;
+            
+            for (int i = 0; i < bookings.length(); i++) {
+                JSONObject b = bookings.getJSONObject(i);
+                int bOffset = b.optInt("week_offset", 0);
+                if (b.getString("lab").equals(currentLabName) && b.getString("day").equals(selectedDay) && bOffset == currentWeekOffset) {
+                    activeSession = b;
+                    break;
+                }
+            }
+
+            if (activeSession != null) {
+                cardOccupied.setVisibility(View.VISIBLE);
+                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, "Encik Nizam"));
+                tvOccupiedSubject.setText(getString(R.string.label_subject, currentLabName + " Session"));
+                
+                String timeStr = activeSession.optString("time", "Unknown");
+                String[] parts = timeStr.split(" - ");
+                String start = parts[0];
+                String end = (parts.length > 1) ? parts[1].split(" \\(")[0] : "End";
+                tvOccupiedTime.setText(getString(R.string.label_time_range, start, end));
+                
+                int[] hours = BookingUtils.getStartEndHours(timeStr);
+                if (hours != null && hours[1] < 17) {
+                    showRecommendation(format24To12(hours[1]), "05:00 PM");
+                } else {
+                    cardRecommendation.setVisibility(View.GONE);
+                }
+            } else {
+                cardOccupied.setVisibility(View.GONE);
+                showRecommendation("08:00 AM", "05:00 PM");
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Analysis Error", e);
+        }
+    }
+
+    private void showRecommendation(String start, String end) {
+        if (cardRecommendation == null) return;
+        cardRecommendation.setVisibility(View.VISIBLE);
+        tvRecommendationMsg.setText(getString(R.string.msg_next_free_window, start, end));
+        int startH = BookingUtils.getStartEndHours(start + " - 11:59 PM")[0];
+        String suggestEnd = format24To12(Math.min(startH + 2, 17));
+        btnAutoFill.setText(getString(R.string.btn_auto_fill_template, start, suggestEnd));
+        btnAutoFill.setTag(new String[]{start, suggestEnd});
+    }
+
+    private void enforceBoundaryLogic(String selectedStart) {
+        if (selectedStart == null) return;
+        int[] startRange = BookingUtils.getStartEndHours(selectedStart + " - 11:59 PM");
+        if (startRange == null) return;
+        
+        int startHour = startRange[0];
+        checkAndAdjustStartTime(startHour);
+
+        List<String> validEnds = new ArrayList<>();
+        int nextLimit = 17;
+
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+        try {
+            JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            for (int i = 0; i < bookings.length(); i++) {
+                JSONObject b = bookings.getJSONObject(i);
+                int bOffset = b.optInt("week_offset", 0);
+                if (b.getString("lab").equals(currentLabName) && b.getString("day").equals(selectedDay) && bOffset == currentWeekOffset) {
+                    int[] bRange = BookingUtils.getStartEndHours(b.getString("time"));
+                    if (bRange != null && bRange[0] > startHour && bRange[0] < nextLimit) {
+                        nextLimit = bRange[0];
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        for (int i = timeOptions.indexOf(selectedStart) + 1; i < timeOptions.size(); i++) {
+            int[] endRange = BookingUtils.getStartEndHours("08:00 AM - " + timeOptions.get(i));
+            if (endRange != null && endRange[1] <= nextLimit) {
+                validEnds.add(timeOptions.get(i));
+            } else break;
+        }
+
+        ArrayAdapter<String> endAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, validEnds);
+        spinnerEndTime.setAdapter(endAdapter);
+    }
+
+    private void checkAndAdjustStartTime(int selectedHour) {
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+        try {
+            JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            for (int i = 0; i < bookings.length(); i++) {
+                JSONObject b = bookings.getJSONObject(i);
+                int bOffset = b.optInt("week_offset", 0);
+                if (b.getString("lab").equals(currentLabName) && b.getString("day").equals(selectedDay) && bOffset == currentWeekOffset) {
+                    int[] range = BookingUtils.getStartEndHours(b.getString("time"));
+                    if (range != null && selectedHour >= range[0] && selectedHour < range[1]) {
+                        String newStart = format24To12(range[1]);
+                        Toast.makeText(this, getString(R.string.error_overlap_conflict, "Staff", currentLabName, newStart), Toast.LENGTH_LONG).show();
+                        int index = timeOptions.indexOf(newStart);
+                        if (index != -1) spinnerStartTime.setSelection(index);
+                        break;
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private void updateDurationDisplay() {
+        try {
+            if (spinnerStartTime.getSelectedItem() == null || spinnerEndTime.getSelectedItem() == null) return;
+            String s = spinnerStartTime.getSelectedItem().toString();
+            String e = spinnerEndTime.getSelectedItem().toString();
+            int[] r1 = BookingUtils.getStartEndHours(s + " - 11:59 PM");
+            int[] r2 = BookingUtils.getStartEndHours("08:00 AM - " + e);
+            if (r1 != null && r2 != null) {
+                tvTotalDuration.setText(getString(R.string.label_total_duration, (r2[1] - r1[0])));
+            }
+        } catch (Exception e) {
+            tvTotalDuration.setText("");
+        }
+    }
+
+    private void performAutoFill() {
+        String[] times = (String[]) btnAutoFill.getTag();
+        if (times != null && times.length >= 2) {
+            int startIdx = timeOptions.indexOf(times[0]);
+            if (startIdx != -1) {
+                spinnerStartTime.setSelection(startIdx);
+                spinnerStartTime.post(() -> {
+                    ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinnerEndTime.getAdapter();
+                    if (adapter != null) {
+                        for (int i = 0; i < adapter.getCount(); i++) {
+                            if (adapter.getItem(i).equals(times[1])) {
+                                spinnerEndTime.setSelection(i);
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void processBooking() {
+        if (spinnerStartTime.getSelectedItem() == null || spinnerEndTime.getSelectedItem() == null) return;
+        
+        String start = spinnerStartTime.getSelectedItem().toString();
+        String end = spinnerEndTime.getSelectedItem().toString();
+        String finalTime = BookingUtils.formatProfessionalTime(start + " - " + end);
+
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+        try {
+            JSONArray array = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            JSONObject b = new JSONObject();
+            b.put("lab", currentLabName);
+            b.put("day", selectedDay);
+            b.put("time", finalTime);
+            b.put("week_offset", currentWeekOffset);
+            array.put(b);
+            
+            prefs.edit().putString("BOOKING_LIST", array.toString()).apply();
+            Toast.makeText(this, getString(R.string.msg_booking_added, currentLabName, selectedDay, finalTime), Toast.LENGTH_LONG).show();
+            analyzeLabAvailability();
+        } catch (Exception ignored) {}
+    }
+
+    private void updateDayChipLabels() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        if (currentWeekOffset == 1) cal.add(Calendar.DATE, 7);
+
+        int[] chipIds = {R.id.chipMon, R.id.chipTue, R.id.chipWed, R.id.chipThu, R.id.chipFri};
+        String[] dayShortNames = {"MON", "TUE", "WED", "THU", "FRI"};
+
+        for (int i = 0; i < chipIds.length; i++) {
+            Chip chip = findViewById(chipIds[i]);
+            if (chip != null) {
+                int dateNum = cal.get(Calendar.DAY_OF_MONTH);
+                chip.setText(getString(R.string.chip_day_format, dayShortNames[i], dateNum));
+                cal.add(Calendar.DATE, 1);
+            }
+        }
+    }
+
+    private String parseDayFromChip(String text) {
+        if (text.contains("MON")) return "Monday";
+        if (text.contains("TUE")) return "Tuesday";
+        if (text.contains("WED")) return "Wednesday";
+        if (text.contains("THU")) return "Thursday";
+        if (text.contains("FRI")) return "Friday";
+        return "Monday";
+    }
+
+    private String format24To12(int h) {
+        if (h == 0) return "12:00 AM";
+        if (h == 12) return "12:00 PM";
+        if (h > 12) return String.format(Locale.US, "%02d:00 PM", h - 12);
+        return String.format(Locale.US, "%02d:00 AM", h);
     }
 }
