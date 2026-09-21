@@ -41,7 +41,7 @@ public class ThirdPageActivity extends AppCompatActivity {
     private TextView tvThisWeek, tvNextWeek, tvPrevWeek, tvNextWeekArrow;
     private Spinner spinnerStartTime, spinnerEndTime;
     private CardView cardOccupied, cardRecommendation;
-    private Button btnConfirmBooking, btnAutoFill, btnAdminAddSchedule;
+    private Button btnConfirmBooking, btnAutoFill, btnAdminAddSchedule, btnDeleteSession;
     private ChipGroup chipGroupDays;
 
     private String currentLabName = "DCN";
@@ -88,6 +88,7 @@ public class ThirdPageActivity extends AppCompatActivity {
         
         btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
         btnAdminAddSchedule = findViewById(R.id.btnAdminAddSchedule);
+        btnDeleteSession = findViewById(R.id.btnDeleteSession);
         btnAutoFill = findViewById(R.id.btnAutoFill);
         chipGroupDays = findViewById(R.id.chipGroupDays);
     }
@@ -235,6 +236,9 @@ public class ThirdPageActivity extends AppCompatActivity {
                 }
             }
 
+            String userRole = getIntent().getStringExtra("USER_ROLE");
+            boolean canManage = !getString(R.string.role_student).equals(userRole);
+
             if (activeSession != null) {
                 cardOccupied.setVisibility(View.VISIBLE);
                 String bookedBy = activeSession.optString("bookedBy", "Faculty Staff");
@@ -245,6 +249,15 @@ public class ThirdPageActivity extends AppCompatActivity {
                 String[] parts = timeStr.split(" - ");
                 String start = parts[0];
                 tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")));
+
+                if (canManage && btnDeleteSession != null) {
+                    btnDeleteSession.setVisibility(View.VISIBLE);
+                    final JSONObject sessionToRemove = activeSession;
+                    btnDeleteSession.setOnClickListener(v -> confirmDeleteUserBooking(sessionToRemove));
+                } else if (btnDeleteSession != null) {
+                    btnDeleteSession.setVisibility(View.GONE);
+                }
+
             } else if (masterSession != null) {
                 cardOccupied.setVisibility(View.VISIBLE);
                 String lecturer = masterSession.getLecturerName().isEmpty() ? "Faculty Schedule" : masterSession.getLecturerName();
@@ -252,8 +265,18 @@ public class ThirdPageActivity extends AppCompatActivity {
                 tvOccupiedLecturer.setText(getString(R.string.label_lecturer, lecturer));
                 tvOccupiedSubject.setText(getString(R.string.label_subject, code + masterSession.getSubjectName()));
                 tvOccupiedTime.setText(getString(R.string.label_time_range, masterSession.getTimeSlot(), ""));
+
+                if (canManage && btnDeleteSession != null) {
+                    btnDeleteSession.setVisibility(View.VISIBLE);
+                    final ClassSession csToRemove = masterSession;
+                    btnDeleteSession.setOnClickListener(v -> confirmDeleteMasterSession(csToRemove));
+                } else if (btnDeleteSession != null) {
+                    btnDeleteSession.setVisibility(View.GONE);
+                }
+
             } else {
                 cardOccupied.setVisibility(View.GONE);
+                if (btnDeleteSession != null) btnDeleteSession.setVisibility(View.GONE);
             }
 
             // Accurate AI Recommendation Calculation
@@ -341,6 +364,47 @@ public class ThirdPageActivity extends AppCompatActivity {
             analyzeLabAvailability();
         });
 
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void confirmDeleteMasterSession(ClassSession session) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle(R.string.dialog_confirm_delete_title);
+        builder.setMessage(getString(R.string.dialog_confirm_delete_msg, session.getSubjectName(), session.getDay()));
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            ScheduleManager.removeTimetableSession(this, session);
+            Toast.makeText(this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
+            analyzeLabAvailability();
+        });
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void confirmDeleteUserBooking(JSONObject bookingObj) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle(R.string.dialog_confirm_delete_title);
+        builder.setMessage(getString(R.string.dialog_confirm_delete_msg, currentLabName + " Booking", selectedDay));
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+            try {
+                JSONArray oldBookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+                JSONArray newBookings = new JSONArray();
+                for (int i = 0; i < oldBookings.length(); i++) {
+                    JSONObject b = oldBookings.getJSONObject(i);
+                    int bOffset = b.optInt("week_offset", 0);
+                    if (b.getString("lab").equalsIgnoreCase(currentLabName) && 
+                        b.getString("day").equalsIgnoreCase(selectedDay) && 
+                        bOffset == currentWeekOffset) {
+                        continue; // Remove target booking
+                    }
+                    newBookings.put(b);
+                }
+                prefs.edit().putString("BOOKING_LIST", newBookings.toString()).apply();
+                Toast.makeText(this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
+                analyzeLabAvailability();
+            } catch (Exception ignored) {}
+        });
         builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
         builder.show();
     }

@@ -189,6 +189,19 @@
                     android:layout_height="wrap_content"
                     android:text="Time: 08:00 AM - 10:00 AM"
                     android:textColor="@color/text_primary" />
+
+                <Button
+                    android:id="@+id/btnDeleteSession"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_delete_session"
+                    android:textAllCaps="false"
+                    android:textColor="#E11D48"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:padding="0dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

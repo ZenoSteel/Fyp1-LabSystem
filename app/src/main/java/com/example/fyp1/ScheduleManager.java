@@ -68,6 +68,24 @@ public class ScheduleManager {
         saveMasterTimetable(context, currentList);
     }
 
+    public static void removeTimetableSession(Context context, ClassSession targetSession) {
+        if (targetSession == null) return;
+        List<ClassSession> currentList = getMasterTimetable(context);
+        List<ClassSession> updatedList = new ArrayList<>();
+
+        for (ClassSession s : currentList) {
+            if (s.getLabLocation().equalsIgnoreCase(targetSession.getLabLocation()) &&
+                s.getDay().equalsIgnoreCase(targetSession.getDay()) &&
+                s.getTimeSlot().equalsIgnoreCase(targetSession.getTimeSlot()) &&
+                s.getSubjectName().equalsIgnoreCase(targetSession.getSubjectName())) {
+                continue; // Skip target session to delete it
+            }
+            updatedList.add(s);
+        }
+
+        saveMasterTimetable(context, updatedList);
+    }
+
     public static void saveMasterTimetable(Context context, List<ClassSession> list) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         try {

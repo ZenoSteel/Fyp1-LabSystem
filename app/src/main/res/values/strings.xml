@@ -224,6 +224,10 @@
     <!-- RetakeAssistantActivity -->
     <string name="title_retake_assistant">AI Retake Assistant</string>
     <string name="btn_admin_add_schedule">➕ Admin: Add Class Timetable</string>
+    <string name="btn_delete_session">🗑️ Remove Session from Timetable</string>
+    <string name="dialog_confirm_delete_title">Delete Class Session?</string>
+    <string name="dialog_confirm_delete_msg">Are you sure you want to remove \"%1$s\" on %2$s from the lab timetable?</string>
+    <string name="msg_session_removed">Class session removed from timetable!</string>
     <string name="dialog_add_schedule_title">Add Academic Class Schedule</string>
     <string name="hint_class_code">Course Code (e.g. DFC50133)</string>
     <string name="hint_subject_name">Subject Name (e.g. Network Security)</string>
