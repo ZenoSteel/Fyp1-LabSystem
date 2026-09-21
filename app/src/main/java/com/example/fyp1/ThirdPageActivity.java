@@ -237,7 +237,7 @@ public class ThirdPageActivity extends AppCompatActivity {
             }
 
             String userRole = getIntent().getStringExtra("USER_ROLE");
-            boolean canManage = !getString(R.string.role_student).equals(userRole);
+            boolean isAdmin = getString(R.string.role_admin).equals(userRole);
 
             if (activeSession != null) {
                 cardOccupied.setVisibility(View.VISIBLE);
@@ -250,7 +250,7 @@ public class ThirdPageActivity extends AppCompatActivity {
                 String start = parts[0];
                 tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")));
 
-                if (canManage && btnDeleteSession != null) {
+                if (isAdmin && btnDeleteSession != null) {
                     btnDeleteSession.setVisibility(View.VISIBLE);
                     final JSONObject sessionToRemove = activeSession;
                     btnDeleteSession.setOnClickListener(v -> confirmDeleteUserBooking(sessionToRemove));
@@ -266,7 +266,7 @@ public class ThirdPageActivity extends AppCompatActivity {
                 tvOccupiedSubject.setText(getString(R.string.label_subject, code + masterSession.getSubjectName()));
                 tvOccupiedTime.setText(getString(R.string.label_time_range, masterSession.getTimeSlot(), ""));
 
-                if (canManage && btnDeleteSession != null) {
+                if (isAdmin && btnDeleteSession != null) {
                     btnDeleteSession.setVisibility(View.VISIBLE);
                     final ClassSession csToRemove = masterSession;
                     btnDeleteSession.setOnClickListener(v -> confirmDeleteMasterSession(csToRemove));
