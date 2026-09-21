@@ -61,14 +61,32 @@ public class SignupActivity extends AppCompatActivity {
             return;
         }
 
-        // Save to SharedPreferences (Diploma Level "Local Database")
+        // Save locally to SharedPreferences
         SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(username, password); // Store username as KEY and password as VALUE
-        editor.putString(username + "_role", role); // Store role separately
+        editor.putString(username, password);
+        editor.putString(username + "_role", role);
         editor.apply();
 
+        // Attempt Cloud Registration via Firebase if available
+        if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+            DatabaseManager.getInstance().registerUser(this, username, password, role, new DatabaseManager.AuthCallback() {
+                @Override
+                public void onSuccess(String user, String r) {
+                    Toast.makeText(SignupActivity.this, getString(R.string.msg_signup_success), Toast.LENGTH_LONG).show();
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    Toast.makeText(SignupActivity.this, getString(R.string.msg_signup_success) + " (Local)", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            });
+            return;
+        }
+
         Toast.makeText(this, getString(R.string.msg_signup_success), Toast.LENGTH_LONG).show();
-        finish(); // Go back to login screen
+        finish();
     }
 }

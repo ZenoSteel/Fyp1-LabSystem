@@ -152,10 +152,26 @@ public class SecondPageActivity extends AppCompatActivity {
         });
     }
 
+    private com.google.firebase.firestore.ListenerRegistration cloudListener;
+
     @Override
     protected void onResume() {
         super.onResume();
         refreshLabAvailability();
+
+        // Attach Real-Time Cloud Firestore Listener for instant green/red status updates
+        if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+            cloudListener = DatabaseManager.getInstance().listenToBookings(cloudBookings -> refreshLabAvailability());
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (cloudListener != null) {
+            cloudListener.remove();
+            cloudListener = null;
+        }
     }
 
     private void refreshLabAvailability() {

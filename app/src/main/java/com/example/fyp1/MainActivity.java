@@ -70,24 +70,44 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Validate against UserPrefs SharedPreferences (Diploma Level "Database")
+        // Attempt Cloud Auth via Firebase if available
+        if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+            Toast.makeText(this, getString(R.string.msg_logging_in, username), Toast.LENGTH_SHORT).show();
+            DatabaseManager.getInstance().loginUser(this, username, password, new DatabaseManager.AuthCallback() {
+                @Override
+                public void onSuccess(String user, String role) {
+                    Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
+                    intent.putExtra("USER_NAME", user);
+                    intent.putExtra("USER_ROLE", role);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    // Fallback to local SharedPreferences
+                    performLocalLogin(username, password);
+                }
+            });
+            return;
+        }
+
+        performLocalLogin(username, password);
+    }
+
+    private void performLocalLogin(String username, String password) {
         SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         String savedPassword = prefs.getString(username, null);
 
         if (savedPassword != null && savedPassword.equals(password)) {
-            // Login Success
-            String role = prefs.getString(username + "_role", getString(R.string.role_student)); // Default to student
-            
+            String role = prefs.getString(username + "_role", getString(R.string.role_student));
             Toast.makeText(MainActivity.this, getString(R.string.msg_logging_in, username), Toast.LENGTH_SHORT).show();
-            
-            // Go to Loading/Splash Screen instead of directly to Dashboard
             Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
             intent.putExtra("USER_NAME", username);
             intent.putExtra("USER_ROLE", role);
             startActivity(intent);
-            finish(); // Optional: finish login activity so user can't go back to it
+            finish();
         } else {
-            // Login Fail
             Toast.makeText(MainActivity.this, getString(R.string.error_invalid_credentials), Toast.LENGTH_SHORT).show();
         }
     }

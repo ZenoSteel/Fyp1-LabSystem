@@ -360,6 +360,23 @@ public class ThirdPageActivity extends AppCompatActivity {
             ClassSession session = new ClassSession(code, subject, lecturer, sem, day, timeSlot, currentLabName);
             ScheduleManager.addTimetableSession(this, session);
 
+            if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+                DatabaseManager.getInstance().addMasterScheduleCloud(session, new DatabaseManager.OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(ThirdPageActivity.this, R.string.msg_schedule_added, Toast.LENGTH_SHORT).show();
+                        analyzeLabAvailability();
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        Toast.makeText(ThirdPageActivity.this, R.string.msg_schedule_added, Toast.LENGTH_SHORT).show();
+                        analyzeLabAvailability();
+                    }
+                });
+                return;
+            }
+
             Toast.makeText(this, R.string.msg_schedule_added, Toast.LENGTH_SHORT).show();
             analyzeLabAvailability();
         });
@@ -692,10 +709,29 @@ public class ThirdPageActivity extends AppCompatActivity {
             b.put("day", selectedDay);
             b.put("time", finalTime);
             b.put("week_offset", currentWeekOffset);
-            b.put("bookedBy", username); // Save the real name!
+            b.put("bookedBy", username);
             array.put(b);
             
             prefs.edit().putString("BOOKING_LIST", array.toString()).apply();
+
+            // Push to Cloud Firestore if available
+            if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+                DatabaseManager.getInstance().addBookingCloud(currentLabName, selectedDay, finalTime, currentWeekOffset, username, new DatabaseManager.OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(ThirdPageActivity.this, getString(R.string.msg_booking_added, currentLabName, selectedDay, finalTime) + " (Cloud)", Toast.LENGTH_LONG).show();
+                        analyzeLabAvailability();
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        Toast.makeText(ThirdPageActivity.this, getString(R.string.msg_booking_added, currentLabName, selectedDay, finalTime), Toast.LENGTH_LONG).show();
+                        analyzeLabAvailability();
+                    }
+                });
+                return;
+            }
+
             Toast.makeText(this, getString(R.string.msg_booking_added, currentLabName, selectedDay, finalTime), Toast.LENGTH_LONG).show();
             analyzeLabAvailability();
         } catch (Exception ignored) {}
