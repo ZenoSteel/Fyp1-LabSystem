@@ -245,28 +245,27 @@ public class ThirdPageActivity extends AppCompatActivity {
                 String[] parts = timeStr.split(" - ");
                 String start = parts[0];
                 tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")));
-                
-                int[] hours = BookingUtils.getStartEndHours(timeStr);
-                if (hours != null && hours[1] < 17) {
-                    showRecommendation(format24To12(hours[1]), "05:00 PM");
-                } else {
-                    cardRecommendation.setVisibility(View.GONE);
-                }
             } else if (masterSession != null) {
                 cardOccupied.setVisibility(View.VISIBLE);
                 tvOccupiedLecturer.setText(getString(R.string.label_lecturer, "Faculty Schedule"));
                 tvOccupiedSubject.setText(getString(R.string.label_subject, masterSession.getSubjectName()));
                 tvOccupiedTime.setText(getString(R.string.label_time_range, masterSession.getTimeSlot(), ""));
-
-                int[] hours = BookingUtils.getStartEndHours(masterSession.getTimeSlot());
-                if (hours != null && hours[1] < 17 && hours[1] > 0) {
-                    showRecommendation(format24To12(hours[1]), "05:00 PM");
-                } else {
-                    cardRecommendation.setVisibility(View.GONE);
-                }
             } else {
                 cardOccupied.setVisibility(View.GONE);
-                showRecommendation("08:00 AM", "05:00 PM");
+            }
+
+            // Accurate AI Recommendation Calculation
+            List<int[]> occupiedRanges = getOccupiedRangesForCurrentSelection();
+            int[] freeGap = findEarliestFreeWindow(occupiedRanges);
+
+            if (freeGap != null) {
+                String gapStart = format24To12(freeGap[0]);
+                String gapEnd = format24To12(freeGap[1]);
+                showRecommendation(gapStart, gapEnd);
+            } else {
+                if (cardRecommendation != null) {
+                    cardRecommendation.setVisibility(View.GONE);
+                }
             }
 
             updateStartTimeSpinner();
@@ -331,12 +330,50 @@ public class ThirdPageActivity extends AppCompatActivity {
         builder.show();
     }
 
+    private int[] findEarliestFreeWindow(List<int[]> occupied) {
+        java.util.Collections.sort(occupied, (a, b) -> Integer.compare(a[0], b[0]));
+
+        List<int[]> merged = new ArrayList<>();
+        for (int[] range : occupied) {
+            if (merged.isEmpty()) {
+                merged.add(new int[]{range[0], range[1]});
+            } else {
+                int[] last = merged.get(merged.size() - 1);
+                if (range[0] <= last[1]) {
+                    last[1] = Math.max(last[1], range[1]);
+                } else {
+                    merged.add(new int[]{range[0], range[1]});
+                }
+            }
+        }
+
+        int currentPointer = 8;
+        for (int[] occ : merged) {
+            if (occ[0] > currentPointer) {
+                int gapStart = currentPointer;
+                int gapEnd = Math.min(occ[0], 17);
+                if (gapEnd > gapStart) {
+                    return new int[]{gapStart, gapEnd};
+                }
+            }
+            currentPointer = Math.max(currentPointer, occ[1]);
+        }
+
+        if (currentPointer < 17) {
+            return new int[]{currentPointer, 17};
+        }
+
+        return null; // Day is completely full
+    }
+
     private void showRecommendation(String start, String end) {
         if (cardRecommendation == null) return;
         cardRecommendation.setVisibility(View.VISIBLE);
         tvRecommendationMsg.setText(getString(R.string.msg_next_free_window, start, end));
         int startH = BookingUtils.getStartEndHours(start + " - 11:59 PM")[0];
-        String suggestEnd = format24To12(Math.min(startH + 2, 17));
+        int endH = BookingUtils.getStartEndHours("08:00 AM - " + end)[1];
+        int autoFillEndH = Math.min(startH + 2, endH);
+        String suggestEnd = format24To12(autoFillEndH);
         btnAutoFill.setText(getString(R.string.btn_auto_fill_template, start, suggestEnd));
         btnAutoFill.setTag(new String[]{start, suggestEnd});
     }
