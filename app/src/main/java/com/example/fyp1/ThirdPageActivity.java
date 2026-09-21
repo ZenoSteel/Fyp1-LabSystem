@@ -98,15 +98,23 @@ public class ThirdPageActivity extends AppCompatActivity {
         if (tvNavTitle != null) tvNavTitle.setText(getString(R.string.title_lab_schedule, currentLabName));
 
         String userRole = getIntent().getStringExtra("USER_ROLE");
+
+        // Role-based visibility
         if (getString(R.string.role_student).equals(userRole)) {
+            // Students can only view schedule
             if (btnConfirmBooking != null) btnConfirmBooking.setVisibility(View.GONE);
             if (btnAdminAddSchedule != null) btnAdminAddSchedule.setVisibility(View.GONE);
-        } else {
-            // Admin or Lecturer role can add/manage master schedule
+        } else if (getString(R.string.role_admin).equals(userRole)) {
+            // Admin can book AND manage master schedule
+            if (btnConfirmBooking != null) btnConfirmBooking.setVisibility(View.VISIBLE);
             if (btnAdminAddSchedule != null) {
                 btnAdminAddSchedule.setVisibility(View.VISIBLE);
                 btnAdminAddSchedule.setOnClickListener(v -> showAddScheduleDialog());
             }
+        } else {
+            // Lecturers can book slots, but cannot edit master schedule
+            if (btnConfirmBooking != null) btnConfirmBooking.setVisibility(View.VISIBLE);
+            if (btnAdminAddSchedule != null) btnAdminAddSchedule.setVisibility(View.GONE);
         }
     }
 
