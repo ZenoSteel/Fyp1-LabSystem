@@ -61,6 +61,10 @@ public class SignupActivity extends AppCompatActivity {
             return;
         }
 
+        if (password.length() < 6) {
+            Toast.makeText(this, "Firebase requires password to be at least 6 characters.", Toast.LENGTH_LONG).show();
+        }
+
         // Save locally to SharedPreferences
         SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -73,13 +77,13 @@ public class SignupActivity extends AppCompatActivity {
             DatabaseManager.getInstance().registerUser(this, username, password, role, new DatabaseManager.AuthCallback() {
                 @Override
                 public void onSuccess(String user, String r) {
-                    Toast.makeText(SignupActivity.this, getString(R.string.msg_signup_success), Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignupActivity.this, getString(R.string.msg_signup_success) + " (Cloud)", Toast.LENGTH_LONG).show();
                     finish();
                 }
 
                 @Override
                 public void onFailure(String errorMessage) {
-                    Toast.makeText(SignupActivity.this, getString(R.string.msg_signup_success) + " (Local)", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignupActivity.this, "Cloud Auth Info: " + errorMessage, Toast.LENGTH_LONG).show();
                     finish();
                 }
             });
