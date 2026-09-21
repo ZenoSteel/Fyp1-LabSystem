@@ -247,8 +247,10 @@ public class ThirdPageActivity extends AppCompatActivity {
                 tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")));
             } else if (masterSession != null) {
                 cardOccupied.setVisibility(View.VISIBLE);
-                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, "Faculty Schedule"));
-                tvOccupiedSubject.setText(getString(R.string.label_subject, masterSession.getSubjectName()));
+                String lecturer = masterSession.getLecturerName().isEmpty() ? "Faculty Schedule" : masterSession.getLecturerName();
+                String code = masterSession.getClassCode().isEmpty() ? "" : masterSession.getClassCode() + " - ";
+                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, lecturer));
+                tvOccupiedSubject.setText(getString(R.string.label_subject, code + masterSession.getSubjectName()));
                 tvOccupiedTime.setText(getString(R.string.label_time_range, masterSession.getTimeSlot(), ""));
             } else {
                 cardOccupied.setVisibility(View.GONE);
@@ -283,9 +285,17 @@ public class ThirdPageActivity extends AppCompatActivity {
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
         layout.setPadding(40, 20, 40, 20);
 
+        final android.widget.EditText etCode = new android.widget.EditText(this);
+        etCode.setHint(R.string.hint_class_code);
+        layout.addView(etCode);
+
         final android.widget.EditText etSubject = new android.widget.EditText(this);
         etSubject.setHint(R.string.hint_subject_name);
         layout.addView(etSubject);
+
+        final android.widget.EditText etLecturer = new android.widget.EditText(this);
+        etLecturer.setHint(R.string.hint_lecturer_name);
+        layout.addView(etLecturer);
 
         final android.widget.EditText etSem = new android.widget.EditText(this);
         etSem.setHint(R.string.hint_semester);
@@ -309,9 +319,14 @@ public class ThirdPageActivity extends AppCompatActivity {
         builder.setView(layout);
 
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            String code = etCode.getText().toString().trim();
             String subject = etSubject.getText().toString().trim();
+            String lecturer = etLecturer.getText().toString().trim();
             String semStr = etSem.getText().toString().trim();
+
+            if (code.isEmpty()) code = "DFC501";
             if (subject.isEmpty()) subject = "Academic Lecture";
+            if (lecturer.isEmpty()) lecturer = "Faculty Staff";
             int sem = semStr.isEmpty() ? 1 : Integer.parseInt(semStr);
 
             String day = spDay.getSelectedItem().toString();
@@ -319,7 +334,7 @@ public class ThirdPageActivity extends AppCompatActivity {
             String endTime = spEnd.getSelectedItem().toString();
             String timeSlot = startTime + " - " + endTime;
 
-            ClassSession session = new ClassSession(subject, sem, day, timeSlot, currentLabName);
+            ClassSession session = new ClassSession(code, subject, lecturer, sem, day, timeSlot, currentLabName);
             ScheduleManager.addTimetableSession(this, session);
 
             Toast.makeText(this, R.string.msg_schedule_added, Toast.LENGTH_SHORT).show();

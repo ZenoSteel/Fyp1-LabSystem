@@ -22,11 +22,11 @@ public class ScheduleManager {
 
         if (json == null) {
             // Default initial dataset
-            master.add(new ClassSession("Programming 1", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
-            master.add(new ClassSession("Programming 1", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
-            master.add(new ClassSession("Database Systems", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
-            master.add(new ClassSession("Networking", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
-            master.add(new ClassSession("Operating Systems", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
+            master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
+            master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
+            master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
+            master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
+            master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Aminah", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
             saveMasterTimetable(context, master);
             return master;
         }
@@ -36,7 +36,9 @@ public class ScheduleManager {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 master.add(new ClassSession(
+                    obj.optString("classCode", ""),
                     obj.getString("subjectName"),
+                    obj.optString("lecturerName", "Faculty Staff"),
                     obj.getInt("semester"),
                     obj.getString("day"),
                     obj.getString("timeSlot"),
@@ -52,11 +54,11 @@ public class ScheduleManager {
     public static List<ClassSession> getMasterTimetable() {
         // Fallback for non-context calls
         List<ClassSession> master = new ArrayList<>();
-        master.add(new ClassSession("Programming 1", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
-        master.add(new ClassSession("Programming 1", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
-        master.add(new ClassSession("Database Systems", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
-        master.add(new ClassSession("Networking", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
-        master.add(new ClassSession("Operating Systems", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
+        master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
+        master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
+        master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
+        master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
+        master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Aminah", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
         return master;
     }
 
@@ -72,7 +74,9 @@ public class ScheduleManager {
             JSONArray array = new JSONArray();
             for (ClassSession s : list) {
                 JSONObject obj = new JSONObject();
+                obj.put("classCode", s.getClassCode());
                 obj.put("subjectName", s.getSubjectName());
+                obj.put("lecturerName", s.getLecturerName());
                 obj.put("semester", s.getSemester());
                 obj.put("day", s.getDay());
                 obj.put("timeSlot", s.getTimeSlot());
@@ -91,8 +95,8 @@ public class ScheduleManager {
         List<ClassSession> schedule = new ArrayList<>();
 
         if (json == null) {
-            schedule.add(new ClassSession("Project 1", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
-            schedule.add(new ClassSession("Security", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
+            schedule.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
+            schedule.add(new ClassSession("DFC5082", "Security", "Encik Nizam", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
             return schedule;
         }
 
@@ -101,7 +105,9 @@ public class ScheduleManager {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 schedule.add(new ClassSession(
+                    obj.optString("classCode", ""),
                     obj.getString("subjectName"),
+                    obj.optString("lecturerName", "Faculty Staff"),
                     obj.getInt("semester"),
                     obj.getString("day"),
                     obj.getString("timeSlot"),
