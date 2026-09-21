@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "887779881386",
+    "project_id": "fyp1-labsystem",
+    "storage_bucket": "fyp1-labsystem.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:887779881386:android:5dba8b86f7e7c29b99bbd3",
+        "android_client_info": {
+          "package_name": "com.example.fyp1.v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9fQ5RC4csAuRZk5_MEZ5VfsgYmxc2OxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
