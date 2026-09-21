@@ -48,6 +48,17 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // Special check for hardcoded Admin (for Demo purposes)
+        if (username.equalsIgnoreCase("admin") && password.equals("123")) {
+            Toast.makeText(MainActivity.this, getString(R.string.msg_logging_in, "Admin"), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
+            intent.putExtra("USER_NAME", "Admin");
+            intent.putExtra("USER_ROLE", getString(R.string.role_admin));
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         // Special check for hardcoded lecturer (for Demo purposes)
         if (username.equalsIgnoreCase("zaim") && password.equals("123")) {
             Toast.makeText(MainActivity.this, getString(R.string.msg_logging_in, "Zaim"), Toast.LENGTH_SHORT).show();
