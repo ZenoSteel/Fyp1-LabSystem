@@ -158,14 +158,15 @@ public class ThirdPageActivity extends AppCompatActivity {
         if (btnAutoFill != null) btnAutoFill.setOnClickListener(v -> performAutoFill());
         if (btnConfirmBooking != null) btnConfirmBooking.setOnClickListener(v -> processBooking());
 
-        // Setup Spinner
-        ArrayAdapter<String> startAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, timeOptions.subList(0, timeOptions.size() - 1));
-        spinnerStartTime.setAdapter(startAdapter);
+        // Setup Spinners
+        updateStartTimeSpinner();
 
         spinnerStartTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                enforceBoundaryLogic(timeOptions.get(position));
+                if (spinnerStartTime.getSelectedItem() != null) {
+                    enforceBoundaryLogic(sanitizeTime(spinnerStartTime.getSelectedItem().toString()));
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
@@ -201,7 +202,7 @@ public class ThirdPageActivity extends AppCompatActivity {
 
     private void refreshBoundaries() {
         if (spinnerStartTime != null && spinnerStartTime.getSelectedItem() != null) {
-            enforceBoundaryLogic(spinnerStartTime.getSelectedItem().toString());
+            enforceBoundaryLogic(sanitizeTime(spinnerStartTime.getSelectedItem().toString()));
         }
     }
 
@@ -267,6 +268,8 @@ public class ThirdPageActivity extends AppCompatActivity {
                 cardOccupied.setVisibility(View.GONE);
                 showRecommendation("08:00 AM", "05:00 PM");
             }
+
+            updateStartTimeSpinner();
 
         } catch (Exception e) {
             Log.e(TAG, "Analysis Error", e);
@@ -338,9 +341,93 @@ public class ThirdPageActivity extends AppCompatActivity {
         btnAutoFill.setTag(new String[]{start, suggestEnd});
     }
 
+    private String sanitizeTime(String raw) {
+        if (raw == null) return "";
+        return raw.replace(" (Occupied)", "").replace(" (Unavailable)", "").trim();
+    }
+
+    private List<int[]> getOccupiedRangesForCurrentSelection() {
+        List<int[]> ranges = new ArrayList<>();
+
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+        try {
+            JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+            for (int i = 0; i < bookings.length(); i++) {
+                JSONObject b = bookings.getJSONObject(i);
+                int bOffset = b.optInt("week_offset", 0);
+                if (b.getString("lab").equalsIgnoreCase(currentLabName) && 
+                    b.getString("day").equalsIgnoreCase(selectedDay) && 
+                    bOffset == currentWeekOffset) {
+                    
+                    int[] r = BookingUtils.getStartEndHours(b.getString("time"));
+                    if (r != null && r[1] > r[0]) {
+                        ranges.add(r);
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
+        for (ClassSession cs : masterList) {
+            if (cs.getLabLocation().equalsIgnoreCase(currentLabName) && 
+                cs.getDay().equalsIgnoreCase(selectedDay)) {
+                
+                int[] r = BookingUtils.getStartEndHours(cs.getTimeSlot());
+                if (r != null && r[1] > r[0]) {
+                    ranges.add(r);
+                }
+            }
+        }
+
+        return ranges;
+    }
+
+    private void updateStartTimeSpinner() {
+        if (spinnerStartTime == null) return;
+
+        List<String> displayOptions = new ArrayList<>();
+        List<int[]> occupiedRanges = getOccupiedRangesForCurrentSelection();
+
+        List<String> rawStartOptions = timeOptions.subList(0, timeOptions.size() - 1);
+        for (String rawTime : rawStartOptions) {
+            int[] range = BookingUtils.getStartEndHours(rawTime + " - 11:59 PM");
+            int hour = (range != null) ? range[0] : -1;
+
+            boolean isOccupied = false;
+            for (int[] occ : occupiedRanges) {
+                if (hour >= occ[0] && hour < occ[1]) {
+                    isOccupied = true;
+                    break;
+                }
+            }
+
+            if (isOccupied) {
+                displayOptions.add(rawTime + " (Occupied)");
+            } else {
+                displayOptions.add(rawTime);
+            }
+        }
+
+        String currentSelected = (spinnerStartTime.getSelectedItem() != null) ? 
+                sanitizeTime(spinnerStartTime.getSelectedItem().toString()) : null;
+
+        ArrayAdapter<String> startAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, displayOptions);
+        spinnerStartTime.setAdapter(startAdapter);
+
+        if (currentSelected != null) {
+            for (int i = 0; i < displayOptions.size(); i++) {
+                if (sanitizeTime(displayOptions.get(i)).equals(currentSelected)) {
+                    spinnerStartTime.setSelection(i);
+                    break;
+                }
+            }
+        }
+    }
+
     private void enforceBoundaryLogic(String selectedStart) {
         if (selectedStart == null) return;
-        int[] startRange = BookingUtils.getStartEndHours(selectedStart + " - 11:59 PM");
+        String cleanStart = sanitizeTime(selectedStart);
+        int[] startRange = BookingUtils.getStartEndHours(cleanStart + " - 11:59 PM");
         if (startRange == null) return;
         
         int startHour = startRange[0];
@@ -364,11 +451,24 @@ public class ThirdPageActivity extends AppCompatActivity {
             }
         } catch (Exception ignored) {}
 
-        for (int i = timeOptions.indexOf(selectedStart) + 1; i < timeOptions.size(); i++) {
-            int[] endRange = BookingUtils.getStartEndHours("08:00 AM - " + timeOptions.get(i));
-            if (endRange != null && endRange[1] <= nextLimit) {
-                validEnds.add(timeOptions.get(i));
-            } else break;
+        List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
+        for (ClassSession cs : masterList) {
+            if (cs.getLabLocation().equalsIgnoreCase(currentLabName) && cs.getDay().equalsIgnoreCase(selectedDay)) {
+                int[] bRange = BookingUtils.getStartEndHours(cs.getTimeSlot());
+                if (bRange != null && bRange[0] > startHour && bRange[0] < nextLimit) {
+                    nextLimit = bRange[0];
+                }
+            }
+        }
+
+        int cleanStartIndex = timeOptions.indexOf(cleanStart);
+        if (cleanStartIndex != -1) {
+            for (int i = cleanStartIndex + 1; i < timeOptions.size(); i++) {
+                int[] endRange = BookingUtils.getStartEndHours("08:00 AM - " + timeOptions.get(i));
+                if (endRange != null && endRange[1] <= nextLimit) {
+                    validEnds.add(timeOptions.get(i));
+                } else break;
+            }
         }
 
         ArrayAdapter<String> endAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, validEnds);
@@ -399,8 +499,8 @@ public class ThirdPageActivity extends AppCompatActivity {
     private void updateDurationDisplay() {
         try {
             if (spinnerStartTime.getSelectedItem() == null || spinnerEndTime.getSelectedItem() == null) return;
-            String s = spinnerStartTime.getSelectedItem().toString();
-            String e = spinnerEndTime.getSelectedItem().toString();
+            String s = sanitizeTime(spinnerStartTime.getSelectedItem().toString());
+            String e = sanitizeTime(spinnerEndTime.getSelectedItem().toString());
             int[] r1 = BookingUtils.getStartEndHours(s + " - 11:59 PM");
             int[] r2 = BookingUtils.getStartEndHours("08:00 AM - " + e);
             if (r1 != null && r2 != null) {
@@ -435,8 +535,16 @@ public class ThirdPageActivity extends AppCompatActivity {
     private void processBooking() {
         if (spinnerStartTime.getSelectedItem() == null || spinnerEndTime.getSelectedItem() == null) return;
         
-        String start = spinnerStartTime.getSelectedItem().toString();
-        String end = spinnerEndTime.getSelectedItem().toString();
+        String rawStart = spinnerStartTime.getSelectedItem().toString();
+        String rawEnd = spinnerEndTime.getSelectedItem().toString();
+
+        if (rawStart.contains("(Occupied)") || rawEnd.contains("(Occupied)")) {
+            Toast.makeText(this, getString(R.string.error_clash_detected), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String start = sanitizeTime(rawStart);
+        String end = sanitizeTime(rawEnd);
         String finalTime = BookingUtils.formatProfessionalTime(start + " - " + end);
 
         // Get actual user name for the booking record
