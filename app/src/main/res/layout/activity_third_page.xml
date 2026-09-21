@@ -314,10 +314,24 @@
 
         <!-- Action Buttons -->
         <Button
-            android:id="@+id/btnConfirmBooking"
+            android:id="@+id/btnAdminAddSchedule"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
+            android:backgroundTint="#0284C7"
+            android:text="@string/btn_admin_add_schedule"
+            android:textAllCaps="false"
+            android:textColor="@color/text_light"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/btnConfirmBooking"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
             android:backgroundTint="@color/campus_navy"
             android:text="@string/btn_confirm_booking"
             android:textAllCaps="false"

@@ -41,7 +41,7 @@ public class ThirdPageActivity extends AppCompatActivity {
     private TextView tvThisWeek, tvNextWeek, tvPrevWeek, tvNextWeekArrow;
     private Spinner spinnerStartTime, spinnerEndTime;
     private CardView cardOccupied, cardRecommendation;
-    private Button btnConfirmBooking, btnAutoFill;
+    private Button btnConfirmBooking, btnAutoFill, btnAdminAddSchedule;
     private ChipGroup chipGroupDays;
 
     private String currentLabName = "DCN";
@@ -87,6 +87,7 @@ public class ThirdPageActivity extends AppCompatActivity {
         cardRecommendation = findViewById(R.id.cardRecommendation);
         
         btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
+        btnAdminAddSchedule = findViewById(R.id.btnAdminAddSchedule);
         btnAutoFill = findViewById(R.id.btnAutoFill);
         chipGroupDays = findViewById(R.id.chipGroupDays);
     }
@@ -99,6 +100,13 @@ public class ThirdPageActivity extends AppCompatActivity {
         String userRole = getIntent().getStringExtra("USER_ROLE");
         if (getString(R.string.role_student).equals(userRole)) {
             if (btnConfirmBooking != null) btnConfirmBooking.setVisibility(View.GONE);
+            if (btnAdminAddSchedule != null) btnAdminAddSchedule.setVisibility(View.GONE);
+        } else {
+            // Admin or Lecturer role can add/manage master schedule
+            if (btnAdminAddSchedule != null) {
+                btnAdminAddSchedule.setVisibility(View.VISIBLE);
+                btnAdminAddSchedule.setOnClickListener(v -> showAddScheduleDialog());
+            }
         }
     }
 
@@ -200,9 +208,21 @@ public class ThirdPageActivity extends AppCompatActivity {
             for (int i = 0; i < bookings.length(); i++) {
                 JSONObject b = bookings.getJSONObject(i);
                 int bOffset = b.optInt("week_offset", 0);
-                if (b.getString("lab").equals(currentLabName) && b.getString("day").equals(selectedDay) && bOffset == currentWeekOffset) {
+                if (b.getString("lab").equals(currentLabName) && b.getString("day").equalsIgnoreCase(selectedDay) && bOffset == currentWeekOffset) {
                     activeSession = b;
                     break;
+                }
+            }
+
+            // Check Master Timetable if no individual user booking is found
+            ClassSession masterSession = null;
+            if (activeSession == null) {
+                List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
+                for (ClassSession cs : masterList) {
+                    if (cs.getLabLocation().equalsIgnoreCase(currentLabName) && cs.getDay().equalsIgnoreCase(selectedDay)) {
+                        masterSession = cs;
+                        break;
+                    }
                 }
             }
 
@@ -215,11 +235,22 @@ public class ThirdPageActivity extends AppCompatActivity {
                 String timeStr = activeSession.optString("time", "Unknown");
                 String[] parts = timeStr.split(" - ");
                 String start = parts[0];
-                String end = (parts.length > 1) ? parts[1].split(" \\(")[0] : "End";
-                tvOccupiedTime.setText(getString(R.string.label_time_range, start, end));
+                tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")));
                 
                 int[] hours = BookingUtils.getStartEndHours(timeStr);
                 if (hours != null && hours[1] < 17) {
+                    showRecommendation(format24To12(hours[1]), "05:00 PM");
+                } else {
+                    cardRecommendation.setVisibility(View.GONE);
+                }
+            } else if (masterSession != null) {
+                cardOccupied.setVisibility(View.VISIBLE);
+                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, "Faculty Schedule"));
+                tvOccupiedSubject.setText(getString(R.string.label_subject, masterSession.getSubjectName()));
+                tvOccupiedTime.setText(getString(R.string.label_time_range, masterSession.getTimeSlot(), ""));
+
+                int[] hours = BookingUtils.getStartEndHours(masterSession.getTimeSlot());
+                if (hours != null && hours[1] < 17 && hours[1] > 0) {
                     showRecommendation(format24To12(hours[1]), "05:00 PM");
                 } else {
                     cardRecommendation.setVisibility(View.GONE);
@@ -232,6 +263,61 @@ public class ThirdPageActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Analysis Error", e);
         }
+    }
+
+    private void showAddScheduleDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle(R.string.dialog_add_schedule_title);
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final android.widget.EditText etSubject = new android.widget.EditText(this);
+        etSubject.setHint(R.string.hint_subject_name);
+        layout.addView(etSubject);
+
+        final android.widget.EditText etSem = new android.widget.EditText(this);
+        etSem.setHint(R.string.hint_semester);
+        etSem.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        layout.addView(etSem);
+
+        final Spinner spDay = new Spinner(this);
+        ArrayAdapter<String> dayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, 
+                new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"});
+        spDay.setAdapter(dayAdapter);
+        layout.addView(spDay);
+
+        final Spinner spStart = new Spinner(this);
+        spStart.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, timeOptions.subList(0, timeOptions.size() - 1)));
+        layout.addView(spStart);
+
+        final Spinner spEnd = new Spinner(this);
+        spEnd.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, timeOptions.subList(1, timeOptions.size())));
+        layout.addView(spEnd);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            String subject = etSubject.getText().toString().trim();
+            String semStr = etSem.getText().toString().trim();
+            if (subject.isEmpty()) subject = "Academic Lecture";
+            int sem = semStr.isEmpty() ? 1 : Integer.parseInt(semStr);
+
+            String day = spDay.getSelectedItem().toString();
+            String startTime = spStart.getSelectedItem().toString();
+            String endTime = spEnd.getSelectedItem().toString();
+            String timeSlot = startTime + " - " + endTime;
+
+            ClassSession session = new ClassSession(subject, sem, day, timeSlot, currentLabName);
+            ScheduleManager.addTimetableSession(this, session);
+
+            Toast.makeText(this, R.string.msg_schedule_added, Toast.LENGTH_SHORT).show();
+            analyzeLabAvailability();
+        });
+
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 
     private void showRecommendation(String start, String end) {

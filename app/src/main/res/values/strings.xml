@@ -222,6 +222,11 @@
     <string name="msg_loading_sync">Syncing Lab Schedules...</string>
     <!-- RetakeAssistantActivity -->
     <string name="title_retake_assistant">AI Retake Assistant</string>
+    <string name="btn_admin_add_schedule">➕ Admin: Add Class Timetable</string>
+    <string name="dialog_add_schedule_title">Add Academic Class Schedule</string>
+    <string name="hint_subject_name">Subject Name (e.g. Network Security)</string>
+    <string name="hint_semester">Semester (1 - 8)</string>
+    <string name="msg_schedule_added">Class session added to master timetable!</string>
     <string name="header_retake_subject">Which subject are you retaking?</string>
     <string name="btn_analyze_schedule">Analyze for Gaps</string>
     <string name="header_suggestions">AI Suggestions (Clash-Free)</string>
