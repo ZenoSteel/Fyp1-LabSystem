@@ -50,6 +50,11 @@ public class AdminActivity extends AppCompatActivity {
             Toast.makeText(this, "Broadcasting faculty-wide alert...", Toast.LENGTH_SHORT).show()
         );
 
+        View btnTimetables = findViewById(R.id.btnManageTimetables);
+        if (btnTimetables != null) {
+            btnTimetables.setOnClickListener(v -> showLabPickerForTimetable());
+        }
+
         // Setup All 11 Lab Switches
         setupLabSwitch(R.id.switchDCN, "DCN");
         setupLabSwitch(R.id.switchNWL, "NWL");
@@ -72,6 +77,23 @@ public class AdminActivity extends AppCompatActivity {
                 Toast.makeText(this, labName + " status updated to: " + status, Toast.LENGTH_SHORT).show();
             });
         }
+    }
+
+    private void showLabPickerForTimetable() {
+        final String[] labs = {"DCN", "NWL", "Lab 1", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "Lab 2", "HYP", "Lab 3", "MML"};
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Select Lab to Edit Timetable");
+        builder.setItems(labs, (dialog, which) -> openLabTimetable(labs[which]));
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void openLabTimetable(String labName) {
+        Intent intent = new Intent(this, ThirdPageActivity.class);
+        intent.putExtra("LAB_NAME", labName);
+        intent.putExtra("USER_NAME", "Admin");
+        intent.putExtra("USER_ROLE", getString(R.string.role_admin));
+        startActivity(intent);
     }
 
     private void loadAIInsights() {

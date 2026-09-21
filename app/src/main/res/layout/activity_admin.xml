@@ -210,6 +210,16 @@
                 android:textAllCaps="false"
                 app:cornerRadius="12dp" />
 
+            <Button
+                android:id="@+id/btnManageTimetables"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#0284C7"
+                android:text="@string/btn_manage_timetables"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp" />
+
             <!-- Lab Controls -->
             <TextView
                 android:layout_width="wrap_content"

@@ -38,6 +38,7 @@
 
     <!-- AdminActivity -->
     <string name="title_admin_dashboard">Admin Command Center</string>
+    <string name="btn_manage_timetables">📅 Manage Lab Timetables</string>
     <string name="header_ai_insights">AI System Insights</string>
     <string name="label_active_alerts">Active AI Alerts: %1$d</string>
     <string name="label_maintenance_needed">Labs Needing Maintenance: %1$d</string>
