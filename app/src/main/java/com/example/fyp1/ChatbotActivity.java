@@ -188,7 +188,7 @@ public class ChatbotActivity extends AppCompatActivity {
 
     private void handleBookingFlow(String input) {
         switch (currentState) {
-            case STATE_PROPOSE_BOOKING:
+            case STATE_PROPOSE_BOOKING: {
                 if (input.contains("yes") || input.contains("ok") || input.contains("sure") || input.contains("want")) {
                     currentState = STATE_ASK_TIME;
                     addBotBubble(getString(R.string.bot_msg_ask_time));
@@ -197,17 +197,43 @@ public class ChatbotActivity extends AppCompatActivity {
                     currentState = STATE_IDLE;
                 }
                 break;
+            }
 
-            case STATE_ASK_LAB:
+            case STATE_ASK_LAB: {
                 String lab = detectLab(input);
-                if (lab != null) {
+                String day = detectDay(input);
+                String time = detectTime(input);
+
+                if (lab != null && day != null && time != null) {
+                    if (isWeekend(day)) {
+                        addBotBubble("The labs are not open on weekends. Please choose a weekday (Monday to Friday).");
+                        return;
+                    }
+                    pendingLab = lab;
+                    pendingDay = day;
+                    pendingTime = time;
+                    currentState = STATE_CONFIRM;
+                    addBotBubble(getString(R.string.bot_msg_booking_confirm, pendingLab, pendingDay, pendingTime));
+                } else if (lab != null && day != null) {
+                    if (isWeekend(day)) {
+                        addBotBubble("The labs are not open on weekends. Please choose a weekday (Monday to Friday).");
+                        return;
+                    }
+                    pendingLab = lab;
+                    pendingDay = day;
+                    currentState = STATE_ASK_TIME;
+                    addBotBubble(getString(R.string.bot_msg_ask_time));
+                } else if (lab != null) {
                     pendingLab = lab;
                     currentState = STATE_ASK_DAY;
                     addBotBubble(getString(R.string.bot_msg_ask_day));
-                } else addBotBubble(getString(R.string.bot_msg_invalid_lab));
+                } else {
+                    addBotBubble(getString(R.string.bot_msg_invalid_lab));
+                }
                 break;
+            }
 
-            case STATE_ASK_DAY:
+            case STATE_ASK_DAY: {
                 String day = detectDay(input);
                 if (day != null) {
                     if (isWeekend(day)) {
@@ -219,6 +245,7 @@ public class ChatbotActivity extends AppCompatActivity {
                     addBotBubble(getString(R.string.bot_msg_ask_time));
                 } else addBotBubble(getString(R.string.bot_msg_invalid_day));
                 break;
+            }
 
             case STATE_ASK_TIME:
                 pendingTime = BookingUtils.formatProfessionalTime(input);

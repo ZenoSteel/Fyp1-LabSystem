@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * The "Brain" of the chatbot. Handles fuzzy logic, synonym mapping, 
- * and intent detection to make the assistant feel smarter.
+ * and intent detection for all 11 campus labs.
  */
 public class BotBrain {
 
@@ -13,11 +13,16 @@ public class BotBrain {
 
     static {
         LAB_SYNONYMS.put("DCN", new String[]{"dcn", "data communication", "networking lab", "dc-n"});
-        LAB_SYNONYMS.put("NWL", new String[]{"nwl", "network lab", "network", "wireless"});
-        LAB_SYNONYMS.put("MML", new String[]{"mml", "multimedia", "media lab", "design lab"});
-        LAB_SYNONYMS.put("HYP", new String[]{"hyp", "hyper", "high performance", "computing lab"});
+        LAB_SYNONYMS.put("NWL", new String[]{"nwl", "wireless lab", "wireless"});
+        LAB_SYNONYMS.put("Lab 1", new String[]{"lab 1", "lab1", "general lab 1"});
+        LAB_SYNONYMS.put("SAD Lab", new String[]{"sad lab", "sad", "system analysis"});
+        LAB_SYNONYMS.put("Network Lab", new String[]{"network lab", "network"});
         LAB_SYNONYMS.put("PGL1", new String[]{"pgl1", "programming lab 1", "pgl 1", "coding 1"});
         LAB_SYNONYMS.put("PGL2", new String[]{"pgl2", "programming lab 2", "pgl 2", "coding 2"});
+        LAB_SYNONYMS.put("Lab 2", new String[]{"lab 2", "lab2", "general lab 2"});
+        LAB_SYNONYMS.put("HYP", new String[]{"hyp", "hyper", "high performance", "hypermedia"});
+        LAB_SYNONYMS.put("Lab 3", new String[]{"lab 3", "lab3", "general lab 3"});
+        LAB_SYNONYMS.put("MML", new String[]{"mml", "multimedia", "media lab", "design lab"});
     }
 
     /**
