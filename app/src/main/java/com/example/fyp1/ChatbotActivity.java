@@ -366,22 +366,35 @@ public class ChatbotActivity extends AppCompatActivity {
         addBotBubble(getString(R.string.bot_msg_clear_success));
     }
 
+    private String getChatHistoryKey() {
+        String username = getIntent().getStringExtra("USER_NAME");
+        String role = getIntent().getStringExtra("USER_ROLE");
+        if (username != null && !username.trim().isEmpty()) {
+            return "chat_history_" + username.trim().toLowerCase(Locale.US);
+        } else if (role != null && !role.trim().isEmpty()) {
+            return "chat_history_" + role.trim().toLowerCase(Locale.US);
+        }
+        return PREF_CHAT_HISTORY;
+    }
+
     private void saveChatMessage(String sender, String text) {
         SharedPreferences prefs = getSharedPreferences("ChatHistory", Context.MODE_PRIVATE);
         try {
-            JSONArray history = new JSONArray(prefs.getString(PREF_CHAT_HISTORY, "[]"));
+            String key = getChatHistoryKey();
+            JSONArray history = new JSONArray(prefs.getString(key, "[]"));
             JSONObject m = new JSONObject();
             m.put("sender", sender);
             m.put("text", text);
             history.put(m);
-            prefs.edit().putString(PREF_CHAT_HISTORY, history.toString()).apply();
+            prefs.edit().putString(key, history.toString()).apply();
         } catch (Exception ignored) {}
     }
 
     private boolean loadChatHistory() {
         SharedPreferences prefs = getSharedPreferences("ChatHistory", Context.MODE_PRIVATE);
         try {
-            JSONArray history = new JSONArray(prefs.getString(PREF_CHAT_HISTORY, "[]"));
+            String key = getChatHistoryKey();
+            JSONArray history = new JSONArray(prefs.getString(key, "[]"));
             if (history.length() == 0) return false;
             for (int i = 0; i < history.length(); i++) {
                 JSONObject m = history.getJSONObject(i);
@@ -393,7 +406,8 @@ public class ChatbotActivity extends AppCompatActivity {
     }
 
     private void clearChatHistory() {
-        getSharedPreferences("ChatHistory", Context.MODE_PRIVATE).edit().clear().apply();
+        String key = getChatHistoryKey();
+        getSharedPreferences("ChatHistory", Context.MODE_PRIVATE).edit().remove(key).apply();
     }
 
     private void addBotBubble(String text) {

@@ -144,6 +144,7 @@ public class SecondPageActivity extends AppCompatActivity {
         findViewById(R.id.menuAIChatbot).setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
             Intent intent = new Intent(this, ChatbotActivity.class);
+            intent.putExtra("USER_NAME", getIntent().getStringExtra("USER_NAME"));
             intent.putExtra("USER_ROLE", userRole);
             startActivity(intent);
         });
