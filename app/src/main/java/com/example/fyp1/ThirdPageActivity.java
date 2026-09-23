@@ -234,10 +234,10 @@ public class ThirdPageActivity extends AppCompatActivity {
         try {
             JSONArray bookings = new JSONArray(bookingsJson);
             List<String> occupiedSummaries = new ArrayList<>();
-            ClassSession masterSessionToDelete = null;
-            JSONObject userBookingToDelete = null;
+            List<ClassSession> dayMasterSessions = new ArrayList<>();
+            List<JSONObject> dayUserBookings = new ArrayList<>();
 
-            // 1. User Bookings
+            // 1. Collect all User Bookings for selected weekday
             for (int i = 0; i < bookings.length(); i++) {
                 JSONObject b = bookings.getJSONObject(i);
                 int bOffset = b.optInt("week_offset", 0);
@@ -245,20 +245,20 @@ public class ThirdPageActivity extends AppCompatActivity {
                     b.getString("day").equalsIgnoreCase(selectedDay) && 
                     bOffset == currentWeekOffset) {
                     
-                    userBookingToDelete = b;
+                    dayUserBookings.add(b);
                     String by = b.optString("bookedBy", "Faculty Staff");
                     String time = b.optString("time", "Unknown");
                     occupiedSummaries.add("• " + currentLabName + " Reservation (" + time + ")\n   Reserved By: " + by);
                 }
             }
 
-            // 2. Master Timetable Sessions (Morning & Afternoon)
+            // 2. Collect all Master Timetable Sessions for selected weekday (Morning & Afternoon)
             List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
             for (ClassSession cs : masterList) {
                 if (cs.getLabLocation().equalsIgnoreCase(currentLabName) && 
                     cs.getDay().equalsIgnoreCase(selectedDay)) {
                     
-                    masterSessionToDelete = cs;
+                    dayMasterSessions.add(cs);
                     String code = cs.getClassCode().isEmpty() ? "" : cs.getClassCode() + " - ";
                     String clsName = cs.getClassName().isEmpty() ? "" : " [" + cs.getClassName() + "]";
                     String lect = cs.getLecturerName().isEmpty() ? "Faculty Staff" : cs.getLecturerName();
@@ -280,16 +280,11 @@ public class ThirdPageActivity extends AppCompatActivity {
                     if (i < occupiedSummaries.size() - 1) sb.append("\n\n");
                 }
                 tvOccupiedSubject.setText(sb.toString());
-                tvOccupiedTime.setText(""); // Included in summary list
+                tvOccupiedTime.setText("");
 
                 if (isAdmin && btnDeleteSession != null) {
                     btnDeleteSession.setVisibility(View.VISIBLE);
-                    final ClassSession csDel = masterSessionToDelete;
-                    final JSONObject ubDel = userBookingToDelete;
-                    btnDeleteSession.setOnClickListener(v -> {
-                        if (csDel != null) confirmDeleteMasterSession(csDel);
-                        else if (ubDel != null) confirmDeleteUserBooking(ubDel);
-                    });
+                    btnDeleteSession.setOnClickListener(v -> showDeleteSessionPicker(dayMasterSessions, dayUserBookings));
                 } else if (btnDeleteSession != null) {
                     btnDeleteSession.setVisibility(View.GONE);
                 }
@@ -406,6 +401,38 @@ public class ThirdPageActivity extends AppCompatActivity {
             analyzeLabAvailability();
         });
 
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showDeleteSessionPicker(List<ClassSession> masterSessions, List<JSONObject> userBookings) {
+        List<String> options = new ArrayList<>();
+        
+        for (ClassSession cs : masterSessions) {
+            options.add("Class: " + cs.getSubjectName() + " (" + cs.getTimeSlot() + ")");
+        }
+        for (JSONObject ub : userBookings) {
+            options.add("Reservation: " + ub.optString("time", "Time") + " (" + ub.optString("bookedBy", "User") + ")");
+        }
+
+        if (options.isEmpty()) return;
+
+        if (options.size() == 1) {
+            if (!masterSessions.isEmpty()) confirmDeleteMasterSession(masterSessions.get(0));
+            else if (!userBookings.isEmpty()) confirmDeleteUserBooking(userBookings.get(0));
+            return;
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Select Session to Delete (" + selectedDay + ")");
+        builder.setItems(options.toArray(new String[0]), (dialog, which) -> {
+            if (which < masterSessions.size()) {
+                confirmDeleteMasterSession(masterSessions.get(which));
+            } else {
+                int ubIdx = which - masterSessions.size();
+                confirmDeleteUserBooking(userBookings.get(ubIdx));
+            }
+        });
         builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
         builder.show();
     }
