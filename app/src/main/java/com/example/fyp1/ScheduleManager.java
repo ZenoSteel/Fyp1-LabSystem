@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ScheduleManager {
     private static final String PREF_NAME = "MasterScheduleData";
-    private static final String KEY_MASTER_TIMETABLE = "master_timetable";
+    private static final String KEY_MASTER_TIMETABLE = "master_timetable_v2";
     private static final String KEY_MY_SCHEDULE = "my_schedule";
 
     public static List<ClassSession> getMasterTimetable(Context context) {
@@ -21,22 +21,29 @@ public class ScheduleManager {
         List<ClassSession> master = new ArrayList<>();
 
         if (json == null) {
-            // Expanded initial dataset with multiple parallel class sections
+            // Default master dataset with official classes for all labs
+            master.add(new ClassSession("DFC5082", "Network Security", "Encik Nizam", 5, "Monday", "8:00 AM - 11:00 AM", "DCN"));
+            master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
+            master.add(new ClassSession("DFC5035", "Ethics & Cyberlaw", "Encik Farhan", 5, "Friday", "2:00 PM - 4:00 PM", "DCN"));
+
             master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
+            master.add(new ClassSession("DFC30223", "Database Systems", "Encik Nizam", 2, "Thursday", "8:00 AM - 10:00 AM", "Lab 1"));
+            master.add(new ClassSession("DFC40143", "Networking", "Encik Nizam", 3, "Tuesday", "8:00 AM - 10:00 AM", "Lab 1"));
+
             master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
+            master.add(new ClassSession("DFC5024", "Web Architecture", "Dr. Aminah", 5, "Wednesday", "11:00 AM - 1:00 PM", "Lab 2"));
+
+            master.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
             master.add(new ClassSession("DFC50133", "Programming 1", "Dr. Aminah", 1, "Friday", "9:00 AM - 12:00 PM", "Lab 3"));
 
-            master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
-            master.add(new ClassSession("DFC30223", "Database Systems", "Encik Nizam", 2, "Thursday", "8:00 AM - 10:00 AM", "Lab 1"));
-            master.add(new ClassSession("DFC30223", "Database Systems", "Puan Sarah", 2, "Wednesday", "9:00 AM - 11:00 AM", "HYP"));
-
             master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
-            master.add(new ClassSession("DFC40143", "Networking", "Encik Nizam", 3, "Tuesday", "8:00 AM - 10:00 AM", "Lab 1"));
-            master.add(new ClassSession("DFC40143", "Networking", "Puan Sarah", 3, "Monday", "2:00 PM - 4:00 PM", "SAD Lab"));
+            master.add(new ClassSession("DFC5082", "Network Security", "Encik Nizam", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
 
             master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Aminah", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
+            master.add(new ClassSession("DFC30223", "Database Systems", "Puan Sarah", 2, "Wednesday", "9:00 AM - 11:00 AM", "HYP"));
             master.add(new ClassSession("DFC40233", "Operating Systems", "Encik Farhan", 4, "Wednesday", "8:00 AM - 11:00 AM", "PGL 1"));
             master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Zaim", 4, "Tuesday", "2:00 PM - 5:00 PM", "PGL 2"));
+            master.add(new ClassSession("DFC40143", "Networking", "Puan Sarah", 3, "Monday", "2:00 PM - 4:00 PM", "SAD Lab"));
 
             saveMasterTimetable(context, master);
             return master;
@@ -64,23 +71,13 @@ public class ScheduleManager {
     }
 
     public static List<ClassSession> getMasterTimetable() {
-        // Fallback for non-context calls
+        // Fallback
         List<ClassSession> master = new ArrayList<>();
-        master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
-        master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
-        master.add(new ClassSession("DFC50133", "Programming 1", "Dr. Aminah", 1, "Friday", "9:00 AM - 12:00 PM", "Lab 3"));
-
+        master.add(new ClassSession("DFC5082", "Network Security", "Encik Nizam", 5, "Monday", "8:00 AM - 11:00 AM", "DCN"));
         master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
-        master.add(new ClassSession("DFC30223", "Database Systems", "Encik Nizam", 2, "Thursday", "8:00 AM - 10:00 AM", "Lab 1"));
-        master.add(new ClassSession("DFC30223", "Database Systems", "Puan Sarah", 2, "Wednesday", "9:00 AM - 11:00 AM", "HYP"));
-
+        master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
         master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
-        master.add(new ClassSession("DFC40143", "Networking", "Encik Nizam", 3, "Tuesday", "8:00 AM - 10:00 AM", "Lab 1"));
-        master.add(new ClassSession("DFC40143", "Networking", "Puan Sarah", 3, "Monday", "2:00 PM - 4:00 PM", "SAD Lab"));
-
         master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Aminah", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
-        master.add(new ClassSession("DFC40233", "Operating Systems", "Encik Farhan", 4, "Wednesday", "8:00 AM - 11:00 AM", "PGL 1"));
-        master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Zaim", 4, "Tuesday", "2:00 PM - 5:00 PM", "PGL 2"));
         return master;
     }
 
@@ -130,51 +127,6 @@ public class ScheduleManager {
         }
     }
 
-    public static void addStudentClass(Context context, ClassSession session) {
-        List<ClassSession> currentList = getStudentSchedule(context);
-        currentList.add(session);
-        saveStudentSchedule(context, currentList);
-    }
-
-    public static void removeStudentClass(Context context, ClassSession targetSession) {
-        if (targetSession == null) return;
-        List<ClassSession> currentList = getStudentSchedule(context);
-        List<ClassSession> updatedList = new ArrayList<>();
-
-        for (ClassSession s : currentList) {
-            if (s.getDay().equalsIgnoreCase(targetSession.getDay()) &&
-                s.getTimeSlot().equalsIgnoreCase(targetSession.getTimeSlot()) &&
-                s.getSubjectName().equalsIgnoreCase(targetSession.getSubjectName())) {
-                continue; // Skip session to remove
-            }
-            updatedList.add(s);
-        }
-
-        saveStudentSchedule(context, updatedList);
-    }
-
-    public static void saveStudentSchedule(Context context, List<ClassSession> list) {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        try {
-            JSONArray array = new JSONArray();
-            for (ClassSession s : list) {
-                JSONObject obj = new JSONObject();
-                obj.put("classCode", s.getClassCode());
-                obj.put("subjectName", s.getSubjectName());
-                obj.put("className", s.getClassName());
-                obj.put("lecturerName", s.getLecturerName());
-                obj.put("semester", s.getSemester());
-                obj.put("day", s.getDay());
-                obj.put("timeSlot", s.getTimeSlot());
-                obj.put("labLocation", s.getLabLocation());
-                array.put(obj);
-            }
-            prefs.edit().putString(KEY_MY_SCHEDULE, array.toString()).apply();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static List<ClassSession> getStudentSchedule(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_MY_SCHEDULE, null);
@@ -205,5 +157,50 @@ public class ScheduleManager {
             e.printStackTrace();
         }
         return schedule;
+    }
+
+    public static void addStudentClass(Context context, ClassSession session) {
+        List<ClassSession> currentList = getStudentSchedule(context);
+        currentList.add(session);
+        saveStudentSchedule(context, currentList);
+    }
+
+    public static void removeStudentClass(Context context, ClassSession targetSession) {
+        if (targetSession == null) return;
+        List<ClassSession> currentList = getStudentSchedule(context);
+        List<ClassSession> updatedList = new ArrayList<>();
+
+        for (ClassSession s : currentList) {
+            if (s.getDay().equalsIgnoreCase(targetSession.getDay()) &&
+                s.getTimeSlot().equalsIgnoreCase(targetSession.getTimeSlot()) &&
+                s.getSubjectName().equalsIgnoreCase(targetSession.getSubjectName())) {
+                continue;
+            }
+            updatedList.add(s);
+        }
+
+        saveStudentSchedule(context, updatedList);
+    }
+
+    public static void saveStudentSchedule(Context context, List<ClassSession> list) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        try {
+            JSONArray array = new JSONArray();
+            for (ClassSession s : list) {
+                JSONObject obj = new JSONObject();
+                obj.put("classCode", s.getClassCode());
+                obj.put("subjectName", s.getSubjectName());
+                obj.put("className", s.getClassName());
+                obj.put("lecturerName", s.getLecturerName());
+                obj.put("semester", s.getSemester());
+                obj.put("day", s.getDay());
+                obj.put("timeSlot", s.getTimeSlot());
+                obj.put("labLocation", s.getLabLocation());
+                array.put(obj);
+            }
+            prefs.edit().putString(KEY_MY_SCHEDULE, array.toString()).apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
