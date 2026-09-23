@@ -489,7 +489,10 @@ public class ThirdPageActivity extends AppCompatActivity {
 
     private String sanitizeTime(String raw) {
         if (raw == null) return "";
-        return raw.replace(" (Occupied)", "").replace(" (Unavailable)", "").trim();
+        if (raw.contains("(")) {
+            return raw.split("\\(")[0].trim();
+        }
+        return raw.trim();
     }
 
     private List<int[]> getOccupiedRangesForCurrentSelection() {
@@ -539,16 +542,17 @@ public class ThirdPageActivity extends AppCompatActivity {
             int[] range = BookingUtils.getStartEndHours(rawTime + " - 11:59 PM");
             int hour = (range != null) ? range[0] : -1;
 
-            boolean isOccupied = false;
+            int[] matchingOccupied = null;
             for (int[] occ : occupiedRanges) {
                 if (hour >= occ[0] && hour < occ[1]) {
-                    isOccupied = true;
+                    matchingOccupied = occ;
                     break;
                 }
             }
 
-            if (isOccupied) {
-                displayOptions.add(rawTime + " (Occupied)");
+            if (matchingOccupied != null) {
+                String rangeStr = format24To12(matchingOccupied[0]) + " - " + format24To12(matchingOccupied[1]);
+                displayOptions.add(rawTime + " (Occupied: " + rangeStr + ")");
             } else {
                 displayOptions.add(rawTime);
             }
