@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class SignupActivity extends AppCompatActivity {
 
-    private EditText etUsername, etPassword, etConfirmPassword;
+    private EditText etUsername, etPassword, etConfirmPassword, etClassSection;
     private Spinner spinnerRole;
 
     @Override
@@ -28,6 +28,7 @@ public class SignupActivity extends AppCompatActivity {
         etUsername = findViewById(R.id.etSignupUsername);
         etPassword = findViewById(R.id.etSignupPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
+        etClassSection = findViewById(R.id.etClassSection);
         spinnerRole = findViewById(R.id.spinnerRole);
         Button btnSignup = findViewById(R.id.btnSignup);
         TextView tvBackToLogin = findViewById(R.id.tvBackToLogin);
@@ -43,6 +44,21 @@ public class SignupActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerRole.setAdapter(adapter);
+
+        spinnerRole.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                String selected = roles[position];
+                if (getString(R.string.role_student).equals(selected)) {
+                    if (etClassSection != null) etClassSection.setVisibility(android.view.View.VISIBLE);
+                } else {
+                    if (etClassSection != null) etClassSection.setVisibility(android.view.View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
     }
 
     private void registerUser() {
@@ -50,6 +66,8 @@ public class SignupActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirm = etConfirmPassword.getText().toString().trim();
         String role = spinnerRole.getSelectedItem().toString();
+        String className = (etClassSection != null && etClassSection.getVisibility() == android.view.View.VISIBLE) ? 
+                etClassSection.getText().toString().trim() : "";
 
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, getString(R.string.error_empty_fields), Toast.LENGTH_SHORT).show();
@@ -70,7 +88,13 @@ public class SignupActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(username, password);
         editor.putString(username + "_role", role);
+        if (!className.isEmpty()) editor.putString(username + "_class", className);
         editor.apply();
+
+        // Auto-populate student's schedule with master timetable classes matching their class/section
+        if (getString(R.string.role_student).equals(role)) {
+            autoPopulateStudentSchedule(className);
+        }
 
         // Attempt Cloud Registration via Firebase if available
         if (DatabaseManager.getInstance().isFirebaseAvailable()) {
@@ -92,5 +116,20 @@ public class SignupActivity extends AppCompatActivity {
 
         Toast.makeText(this, getString(R.string.msg_signup_success), Toast.LENGTH_LONG).show();
         finish();
+    }
+
+    private void autoPopulateStudentSchedule(String studentClass) {
+        java.util.List<ClassSession> master = ScheduleManager.getMasterTimetable(this);
+        java.util.List<ClassSession> studentSchedule = new java.util.ArrayList<>();
+
+        for (ClassSession cs : master) {
+            if (studentClass.isEmpty() || cs.getClassName().equalsIgnoreCase(studentClass)) {
+                studentSchedule.add(cs);
+            }
+        }
+
+        if (!studentSchedule.isEmpty()) {
+            ScheduleManager.saveStudentSchedule(this, studentSchedule);
+        }
     }
 }
