@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -328,18 +329,128 @@ public class SecondPageActivity extends AppCompatActivity {
         }
 
         Button btnAddClass = new Button(this);
-        btnAddClass.setText("➕ Add Class to My Schedule");
+        btnAddClass.setText("➕ Add Class Manually");
         btnAddClass.setBackgroundColor(Color.parseColor("#0284C7"));
         btnAddClass.setTextColor(Color.WHITE);
         btnAddClass.setAllCaps(false);
         btnAddClass.setOnClickListener(v -> showAddStudentClassDialog());
 
+        Button btnImportFile = new Button(this);
+        btnImportFile.setText("📁 Import Timetable File (.json / .csv)");
+        btnImportFile.setBackgroundColor(Color.parseColor("#0D9488"));
+        btnImportFile.setTextColor(Color.WHITE);
+        btnImportFile.setAllCaps(false);
+        btnImportFile.setOnClickListener(v -> openFilePickerForSchedule());
+
+        Button btnSampleSchedule = new Button(this);
+        btnSampleSchedule.setText("⚡ Load Sample Timetable File");
+        btnSampleSchedule.setBackgroundColor(Color.parseColor("#6366F1"));
+        btnSampleSchedule.setTextColor(Color.WHITE);
+        btnSampleSchedule.setAllCaps(false);
+        btnSampleSchedule.setOnClickListener(v -> loadSampleStudentSchedule());
+
         container.addView(btnAddClass);
+        container.addView(btnImportFile);
+        container.addView(btnSampleSchedule);
         sv.addView(container);
         builder.setView(sv);
 
         builder.setPositiveButton(R.string.close, (dialog, which) -> dialog.dismiss());
         builder.show();
+    }
+
+    private static final int REQUEST_CODE_PICK_SCHEDULE = 1001;
+
+    private void openFilePickerForSchedule() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(Intent.createChooser(intent, "Select Timetable File (.json / .csv / .txt)"), REQUEST_CODE_PICK_SCHEDULE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_PICK_SCHEDULE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            importScheduleFromUri(data.getData());
+        }
+    }
+
+    private void importScheduleFromUri(android.net.Uri uri) {
+        try {
+            java.io.InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) return;
+            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            inputStream.close();
+
+            String fileContent = sb.toString().trim();
+            List<ClassSession> importedSessions = parseScheduleText(fileContent);
+
+            if (!importedSessions.isEmpty()) {
+                ScheduleManager.saveStudentSchedule(this, importedSessions);
+                Toast.makeText(this, "Successfully imported " + importedSessions.size() + " classes from file!", Toast.LENGTH_LONG).show();
+                showStudentScheduleDialog();
+            } else {
+                Toast.makeText(this, "Could not parse timetable file. Ensure valid JSON or CSV format.", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Error reading file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private List<ClassSession> parseScheduleText(String content) {
+        List<ClassSession> list = new ArrayList<>();
+        try {
+            if (content.startsWith("[")) {
+                JSONArray array = new JSONArray(content);
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject obj = array.getJSONObject(i);
+                    String code = obj.optString("code", obj.optString("classCode", "DFC501"));
+                    String subject = obj.optString("subject", obj.optString("subjectName", "Class " + (i + 1)));
+                    String lecturer = obj.optString("lecturer", obj.optString("lecturerName", "Faculty Staff"));
+                    String day = obj.optString("day", "Monday");
+                    String time = obj.optString("time", obj.optString("timeSlot", "08:00 AM - 10:00 AM"));
+                    String room = obj.optString("room", obj.optString("labLocation", "Campus Lab"));
+                    list.add(new ClassSession(code, subject, lecturer, 5, day, time, room));
+                }
+                return list;
+            }
+
+            String[] lines = content.split("\n");
+            for (String l : lines) {
+                String[] parts = l.split(",");
+                if (parts.length >= 4) {
+                    String code = parts[0].trim();
+                    String subject = parts[1].trim();
+                    String day = parts.length >= 3 ? parts[2].trim() : "Monday";
+                    String time = parts.length >= 4 ? parts[3].trim() : "08:00 AM - 10:00 AM";
+                    String room = parts.length >= 5 ? parts[4].trim() : "Campus Lab";
+                    String lecturer = parts.length >= 6 ? parts[5].trim() : "Faculty Staff";
+                    list.add(new ClassSession(code, subject, lecturer, 5, day, time, room));
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "File Parse Error", e);
+        }
+        return list;
+    }
+
+    private void loadSampleStudentSchedule() {
+        List<ClassSession> sample = new ArrayList<>();
+        sample.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
+        sample.add(new ClassSession("DFC5082", "Network Security", "Encik Nizam", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
+        sample.add(new ClassSession("DFC5013", "Mobile Application", "Puan Sarah", 5, "Tuesday", "8:00 AM - 11:00 AM", "PGL 1"));
+        sample.add(new ClassSession("DFC5024", "Web Architecture", "Dr. Aminah", 5, "Wednesday", "11:00 AM - 1:00 PM", "Lab 2"));
+        sample.add(new ClassSession("DFC5035", "Ethics & Cyberlaw", "Encik Farhan", 5, "Friday", "2:00 PM - 4:00 PM", "DCN"));
+
+        ScheduleManager.saveStudentSchedule(this, sample);
+        Toast.makeText(this, "Sample 5-Subject Timetable Loaded!", Toast.LENGTH_SHORT).show();
+        showStudentScheduleDialog();
     }
 
     private void showAddStudentClassDialog() {
