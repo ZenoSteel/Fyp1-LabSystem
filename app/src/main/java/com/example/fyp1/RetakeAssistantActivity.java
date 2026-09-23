@@ -1,5 +1,7 @@
 package com.example.fyp1;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -11,16 +13,23 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * AI-Driven Academic Conflict Resolver for students retaking subjects.
+ * Provides multiple parallel class section recommendations without timetable clashes.
  */
 public class RetakeAssistantActivity extends AppCompatActivity {
+
+    private static final String ALL_SUBJECTS_OPTION = "🌟 All Subjects (Show All Options)";
 
     private Spinner spinnerSubjects;
     private LinearLayout layoutSuggestions;
@@ -47,13 +56,21 @@ public class RetakeAssistantActivity extends AppCompatActivity {
         btnAnalyze.setOnClickListener(v -> runAIAnalysis());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setupMockData();
+    }
+
     private void setupMockData() {
-        masterTimetable = ScheduleManager.getMasterTimetable();
+        masterTimetable = ScheduleManager.getMasterTimetable(this);
         studentCurrentSchedule = ScheduleManager.getStudentSchedule(this);
     }
 
     private void setupSpinner() {
         List<String> subjectNames = new ArrayList<>();
+        subjectNames.add(ALL_SUBJECTS_OPTION);
+
         for (ClassSession session : masterTimetable) {
             if (!subjectNames.contains(session.getSubjectName())) {
                 subjectNames.add(session.getSubjectName());
@@ -70,12 +87,14 @@ public class RetakeAssistantActivity extends AppCompatActivity {
 
         List<ClassSession> availableSlots = new ArrayList<>();
 
-        // AI Filtering Logic: Find slots for target subject that don't clash with current schedule
+        boolean isAllMode = selectedSubject.equals(ALL_SUBJECTS_OPTION);
+
+        // AI Conflict Analysis Engine: Filter out sessions that overlap with current schedule
         for (ClassSession targetSession : masterTimetable) {
-            if (targetSession.getSubjectName().equals(selectedSubject)) {
+            if (isAllMode || targetSession.getSubjectName().equalsIgnoreCase(selectedSubject)) {
                 boolean hasClash = false;
                 for (ClassSession currentSession : studentCurrentSchedule) {
-                    if (targetSession.getDay().equals(currentSession.getDay())) {
+                    if (targetSession.getDay().equalsIgnoreCase(currentSession.getDay())) {
                         if (BookingUtils.isOverlap(targetSession.getTimeSlot(), currentSession.getTimeSlot())) {
                             hasClash = true;
                             break;
@@ -104,6 +123,7 @@ public class RetakeAssistantActivity extends AppCompatActivity {
             return;
         }
 
+        int optionCount = 1;
         for (ClassSession slot : slots) {
             CardView card = new CardView(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -118,23 +138,86 @@ public class RetakeAssistantActivity extends AppCompatActivity {
             innerLayout.setOrientation(LinearLayout.VERTICAL);
             innerLayout.setPadding(40, 40, 40, 40);
 
+            // Badge / Option Header
+            TextView tvOptionBadge = new TextView(this);
+            tvOptionBadge.setText("Option #" + optionCount + " • " + (slot.getClassCode().isEmpty() ? "DFC501" : slot.getClassCode()));
+            tvOptionBadge.setTextSize(12);
+            tvOptionBadge.setTextColor(Color.parseColor("#0284C7"));
+            tvOptionBadge.setTypeface(null, android.graphics.Typeface.BOLD);
+
+            // Subject Title
             TextView tvTitle = new TextView(this);
             tvTitle.setText(slot.getSubjectName());
             tvTitle.setTextSize(18);
-            tvTitle.setTransformationMethod(null);
             tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_navy));
             tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
 
+            // Lecturer & Schedule Details
             TextView tvDetails = new TextView(this);
-            tvDetails.setText(slot.getDay() + " | " + slot.getTimeSlot() + "\nLocation: " + slot.getLabLocation());
+            String lecturer = slot.getLecturerName().isEmpty() ? "Faculty Staff" : slot.getLecturerName();
+            String detailText = "👨‍🏫 Lecturer: " + lecturer + "\n" +
+                                "📅 " + slot.getDay() + " (" + slot.getTimeSlot() + ")\n" +
+                                "📍 Location: " + slot.getLabLocation();
+            tvDetails.setText(detailText);
             tvDetails.setTextSize(14);
-            tvDetails.setPadding(0, 8, 0, 8);
+            tvDetails.setPadding(0, 8, 0, 16);
+            tvDetails.setTextColor(Color.parseColor("#334155"));
 
+            // Action Button: Select This Option
+            Button btnSelect = new Button(this);
+            btnSelect.setText("➕ Select Option #" + optionCount);
+            btnSelect.setTextSize(13);
+            btnSelect.setAllCaps(false);
+            btnSelect.setBackgroundColor(Color.parseColor("#0284C7"));
+            btnSelect.setTextColor(Color.WHITE);
+            final ClassSession selectedSession = slot;
+            btnSelect.setOnClickListener(v -> confirmSelectRetakeOption(selectedSession));
+
+            innerLayout.addView(tvOptionBadge);
             innerLayout.addView(tvTitle);
             innerLayout.addView(tvDetails);
+            innerLayout.addView(btnSelect);
             
             card.addView(innerLayout);
             layoutSuggestions.addView(card);
+
+            optionCount++;
+        }
+    }
+
+    private void confirmSelectRetakeOption(ClassSession session) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirm Selection");
+        builder.setMessage("Do you want to add " + session.getSubjectName() + " (" + session.getDay() + " " + session.getTimeSlot() + ") to your schedule?");
+        
+        builder.setPositiveButton("Confirm", (dialog, which) -> {
+            addSessionToMySchedule(session);
+            Toast.makeText(this, session.getSubjectName() + " added to your retake schedule!", Toast.LENGTH_LONG).show();
+            setupMockData();
+            runAIAnalysis(); // Refresh analysis
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void addSessionToMySchedule(ClassSession session) {
+        SharedPreferences prefs = getSharedPreferences("MasterScheduleData", Context.MODE_PRIVATE);
+        String json = prefs.getString("my_schedule", "[]");
+        try {
+            JSONArray array = new JSONArray(json);
+            JSONObject obj = new JSONObject();
+            obj.put("classCode", session.getClassCode());
+            obj.put("subjectName", session.getSubjectName());
+            obj.put("lecturerName", session.getLecturerName());
+            obj.put("semester", session.getSemester());
+            obj.put("day", session.getDay());
+            obj.put("timeSlot", session.getTimeSlot());
+            obj.put("labLocation", session.getLabLocation());
+            array.put(obj);
+            prefs.edit().putString("my_schedule", array.toString()).apply();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

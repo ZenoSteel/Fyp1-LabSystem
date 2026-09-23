@@ -21,12 +21,23 @@ public class ScheduleManager {
         List<ClassSession> master = new ArrayList<>();
 
         if (json == null) {
-            // Default initial dataset
+            // Expanded initial dataset with multiple parallel class sections
             master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
             master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
+            master.add(new ClassSession("DFC50133", "Programming 1", "Dr. Aminah", 1, "Friday", "9:00 AM - 12:00 PM", "Lab 3"));
+
             master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
+            master.add(new ClassSession("DFC30223", "Database Systems", "Encik Nizam", 2, "Thursday", "8:00 AM - 10:00 AM", "Lab 1"));
+            master.add(new ClassSession("DFC30223", "Database Systems", "Puan Sarah", 2, "Wednesday", "9:00 AM - 11:00 AM", "HYP"));
+
             master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
+            master.add(new ClassSession("DFC40143", "Networking", "Encik Nizam", 3, "Tuesday", "8:00 AM - 10:00 AM", "Lab 1"));
+            master.add(new ClassSession("DFC40143", "Networking", "Puan Sarah", 3, "Monday", "2:00 PM - 4:00 PM", "SAD Lab"));
+
             master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Aminah", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
+            master.add(new ClassSession("DFC40233", "Operating Systems", "Encik Farhan", 4, "Wednesday", "8:00 AM - 11:00 AM", "PGL 1"));
+            master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Zaim", 4, "Tuesday", "2:00 PM - 5:00 PM", "PGL 2"));
+
             saveMasterTimetable(context, master);
             return master;
         }
@@ -56,9 +67,19 @@ public class ScheduleManager {
         List<ClassSession> master = new ArrayList<>();
         master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
         master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
+        master.add(new ClassSession("DFC50133", "Programming 1", "Dr. Aminah", 1, "Friday", "9:00 AM - 12:00 PM", "Lab 3"));
+
         master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
+        master.add(new ClassSession("DFC30223", "Database Systems", "Encik Nizam", 2, "Thursday", "8:00 AM - 10:00 AM", "Lab 1"));
+        master.add(new ClassSession("DFC30223", "Database Systems", "Puan Sarah", 2, "Wednesday", "9:00 AM - 11:00 AM", "HYP"));
+
         master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
+        master.add(new ClassSession("DFC40143", "Networking", "Encik Nizam", 3, "Tuesday", "8:00 AM - 10:00 AM", "Lab 1"));
+        master.add(new ClassSession("DFC40143", "Networking", "Puan Sarah", 3, "Monday", "2:00 PM - 4:00 PM", "SAD Lab"));
+
         master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Aminah", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
+        master.add(new ClassSession("DFC40233", "Operating Systems", "Encik Farhan", 4, "Wednesday", "8:00 AM - 11:00 AM", "PGL 1"));
+        master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Zaim", 4, "Tuesday", "2:00 PM - 5:00 PM", "PGL 2"));
         return master;
     }
 
