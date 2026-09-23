@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -22,9 +24,11 @@ import java.util.Map;
 public class DatabaseManager {
 
     private static final String TAG = "DatabaseManager";
+    private static final String RTDB_URL = "https://fyp1-labsystem-default-rtdb.asia-southeast1.firebasedatabase.app";
     private static DatabaseManager instance;
 
     private FirebaseFirestore db;
+    private FirebaseDatabase rtdb;
     private FirebaseAuth auth;
 
     public interface AuthCallback {
@@ -45,6 +49,7 @@ public class DatabaseManager {
         try {
             db = FirebaseFirestore.getInstance();
             auth = FirebaseAuth.getInstance();
+            rtdb = FirebaseDatabase.getInstance(RTDB_URL);
         } catch (Exception e) {
             Log.e(TAG, "Firebase SDK initialization deferred or missing config", e);
         }
@@ -203,5 +208,14 @@ public class DatabaseManager {
                 .add(data)
                 .addOnSuccessListener(doc -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // ==========================================
+    // 5. REALTIME DATABASE MAINTENANCE TOGGLES
+    // ==========================================
+
+    public void updateLabMaintenanceStatus(String labName, boolean isAvailable) {
+        if (rtdb == null) return;
+        rtdb.getReference("lab_status").child(labName).setValue(isAvailable ? "AVAILABLE" : "UNDER MAINTENANCE");
     }
 }

@@ -75,6 +75,7 @@ public class AdminActivity extends AppCompatActivity {
             sw.setOnCheckedChangeListener((btn, isChecked) -> {
                 String status = isChecked ? "AVAILABLE" : "UNDER MAINTENANCE";
                 Toast.makeText(this, labName + " status updated to: " + status, Toast.LENGTH_SHORT).show();
+                DatabaseManager.getInstance().updateLabMaintenanceStatus(labName, isChecked);
             });
         }
     }

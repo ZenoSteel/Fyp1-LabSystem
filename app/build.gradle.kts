@@ -41,6 +41,7 @@ dependencies {
     // Firebase Cloud Database & Authentication
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
+    implementation("com.google.firebase:firebase-database")
     implementation(libs.firebase.auth)
 
     testImplementation(libs.junit)
