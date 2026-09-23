@@ -275,8 +275,9 @@ public class ThirdPageActivity extends AppCompatActivity {
                 cardOccupied.setVisibility(View.VISIBLE);
                 String lecturer = masterSession.getLecturerName().isEmpty() ? "Faculty Schedule" : masterSession.getLecturerName();
                 String code = masterSession.getClassCode().isEmpty() ? "" : masterSession.getClassCode() + " - ";
+                String clsName = masterSession.getClassName().isEmpty() ? "" : " [" + masterSession.getClassName() + "]";
                 tvOccupiedLecturer.setText(getString(R.string.label_lecturer, lecturer));
-                tvOccupiedSubject.setText(getString(R.string.label_subject, code + masterSession.getSubjectName()));
+                tvOccupiedSubject.setText(getString(R.string.label_subject, code + masterSession.getSubjectName() + clsName));
                 tvOccupiedTime.setText(getString(R.string.label_time_range, masterSession.getTimeSlot(), ""));
 
                 if (isAdmin && btnDeleteSession != null) {
@@ -329,6 +330,10 @@ public class ThirdPageActivity extends AppCompatActivity {
         etSubject.setHint(R.string.hint_subject_name);
         layout.addView(etSubject);
 
+        final android.widget.EditText etClass = new android.widget.EditText(this);
+        etClass.setHint(R.string.hint_class_name);
+        layout.addView(etClass);
+
         final android.widget.EditText etLecturer = new android.widget.EditText(this);
         etLecturer.setHint(R.string.hint_lecturer_name);
         layout.addView(etLecturer);
@@ -357,11 +362,13 @@ public class ThirdPageActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
             String code = etCode.getText().toString().trim();
             String subject = etSubject.getText().toString().trim();
+            String className = etClass.getText().toString().trim();
             String lecturer = etLecturer.getText().toString().trim();
             String semStr = etSem.getText().toString().trim();
 
             if (code.isEmpty()) code = "DFC501";
             if (subject.isEmpty()) subject = "Academic Lecture";
+            if (className.isEmpty()) className = "Class " + (semStr.isEmpty() ? "1" : semStr) + "A";
             if (lecturer.isEmpty()) lecturer = "Faculty Staff";
             int sem = semStr.isEmpty() ? 1 : Integer.parseInt(semStr);
 
@@ -370,7 +377,7 @@ public class ThirdPageActivity extends AppCompatActivity {
             String endTime = spEnd.getSelectedItem().toString();
             String timeSlot = startTime + " - " + endTime;
 
-            ClassSession session = new ClassSession(code, subject, lecturer, sem, day, timeSlot, currentLabName);
+            ClassSession session = new ClassSession(code, subject, className, lecturer, sem, day, timeSlot, currentLabName);
             ScheduleManager.addTimetableSession(this, session);
 
             if (DatabaseManager.getInstance().isFirebaseAvailable()) {

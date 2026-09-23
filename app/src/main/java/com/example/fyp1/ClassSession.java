@@ -8,15 +8,17 @@ import java.io.Serializable;
 public class ClassSession implements Serializable {
     private String classCode;
     private String subjectName;
+    private String className;
     private String lecturerName;
     private int semester;
     private String day;
     private String timeSlot;
     private String labLocation;
 
-    public ClassSession(String classCode, String subjectName, String lecturerName, int semester, String day, String timeSlot, String labLocation) {
+    public ClassSession(String classCode, String subjectName, String className, String lecturerName, int semester, String day, String timeSlot, String labLocation) {
         this.classCode = classCode != null ? classCode : "";
         this.subjectName = subjectName != null ? subjectName : "";
+        this.className = className != null ? className : "";
         this.lecturerName = lecturerName != null ? lecturerName : "";
         this.semester = semester;
         this.day = day != null ? day : "Monday";
@@ -24,13 +26,19 @@ public class ClassSession implements Serializable {
         this.labLocation = labLocation != null ? labLocation : "";
     }
 
-    // Legacy constructor for backward compatibility
+    // Constructor for backward compatibility
+    public ClassSession(String classCode, String subjectName, String lecturerName, int semester, String day, String timeSlot, String labLocation) {
+        this(classCode, subjectName, "Class " + semester + "A", lecturerName, semester, day, timeSlot, labLocation);
+    }
+
+    // Legacy constructor
     public ClassSession(String subjectName, int semester, String day, String timeSlot, String labLocation) {
-        this("DFC501", subjectName, "Faculty Lecturer", semester, day, timeSlot, labLocation);
+        this("DFC501", subjectName, "Class " + semester + "A", "Faculty Lecturer", semester, day, timeSlot, labLocation);
     }
 
     public String getClassCode() { return classCode; }
     public String getSubjectName() { return subjectName; }
+    public String getClassName() { return className; }
     public String getLecturerName() { return lecturerName; }
     public int getSemester() { return semester; }
     public String getDay() { return day; }
@@ -40,6 +48,7 @@ public class ClassSession implements Serializable {
     @Override
     public String toString() {
         String codeStr = classCode.isEmpty() ? "" : classCode + " - ";
-        return codeStr + subjectName + " (" + day + " " + timeSlot + ")";
+        String clsStr = className.isEmpty() ? "" : " [" + className + "]";
+        return codeStr + subjectName + clsStr + " (" + day + " " + timeSlot + ")";
     }
 }

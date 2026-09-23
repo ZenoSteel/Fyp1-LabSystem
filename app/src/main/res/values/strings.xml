@@ -231,6 +231,7 @@
     <string name="dialog_add_schedule_title">Add Academic Class Schedule</string>
     <string name="hint_class_code">Course Code (e.g. DFC50133)</string>
     <string name="hint_subject_name">Subject Name (e.g. Network Security)</string>
+    <string name="hint_class_name">Class Name (e.g. DDT3B or Class 5A)</string>
     <string name="hint_lecturer_name">Lecturer Name (e.g. Encik Nizam)</string>
     <string name="hint_semester">Semester (1 - 8)</string>
     <string name="msg_schedule_added">Class session added to master timetable!</string>

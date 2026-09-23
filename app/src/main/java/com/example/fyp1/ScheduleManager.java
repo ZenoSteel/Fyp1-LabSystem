@@ -49,6 +49,7 @@ public class ScheduleManager {
                 master.add(new ClassSession(
                     obj.optString("classCode", ""),
                     obj.getString("subjectName"),
+                    obj.optString("className", "Class " + obj.optInt("semester", 1) + "A"),
                     obj.optString("lecturerName", "Faculty Staff"),
                     obj.getInt("semester"),
                     obj.getString("day"),
@@ -115,6 +116,7 @@ public class ScheduleManager {
                 JSONObject obj = new JSONObject();
                 obj.put("classCode", s.getClassCode());
                 obj.put("subjectName", s.getSubjectName());
+                obj.put("className", s.getClassName());
                 obj.put("lecturerName", s.getLecturerName());
                 obj.put("semester", s.getSemester());
                 obj.put("day", s.getDay());
@@ -146,6 +148,7 @@ public class ScheduleManager {
                 schedule.add(new ClassSession(
                     obj.optString("classCode", ""),
                     obj.getString("subjectName"),
+                    obj.optString("className", "Class " + obj.optInt("semester", 1) + "A"),
                     obj.optString("lecturerName", "Faculty Staff"),
                     obj.getInt("semester"),
                     obj.getString("day"),
