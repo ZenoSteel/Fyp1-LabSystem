@@ -210,6 +210,41 @@ public class DatabaseManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    public void fetchMasterTimetableCloud(Context context, Runnable onComplete) {
+        if (!isFirebaseAvailable()) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        db.collection("master_timetable")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<ClassSession> cloudMaster = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String code = doc.getString("classCode");
+                        String subject = doc.getString("subjectName");
+                        String lecturer = doc.getString("lecturerName");
+                        Long semLong = doc.getLong("semester");
+                        int sem = semLong != null ? semLong.intValue() : 1;
+                        String day = doc.getString("day");
+                        String time = doc.getString("timeSlot");
+                        String lab = doc.getString("labLocation");
+
+                        if (subject != null && day != null && time != null && lab != null) {
+                            cloudMaster.add(new ClassSession(code, subject, lecturer, sem, day, time, lab));
+                        }
+                    }
+
+                    if (!cloudMaster.isEmpty()) {
+                        ScheduleManager.saveMasterTimetable(context, cloudMaster);
+                    }
+                    if (onComplete != null) onComplete.run();
+                })
+                .addOnFailureListener(e -> {
+                    if (onComplete != null) onComplete.run();
+                });
+    }
+
     // ==========================================
     // 5. REALTIME DATABASE MAINTENANCE TOGGLES
     // ==========================================

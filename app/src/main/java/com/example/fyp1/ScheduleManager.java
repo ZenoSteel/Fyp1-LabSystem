@@ -22,7 +22,6 @@ public class ScheduleManager {
 
         if (json == null) {
             // Default master dataset with official classes for all labs
-            master.add(new ClassSession("DFC5082", "Network Security", "Encik Nizam", 5, "Monday", "8:00 AM - 11:00 AM", "DCN"));
             master.add(new ClassSession("DFC30223", "Database Systems", "Dr. Zaim", 2, "Tuesday", "10:00 AM - 12:00 PM", "DCN"));
             master.add(new ClassSession("DFC5035", "Ethics & Cyberlaw", "Encik Farhan", 5, "Friday", "2:00 PM - 4:00 PM", "DCN"));
 

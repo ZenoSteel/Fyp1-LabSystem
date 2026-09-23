@@ -222,7 +222,15 @@ public class ThirdPageActivity extends AppCompatActivity {
     private void analyzeLabAvailability() {
         SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
         String bookingsJson = prefs.getString("BOOKING_LIST", "[]");
-        
+
+        if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+            DatabaseManager.getInstance().fetchMasterTimetableCloud(this, () -> renderAvailability(bookingsJson));
+        } else {
+            renderAvailability(bookingsJson);
+        }
+    }
+
+    private void renderAvailability(String bookingsJson) {
         try {
             JSONArray bookings = new JSONArray(bookingsJson);
             JSONObject activeSession = null;
