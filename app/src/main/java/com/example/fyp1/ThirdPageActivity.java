@@ -23,6 +23,7 @@ import com.google.android.material.chip.ChipGroup;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -132,7 +133,18 @@ public class ThirdPageActivity extends AppCompatActivity {
                 }
             }
         });
-        chipGroupDays.check(R.id.chipMon);
+
+        // Auto-select today's chip on launch
+        Calendar now = Calendar.getInstance();
+        int dayOfWeek = now.get(Calendar.DAY_OF_WEEK);
+        int targetChipId = R.id.chipMon;
+        switch (dayOfWeek) {
+            case Calendar.TUESDAY: targetChipId = R.id.chipTue; break;
+            case Calendar.WEDNESDAY: targetChipId = R.id.chipWed; break;
+            case Calendar.THURSDAY: targetChipId = R.id.chipThu; break;
+            case Calendar.FRIDAY: targetChipId = R.id.chipFri; break;
+        }
+        chipGroupDays.check(targetChipId);
     }
 
     private void setupListeners() {
@@ -248,7 +260,8 @@ public class ThirdPageActivity extends AppCompatActivity {
                 String timeStr = activeSession.optString("time", "Unknown");
                 String[] parts = timeStr.split(" - ");
                 String start = parts[0];
-                tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")));
+                String displayDate = getFormattedDateForDisplay();
+                tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")) + "\n🗓️ " + displayDate);
 
                 if (isAdmin && btnDeleteSession != null) {
                     btnDeleteSession.setVisibility(View.VISIBLE);
@@ -707,6 +720,7 @@ public class ThirdPageActivity extends AppCompatActivity {
             JSONObject b = new JSONObject();
             b.put("lab", currentLabName);
             b.put("day", selectedDay);
+            b.put("date", getExactDateForSelectedDay());
             b.put("time", finalTime);
             b.put("week_offset", currentWeekOffset);
             b.put("bookedBy", username);
@@ -737,8 +751,41 @@ public class ThirdPageActivity extends AppCompatActivity {
         } catch (Exception ignored) {}
     }
 
+    private String getExactDateForSelectedDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.setFirstDayOfWeek(Calendar.MONDAY);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        if (currentWeekOffset == 1) cal.add(Calendar.DATE, 7);
+
+        switch (selectedDay) {
+            case "Tuesday": cal.add(Calendar.DATE, 1); break;
+            case "Wednesday": cal.add(Calendar.DATE, 2); break;
+            case "Thursday": cal.add(Calendar.DATE, 3); break;
+            case "Friday": cal.add(Calendar.DATE, 4); break;
+        }
+
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(cal.getTime());
+    }
+
+    private String getFormattedDateForDisplay() {
+        Calendar cal = Calendar.getInstance();
+        cal.setFirstDayOfWeek(Calendar.MONDAY);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        if (currentWeekOffset == 1) cal.add(Calendar.DATE, 7);
+
+        switch (selectedDay) {
+            case "Tuesday": cal.add(Calendar.DATE, 1); break;
+            case "Wednesday": cal.add(Calendar.DATE, 2); break;
+            case "Thursday": cal.add(Calendar.DATE, 3); break;
+            case "Friday": cal.add(Calendar.DATE, 4); break;
+        }
+
+        return new SimpleDateFormat("EEEE, d MMM yyyy", Locale.US).format(cal.getTime());
+    }
+
     private void updateDayChipLabels() {
         Calendar cal = Calendar.getInstance();
+        cal.setFirstDayOfWeek(Calendar.MONDAY);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         if (currentWeekOffset == 1) cal.add(Calendar.DATE, 7);
 
