@@ -25,17 +25,16 @@ import java.util.List;
 
 /**
  * AI-Driven Academic Conflict Resolver for students retaking subjects.
- * Provides multiple parallel class section recommendations without timetable clashes.
+ * Automatically filters previous semester subjects (e.g. Sem 1, 2, 3 for a Sem 4 student).
  */
 public class RetakeAssistantActivity extends AppCompatActivity {
-
-    private static final String ALL_SUBJECTS_OPTION = "🌟 All Subjects (Show All Options)";
 
     private Spinner spinnerSubjects;
     private LinearLayout layoutSuggestions;
     private TextView tvHeader;
     private List<ClassSession> masterTimetable;
     private List<ClassSession> studentCurrentSchedule;
+    private int studentSemester = 4; // Default to Sem 4 for DIT4A
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,20 +59,45 @@ public class RetakeAssistantActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setupMockData();
+        setupSpinner();
     }
 
     private void setupMockData() {
         masterTimetable = ScheduleManager.getMasterTimetable(this);
         studentCurrentSchedule = ScheduleManager.getStudentSchedule(this);
+        studentSemester = detectStudentSemester();
+    }
+
+    private int detectStudentSemester() {
+        // Detect semester from enrolled classes or registered class name (e.g. DIT4A -> Sem 4)
+        for (ClassSession cs : studentCurrentSchedule) {
+            if (cs.getSemester() > 0) {
+                return cs.getSemester();
+            }
+        }
+        return 4; // Default to Sem 4
     }
 
     private void setupSpinner() {
         List<String> subjectNames = new ArrayList<>();
-        subjectNames.add(ALL_SUBJECTS_OPTION);
+        String allRetakeHeader = "🎓 All Retake Subjects (Semesters 1 - " + Math.max(1, studentSemester - 1) + ")";
+        subjectNames.add(allRetakeHeader);
 
         for (ClassSession session : masterTimetable) {
-            if (!subjectNames.contains(session.getSubjectName())) {
-                subjectNames.add(session.getSubjectName());
+            // Include subjects from previous semesters as retake candidates
+            if (session.getSemester() < studentSemester) {
+                if (!subjectNames.contains(session.getSubjectName())) {
+                    subjectNames.add(session.getSubjectName());
+                }
+            }
+        }
+
+        // If no previous semester subjects found, include all master subjects
+        if (subjectNames.size() == 1) {
+            for (ClassSession session : masterTimetable) {
+                if (!subjectNames.contains(session.getSubjectName())) {
+                    subjectNames.add(session.getSubjectName());
+                }
             }
         }
 
@@ -83,14 +107,22 @@ public class RetakeAssistantActivity extends AppCompatActivity {
 
     private void runAIAnalysis() {
         layoutSuggestions.removeAllViews();
+        if (spinnerSubjects.getSelectedItem() == null) return;
         String selectedSubject = spinnerSubjects.getSelectedItem().toString();
 
         List<ClassSession> availableSlots = new ArrayList<>();
 
-        boolean isAllMode = selectedSubject.equals(ALL_SUBJECTS_OPTION);
+        boolean isAllMode = selectedSubject.startsWith("🎓 All Retake Subjects");
 
         // AI Conflict Analysis Engine: Filter out sessions that overlap with current schedule
         for (ClassSession targetSession : masterTimetable) {
+            // RETAKE RULE: Retake subjects belong to PREVIOUS semesters (targetSession.getSemester() < studentSemester)
+            boolean isPreviousSemester = (targetSession.getSemester() < studentSemester);
+
+            if (isAllMode && !isPreviousSemester && studentSemester > 1) {
+                continue; // Skip current or future semester subjects in All Retake mode
+            }
+
             if (isAllMode || targetSession.getSubjectName().equalsIgnoreCase(selectedSubject)) {
                 boolean hasClash = false;
                 for (ClassSession currentSession : studentCurrentSchedule) {
@@ -140,7 +172,7 @@ public class RetakeAssistantActivity extends AppCompatActivity {
 
             // Badge / Option Header
             TextView tvOptionBadge = new TextView(this);
-            tvOptionBadge.setText("Option #" + optionCount + " • " + (slot.getClassCode().isEmpty() ? "DFC501" : slot.getClassCode()));
+            tvOptionBadge.setText("Retake Option #" + optionCount + " • Semester " + slot.getSemester() + " (" + (slot.getClassCode().isEmpty() ? "DFC501" : slot.getClassCode()) + ")");
             tvOptionBadge.setTextSize(12);
             tvOptionBadge.setTextColor(Color.parseColor("#0284C7"));
             tvOptionBadge.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -165,7 +197,7 @@ public class RetakeAssistantActivity extends AppCompatActivity {
 
             // Action Button: Select This Option
             Button btnSelect = new Button(this);
-            btnSelect.setText("➕ Select Option #" + optionCount);
+            btnSelect.setText("➕ Enroll in Retake Option #" + optionCount);
             btnSelect.setTextSize(13);
             btnSelect.setAllCaps(false);
             btnSelect.setBackgroundColor(Color.parseColor("#0284C7"));
@@ -187,12 +219,12 @@ public class RetakeAssistantActivity extends AppCompatActivity {
 
     private void confirmSelectRetakeOption(ClassSession session) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Confirm Selection");
-        builder.setMessage("Do you want to add " + session.getSubjectName() + " (" + session.getDay() + " " + session.getTimeSlot() + ") to your schedule?");
+        builder.setTitle("Confirm Retake Enrollment");
+        builder.setMessage("Do you want to add retake subject " + session.getSubjectName() + " (Sem " + session.getSemester() + ", " + session.getDay() + " " + session.getTimeSlot() + ") to your schedule?");
         
         builder.setPositiveButton("Confirm", (dialog, which) -> {
             addSessionToMySchedule(session);
-            Toast.makeText(this, session.getSubjectName() + " added to your retake schedule!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, session.getSubjectName() + " added to your schedule!", Toast.LENGTH_LONG).show();
             setupMockData();
             runAIAnalysis(); // Refresh analysis
         });
@@ -209,6 +241,7 @@ public class RetakeAssistantActivity extends AppCompatActivity {
             JSONObject obj = new JSONObject();
             obj.put("classCode", session.getClassCode());
             obj.put("subjectName", session.getSubjectName());
+            obj.put("className", session.getClassName());
             obj.put("lecturerName", session.getLecturerName());
             obj.put("semester", session.getSemester());
             obj.put("day", session.getDay());
