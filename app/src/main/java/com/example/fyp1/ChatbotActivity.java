@@ -361,12 +361,52 @@ public class ChatbotActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
         try {
             JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+
+            // 1. Check clash with existing user bookings
+            for (int i = 0; i < bookings.length(); i++) {
+                JSONObject b = bookings.getJSONObject(i);
+                if (b.getString("lab").equalsIgnoreCase(lab) && b.getString("day").equalsIgnoreCase(day)) {
+                    if (BookingUtils.isOverlap(time, b.getString("time"))) {
+                        addBotBubble("⚠️ Booking Clash! " + lab + " is already reserved on " + day + " during " + b.getString("time") + ". Please pick a different time slot.");
+                        return false;
+                    }
+                }
+            }
+
+            // 2. Check clash with master class timetable
+            List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
+            for (ClassSession cs : masterList) {
+                if (cs.getLabLocation().equalsIgnoreCase(lab) && cs.getDay().equalsIgnoreCase(day)) {
+                    if (BookingUtils.isOverlap(time, cs.getTimeSlot())) {
+                        addBotBubble("⚠️ Schedule Conflict! " + lab + " is occupied for " + cs.getSubjectName() + " (" + cs.getTimeSlot() + ") on " + day + ".");
+                        return false;
+                    }
+                }
+            }
+
+            // 3. Save booking locally
+            String username = getIntent().getStringExtra("USER_NAME");
+            if (username == null || username.isEmpty()) username = "Faculty Staff";
+
             JSONObject nb = new JSONObject();
             nb.put("lab", lab);
             nb.put("day", day);
             nb.put("time", time);
+            nb.put("bookedBy", username);
             bookings.put(nb);
             prefs.edit().putString("BOOKING_LIST", bookings.toString()).apply();
+
+            // 4. Push to Cloud Firestore if available
+            if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+                DatabaseManager.getInstance().addBookingCloud(lab, day, time, 0, username, new DatabaseManager.OperationCallback() {
+                    @Override
+                    public void onSuccess() {}
+
+                    @Override
+                    public void onFailure(String errorMessage) {}
+                });
+            }
+
             return true;
         } catch (Exception e) { return false; }
     }
