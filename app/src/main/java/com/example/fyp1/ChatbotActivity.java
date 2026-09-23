@@ -106,13 +106,20 @@ public class ChatbotActivity extends AppCompatActivity {
         } else {
             String lab = detectLab(initialQuery);
             String day = detectDay(initialQuery);
+            String time = detectTime(initialQuery);
             
             if (isWeekend(day)) {
                 addBotBubble("I'm sorry, but labs are closed on " + day + ". Please select a weekday (Monday to Friday) for your booking.");
                 return;
             }
 
-            if (lab != null && day != null) {
+            if (lab != null && day != null && time != null) {
+                pendingLab = lab;
+                pendingDay = day;
+                pendingTime = time;
+                currentState = STATE_CONFIRM;
+                addBotBubble(getString(R.string.bot_msg_booking_confirm, pendingLab, pendingDay, pendingTime));
+            } else if (lab != null && day != null) {
                 pendingLab = lab;
                 pendingDay = day;
                 currentState = STATE_ASK_TIME;
@@ -308,6 +315,15 @@ public class ChatbotActivity extends AppCompatActivity {
             }
         }
         return day;
+    }
+
+    private String detectTime(String input) {
+        if (input == null || input.isEmpty()) return null;
+        int[] hours = BookingUtils.getStartEndHours(input);
+        if (hours != null && hours[0] > 0 && hours[1] > hours[0]) {
+            return BookingUtils.formatProfessionalTime(input);
+        }
+        return null;
     }
 
     private boolean isWeekend(String day) {
