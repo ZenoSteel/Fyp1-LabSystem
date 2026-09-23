@@ -130,6 +130,51 @@ public class ScheduleManager {
         }
     }
 
+    public static void addStudentClass(Context context, ClassSession session) {
+        List<ClassSession> currentList = getStudentSchedule(context);
+        currentList.add(session);
+        saveStudentSchedule(context, currentList);
+    }
+
+    public static void removeStudentClass(Context context, ClassSession targetSession) {
+        if (targetSession == null) return;
+        List<ClassSession> currentList = getStudentSchedule(context);
+        List<ClassSession> updatedList = new ArrayList<>();
+
+        for (ClassSession s : currentList) {
+            if (s.getDay().equalsIgnoreCase(targetSession.getDay()) &&
+                s.getTimeSlot().equalsIgnoreCase(targetSession.getTimeSlot()) &&
+                s.getSubjectName().equalsIgnoreCase(targetSession.getSubjectName())) {
+                continue; // Skip session to remove
+            }
+            updatedList.add(s);
+        }
+
+        saveStudentSchedule(context, updatedList);
+    }
+
+    public static void saveStudentSchedule(Context context, List<ClassSession> list) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        try {
+            JSONArray array = new JSONArray();
+            for (ClassSession s : list) {
+                JSONObject obj = new JSONObject();
+                obj.put("classCode", s.getClassCode());
+                obj.put("subjectName", s.getSubjectName());
+                obj.put("className", s.getClassName());
+                obj.put("lecturerName", s.getLecturerName());
+                obj.put("semester", s.getSemester());
+                obj.put("day", s.getDay());
+                obj.put("timeSlot", s.getTimeSlot());
+                obj.put("labLocation", s.getLabLocation());
+                array.put(obj);
+            }
+            prefs.edit().putString(KEY_MY_SCHEDULE, array.toString()).apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static List<ClassSession> getStudentSchedule(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_MY_SCHEDULE, null);

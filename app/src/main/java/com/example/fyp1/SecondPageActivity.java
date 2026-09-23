@@ -5,9 +5,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.graphics.Color;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +26,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -213,6 +218,11 @@ public class SecondPageActivity extends AppCompatActivity {
     }
 
     private void showMyBookingDialog() {
+        if (getString(R.string.role_student).equals(userRole)) {
+            showStudentScheduleDialog();
+            return;
+        }
+
         SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
         String existingBookingsJson = prefs.getString("BOOKING_LIST", "[]");
 
@@ -253,6 +263,155 @@ public class SecondPageActivity extends AppCompatActivity {
     private void cancelAllBookings() {
         getSharedPreferences("LabBookings", Context.MODE_PRIVATE).edit().clear().apply();
         Toast.makeText(this, getString(R.string.msg_reservations_cancelled), Toast.LENGTH_SHORT).show();
+    }
+
+    private void showStudentScheduleDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.dialog_my_schedule_title);
+
+        android.widget.ScrollView sv = new android.widget.ScrollView(this);
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(32, 20, 32, 20);
+
+        List<ClassSession> mySchedule = ScheduleManager.getStudentSchedule(this);
+
+        if (mySchedule.isEmpty()) {
+            TextView tvEmpty = new TextView(this);
+            tvEmpty.setText(R.string.msg_no_schedule);
+            tvEmpty.setPadding(16, 16, 16, 16);
+            container.addView(tvEmpty);
+        } else {
+            for (ClassSession cs : mySchedule) {
+                androidx.cardview.widget.CardView card = new androidx.cardview.widget.CardView(this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+                lp.setMargins(0, 0, 0, 16);
+                card.setLayoutParams(lp);
+                card.setRadius(12f);
+                card.setCardElevation(4f);
+
+                LinearLayout itemLayout = new LinearLayout(this);
+                itemLayout.setOrientation(LinearLayout.VERTICAL);
+                itemLayout.setPadding(24, 24, 24, 24);
+
+                TextView tvCode = new TextView(this);
+                String code = cs.getClassCode().isEmpty() ? "DFC501" : cs.getClassCode();
+                tvCode.setText(code + " • " + cs.getSubjectName());
+                tvCode.setTextSize(16f);
+                tvCode.setTypeface(null, android.graphics.Typeface.BOLD);
+                tvCode.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_navy));
+
+                TextView tvInfo = new TextView(this);
+                tvInfo.setText("📅 " + cs.getDay() + " (" + cs.getTimeSlot() + ")\n📍 " + cs.getLabLocation() + " | 👨‍🏫 " + cs.getLecturerName());
+                tvInfo.setTextSize(13f);
+                tvInfo.setPadding(0, 8, 0, 12);
+
+                Button btnDelete = new Button(this);
+                btnDelete.setText("🗑️ Remove Class");
+                btnDelete.setTextSize(12f);
+                btnDelete.setAllCaps(false);
+                btnDelete.setBackgroundColor(Color.parseColor("#EF4444"));
+                btnDelete.setTextColor(Color.WHITE);
+                final ClassSession sessionToDelete = cs;
+                btnDelete.setOnClickListener(v -> {
+                    ScheduleManager.removeStudentClass(this, sessionToDelete);
+                    Toast.makeText(this, "Class removed from your schedule", Toast.LENGTH_SHORT).show();
+                    showStudentScheduleDialog();
+                });
+
+                itemLayout.addView(tvCode);
+                itemLayout.addView(tvInfo);
+                itemLayout.addView(btnDelete);
+                card.addView(itemLayout);
+                container.addView(card);
+            }
+        }
+
+        Button btnAddClass = new Button(this);
+        btnAddClass.setText("➕ Add Class to My Schedule");
+        btnAddClass.setBackgroundColor(Color.parseColor("#0284C7"));
+        btnAddClass.setTextColor(Color.WHITE);
+        btnAddClass.setAllCaps(false);
+        btnAddClass.setOnClickListener(v -> showAddStudentClassDialog());
+
+        container.addView(btnAddClass);
+        sv.addView(container);
+        builder.setView(sv);
+
+        builder.setPositiveButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showAddStudentClassDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add Class to My Schedule");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final android.widget.EditText etCode = new android.widget.EditText(this);
+        etCode.setHint(R.string.hint_class_code);
+        layout.addView(etCode);
+
+        final android.widget.EditText etSubject = new android.widget.EditText(this);
+        etSubject.setHint(R.string.hint_subject_name);
+        layout.addView(etSubject);
+
+        final android.widget.EditText etLecturer = new android.widget.EditText(this);
+        etLecturer.setHint(R.string.hint_lecturer_name);
+        layout.addView(etLecturer);
+
+        final Spinner spDay = new Spinner(this);
+        ArrayAdapter<String> dayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, 
+                new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"});
+        spDay.setAdapter(dayAdapter);
+        layout.addView(spDay);
+
+        List<String> times = java.util.Arrays.asList(
+                "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+                "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"
+        );
+
+        final Spinner spStart = new Spinner(this);
+        spStart.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, times.subList(0, times.size() - 1)));
+        layout.addView(spStart);
+
+        final Spinner spEnd = new Spinner(this);
+        spEnd.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, times.subList(1, times.size())));
+        layout.addView(spEnd);
+
+        final android.widget.EditText etRoom = new android.widget.EditText(this);
+        etRoom.setHint("Room / Location (e.g. Lab 1, DCN)");
+        layout.addView(etRoom);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            String code = etCode.getText().toString().trim();
+            String subject = etSubject.getText().toString().trim();
+            String lecturer = etLecturer.getText().toString().trim();
+            String room = etRoom.getText().toString().trim();
+
+            if (code.isEmpty()) code = "DFC501";
+            if (subject.isEmpty()) subject = "Enrolled Class";
+            if (lecturer.isEmpty()) lecturer = "Lecturer";
+            if (room.isEmpty()) room = "Campus Lab";
+
+            String day = spDay.getSelectedItem().toString();
+            String startTime = spStart.getSelectedItem().toString();
+            String endTime = spEnd.getSelectedItem().toString();
+            String timeSlot = startTime + " - " + endTime;
+
+            ClassSession session = new ClassSession(code, subject, lecturer, 5, day, timeSlot, room);
+            ScheduleManager.addStudentClass(this, session);
+
+            Toast.makeText(this, "Class added to your schedule!", Toast.LENGTH_SHORT).show();
+            showStudentScheduleDialog();
+        });
+
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 
     private void setupLabCard(int cardId, String labName) {
