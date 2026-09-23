@@ -233,69 +233,66 @@ public class ThirdPageActivity extends AppCompatActivity {
     private void renderAvailability(String bookingsJson) {
         try {
             JSONArray bookings = new JSONArray(bookingsJson);
-            JSONObject activeSession = null;
-            
+            List<String> occupiedSummaries = new ArrayList<>();
+            ClassSession masterSessionToDelete = null;
+            JSONObject userBookingToDelete = null;
+
+            // 1. User Bookings
             for (int i = 0; i < bookings.length(); i++) {
                 JSONObject b = bookings.getJSONObject(i);
                 int bOffset = b.optInt("week_offset", 0);
-                if (b.getString("lab").equals(currentLabName) && b.getString("day").equalsIgnoreCase(selectedDay) && bOffset == currentWeekOffset) {
-                    activeSession = b;
-                    break;
+                if (b.getString("lab").equalsIgnoreCase(currentLabName) && 
+                    b.getString("day").equalsIgnoreCase(selectedDay) && 
+                    bOffset == currentWeekOffset) {
+                    
+                    userBookingToDelete = b;
+                    String by = b.optString("bookedBy", "Faculty Staff");
+                    String time = b.optString("time", "Unknown");
+                    occupiedSummaries.add("• " + currentLabName + " Reservation (" + time + ")\n   Reserved By: " + by);
                 }
             }
 
-            // Check Master Timetable if no individual user booking is found
-            ClassSession masterSession = null;
-            if (activeSession == null) {
-                List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
-                for (ClassSession cs : masterList) {
-                    if (cs.getLabLocation().equalsIgnoreCase(currentLabName) && cs.getDay().equalsIgnoreCase(selectedDay)) {
-                        masterSession = cs;
-                        break;
-                    }
+            // 2. Master Timetable Sessions (Morning & Afternoon)
+            List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
+            for (ClassSession cs : masterList) {
+                if (cs.getLabLocation().equalsIgnoreCase(currentLabName) && 
+                    cs.getDay().equalsIgnoreCase(selectedDay)) {
+                    
+                    masterSessionToDelete = cs;
+                    String code = cs.getClassCode().isEmpty() ? "" : cs.getClassCode() + " - ";
+                    String clsName = cs.getClassName().isEmpty() ? "" : " [" + cs.getClassName() + "]";
+                    String lect = cs.getLecturerName().isEmpty() ? "Faculty Staff" : cs.getLecturerName();
+                    
+                    occupiedSummaries.add("• " + code + cs.getSubjectName() + clsName + "\n   Time: " + cs.getTimeSlot() + " | Lecturer: " + lect);
                 }
             }
 
             String userRole = getIntent().getStringExtra("USER_ROLE");
             boolean isAdmin = getString(R.string.role_admin).equals(userRole);
 
-            if (activeSession != null) {
+            if (!occupiedSummaries.isEmpty()) {
                 cardOccupied.setVisibility(View.VISIBLE);
-                String bookedBy = activeSession.optString("bookedBy", "Faculty Staff");
-                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, bookedBy));
-                tvOccupiedSubject.setText(getString(R.string.label_subject, currentLabName + " Session"));
+                tvOccupiedLecturer.setText("🗓️ " + getFormattedDateForDisplay());
                 
-                String timeStr = activeSession.optString("time", "Unknown");
-                String[] parts = timeStr.split(" - ");
-                String start = parts[0];
-                String displayDate = getFormattedDateForDisplay();
-                tvOccupiedTime.setText(getString(R.string.label_time_range, start, (parts.length > 1 ? parts[1] : "")) + "\n🗓️ " + displayDate);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < occupiedSummaries.size(); i++) {
+                    sb.append(occupiedSummaries.get(i));
+                    if (i < occupiedSummaries.size() - 1) sb.append("\n\n");
+                }
+                tvOccupiedSubject.setText(sb.toString());
+                tvOccupiedTime.setText(""); // Included in summary list
 
                 if (isAdmin && btnDeleteSession != null) {
                     btnDeleteSession.setVisibility(View.VISIBLE);
-                    final JSONObject sessionToRemove = activeSession;
-                    btnDeleteSession.setOnClickListener(v -> confirmDeleteUserBooking(sessionToRemove));
+                    final ClassSession csDel = masterSessionToDelete;
+                    final JSONObject ubDel = userBookingToDelete;
+                    btnDeleteSession.setOnClickListener(v -> {
+                        if (csDel != null) confirmDeleteMasterSession(csDel);
+                        else if (ubDel != null) confirmDeleteUserBooking(ubDel);
+                    });
                 } else if (btnDeleteSession != null) {
                     btnDeleteSession.setVisibility(View.GONE);
                 }
-
-            } else if (masterSession != null) {
-                cardOccupied.setVisibility(View.VISIBLE);
-                String lecturer = masterSession.getLecturerName().isEmpty() ? "Faculty Schedule" : masterSession.getLecturerName();
-                String code = masterSession.getClassCode().isEmpty() ? "" : masterSession.getClassCode() + " - ";
-                String clsName = masterSession.getClassName().isEmpty() ? "" : " [" + masterSession.getClassName() + "]";
-                tvOccupiedLecturer.setText(getString(R.string.label_lecturer, lecturer));
-                tvOccupiedSubject.setText(getString(R.string.label_subject, code + masterSession.getSubjectName() + clsName));
-                tvOccupiedTime.setText(getString(R.string.label_time_range, masterSession.getTimeSlot(), ""));
-
-                if (isAdmin && btnDeleteSession != null) {
-                    btnDeleteSession.setVisibility(View.VISIBLE);
-                    final ClassSession csToRemove = masterSession;
-                    btnDeleteSession.setOnClickListener(v -> confirmDeleteMasterSession(csToRemove));
-                } else if (btnDeleteSession != null) {
-                    btnDeleteSession.setVisibility(View.GONE);
-                }
-
             } else {
                 cardOccupied.setVisibility(View.GONE);
                 if (btnDeleteSession != null) btnDeleteSession.setVisibility(View.GONE);
