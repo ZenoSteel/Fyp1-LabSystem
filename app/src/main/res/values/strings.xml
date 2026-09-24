@@ -256,13 +256,13 @@
     <!-- Lab Names -->
     <string name="lab_dcn">DCN</string>
     <string name="lab_nwl">NWL</string>
-    <string name="lab_lab1">Lab 1</string>
+    <string name="lab_lab1">DNS</string>
     <string name="lab_sad">SAD Lab</string>
     <string name="lab_network">Network Lab</string>
     <string name="lab_pgl1">PGL 1</string>
     <string name="lab_pgl2">PGL 2</string>
-    <string name="lab_lab2">Lab 2</string>
-    <string name="lab_lab3">Lab 3</string>
+    <string name="lab_lab2">CSD</string>
+    <string name="lab_lab3">APL</string>
     <string name="lab_hyp">HYP</string>
     <string name="lab_mml">MML</string>
 </resources>

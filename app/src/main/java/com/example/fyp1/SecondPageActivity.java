@@ -107,7 +107,7 @@ public class SecondPageActivity extends AppCompatActivity {
         // Ground Floor
         setupLabCard(R.id.cardDCN, "DCN");
         setupLabCard(R.id.cardNWL, "NWL");
-        setupLabCard(R.id.cardLab1, "Lab 1");
+        setupLabCard(R.id.cardLab1, "DNS");
         
         // First Floor
         setupLabCard(R.id.cardSAD, "SAD Lab");
@@ -115,12 +115,12 @@ public class SecondPageActivity extends AppCompatActivity {
         
         // Second Floor
         setupLabCard(R.id.cardPGL2, "PGL2");
-        setupLabCard(R.id.cardLab2, "Lab 2");
+        setupLabCard(R.id.cardLab2, "CSD");
         setupLabCard(R.id.cardPGL1, "PGL1");
         
         // Third Floor
         setupLabCard(R.id.cardHYP, "HYP");
-        setupLabCard(R.id.cardLab3, "Lab 3");
+        setupLabCard(R.id.cardLab3, "APL");
         setupLabCard(R.id.cardMML, "MML");
 
         ivLabPhoto.setOnClickListener(v ->
@@ -197,7 +197,7 @@ public class SecondPageActivity extends AppCompatActivity {
         String currentDay = new SimpleDateFormat("EEEE", Locale.US).format(Calendar.getInstance().getTime());
         int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-        String[] labs = {"DCN", "NWL", "Lab 1", "SAD Lab", "Network Lab", "PGL2", "Lab 2", "PGL1", "HYP", "Lab 3", "MML"};
+        String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL2", "CSD", "PGL1", "HYP", "APL", "MML"};
         int[] statusViewIds = {R.id.statusDCN, R.id.statusNWL, R.id.statusLab1, R.id.statusSAD, R.id.statusNetwork, R.id.statusPGL2, R.id.statusLab2, R.id.statusPGL1, R.id.statusHYP, R.id.statusLab3, R.id.statusMML};
 
         try {
@@ -374,10 +374,10 @@ public class SecondPageActivity extends AppCompatActivity {
 
     private void loadSampleStudentSchedule() {
         List<ClassSession> sample = new ArrayList<>();
-        sample.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
+        sample.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "APL"));
         sample.add(new ClassSession("DFC5082", "Network Security", "Encik Nizam", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
         sample.add(new ClassSession("DFC5013", "Mobile Application", "Puan Sarah", 5, "Tuesday", "8:00 AM - 11:00 AM", "PGL 1"));
-        sample.add(new ClassSession("DFC5024", "Web Architecture", "Dr. Aminah", 5, "Wednesday", "11:00 AM - 1:00 PM", "Lab 2"));
+        sample.add(new ClassSession("DFC5024", "Web Architecture", "Dr. Aminah", 5, "Wednesday", "11:00 AM - 1:00 PM", "CSD"));
         sample.add(new ClassSession("DFC5035", "Ethics & Cyberlaw", "Encik Farhan", 5, "Friday", "2:00 PM - 4:00 PM", "DCN"));
 
         ScheduleManager.saveStudentSchedule(this, sample);

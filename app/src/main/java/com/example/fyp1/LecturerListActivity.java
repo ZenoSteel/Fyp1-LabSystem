@@ -44,13 +44,13 @@ public class LecturerListActivity extends AppCompatActivity {
         allLecturers.add(new Lecturer("Encik Ashar", "Office 1", "012-345 6789", "MML", "4:00 PM", true, android.R.drawable.ic_menu_myplaces));
         allLecturers.add(new Lecturer("Encik Sharafi", "Office 1", "012-342 6789", "DCN", "2:00 PM", false, android.R.drawable.ic_menu_myplaces));
         allLecturers.add(new Lecturer("Encik Dzulkipli", "Office 1", "012-345 6789", "NWL", "10:00 AM", true, android.R.drawable.ic_menu_myplaces));
-        allLecturers.add(new Lecturer("Encik Nizam", "Office 1", "012-345 6789", "Lab 1", "11:00 AM", true, android.R.drawable.ic_menu_myplaces));
+        allLecturers.add(new Lecturer("Encik Nizam", "Office 1", "012-345 6789", "DNS", "11:00 AM", true, android.R.drawable.ic_menu_myplaces));
         
         // Office 2
         allLecturers.add(new Lecturer("Encik Carles", "Office 2", "012-342 6789", "PGL1", "3:00 PM", false, android.R.drawable.ic_menu_myplaces));
         allLecturers.add(new Lecturer("Encik Yusof", "Office 2", "012-345 6789", "PGL2", "9:00 AM", true, android.R.drawable.ic_menu_myplaces));
         allLecturers.add(new Lecturer("Puan Siti", "Office 2", "012-345 6789", "HYP", "1:00 PM", true, android.R.drawable.ic_menu_myplaces));
-        allLecturers.add(new Lecturer("Puan Aminah", "Office 2", "012-345 6789", "Lab 3", "5:00 PM", true, android.R.drawable.ic_menu_myplaces));
+        allLecturers.add(new Lecturer("Puan Aminah", "Office 2", "012-345 6789", "APL", "5:00 PM", true, android.R.drawable.ic_menu_myplaces));
     }
 
     private void setupRecyclerView() {

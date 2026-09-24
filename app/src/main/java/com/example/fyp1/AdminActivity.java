@@ -58,14 +58,14 @@ public class AdminActivity extends AppCompatActivity {
         // Setup All 11 Lab Switches
         setupLabSwitch(R.id.switchDCN, "DCN");
         setupLabSwitch(R.id.switchNWL, "NWL");
-        setupLabSwitch(R.id.switchLab1, "Lab 1");
+        setupLabSwitch(R.id.switchLab1, "DNS");
         setupLabSwitch(R.id.switchSAD, "SAD Lab");
         setupLabSwitch(R.id.switchNetwork, "Network Lab");
         setupLabSwitch(R.id.switchPGL1, "PGL 1");
         setupLabSwitch(R.id.switchPGL2, "PGL 2");
-        setupLabSwitch(R.id.switchLab2, "Lab 2");
+        setupLabSwitch(R.id.switchLab2, "CSD");
         setupLabSwitch(R.id.switchHYP, "HYP");
-        setupLabSwitch(R.id.switchLab3, "Lab 3");
+        setupLabSwitch(R.id.switchLab3, "APL");
         setupLabSwitch(R.id.switchMML, "MML");
     }
 
@@ -81,7 +81,7 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void showLabPickerForTimetable() {
-        final String[] labs = {"DCN", "NWL", "Lab 1", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "Lab 2", "HYP", "Lab 3", "MML"};
+        final String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
         builder.setTitle("Select Lab to Edit Timetable");
         builder.setItems(labs, (dialog, which) -> openLabTimetable(labs[which]));
@@ -100,7 +100,7 @@ public class AdminActivity extends AppCompatActivity {
     private void loadAIInsights() {
         addIssueCard("DCN", "HIGH", "Facility", "Ceiling leak reported near server rack.");
         addIssueCard("SAD Lab", "HIGH", "Hardware", "Smart Board touch sensor malfunctioning.");
-        addIssueCard("Lab 3", "MEDIUM", "Hardware", "PC #15 mouse is unresponsive.");
+        addIssueCard("APL", "MEDIUM", "Hardware", "PC #15 mouse is unresponsive.");
         addIssueCard("NWL", "LOW", "Software", "Need Visual Studio updated to 2024.");
     }
 

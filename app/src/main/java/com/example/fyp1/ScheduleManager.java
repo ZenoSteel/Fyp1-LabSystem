@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ScheduleManager {
     private static final String PREF_NAME = "MasterScheduleData";
-    private static final String KEY_MASTER_TIMETABLE = "master_timetable_v3";
+    private static final String KEY_MASTER_TIMETABLE = "master_timetable_v4";
     private static final String KEY_MY_SCHEDULE = "my_schedule";
 
     public static List<ClassSession> getMasterTimetable(Context context) {
@@ -24,14 +24,14 @@ public class ScheduleManager {
             // Default master dataset with official classes for all labs
             master.add(new ClassSession("DFC5035", "Ethics & Cyberlaw", "Encik Farhan", 5, "Friday", "2:00 PM - 4:00 PM", "DCN"));
 
-            master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
-            master.add(new ClassSession("DFC30223", "Database Systems", "Encik Nizam", 2, "Thursday", "8:00 AM - 10:00 AM", "Lab 1"));
+            master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "DNS"));
+            master.add(new ClassSession("DFC30223", "Database Systems", "Encik Nizam", 2, "Thursday", "8:00 AM - 10:00 AM", "DNS"));
 
-            master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "Lab 2"));
-            master.add(new ClassSession("DFC5024", "Web Architecture", "Dr. Aminah", 5, "Wednesday", "11:00 AM - 1:00 PM", "Lab 2"));
+            master.add(new ClassSession("DFC50133", "Programming 1", "Puan Sarah", 1, "Wednesday", "2:00 PM - 5:00 PM", "CSD"));
+            master.add(new ClassSession("DFC5024", "Web Architecture", "Dr. Aminah", 5, "Wednesday", "11:00 AM - 1:00 PM", "CSD"));
 
-            master.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
-            master.add(new ClassSession("DFC50133", "Programming 1", "Dr. Aminah", 1, "Friday", "9:00 AM - 12:00 PM", "Lab 3"));
+            master.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "APL"));
+            master.add(new ClassSession("DFC50133", "Programming 1", "Dr. Aminah", 1, "Friday", "9:00 AM - 12:00 PM", "APL"));
 
             master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
             master.add(new ClassSession("DFC5082", "Network Security", "Encik Nizam", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
@@ -71,7 +71,7 @@ public class ScheduleManager {
         // Fallback
         List<ClassSession> master = new ArrayList<>();
         master.add(new ClassSession("DFC5035", "Ethics & Cyberlaw", "Encik Farhan", 5, "Friday", "2:00 PM - 4:00 PM", "DCN"));
-        master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "Lab 1"));
+        master.add(new ClassSession("DFC50133", "Programming 1", "Encik Nizam", 1, "Monday", "8:00 AM - 11:00 AM", "DNS"));
         master.add(new ClassSession("DFC40143", "Networking", "Encik Farhan", 3, "Thursday", "2:00 PM - 4:00 PM", "NWL"));
         master.add(new ClassSession("DFC40233", "Operating Systems", "Dr. Aminah", 4, "Friday", "9:00 AM - 12:00 PM", "MML"));
         return master;
@@ -129,7 +129,7 @@ public class ScheduleManager {
         List<ClassSession> schedule = new ArrayList<>();
 
         if (json == null) {
-            schedule.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "Lab 3"));
+            schedule.add(new ClassSession("DFC5091", "Project 1", "Dr. Zaim", 5, "Monday", "9:00 AM - 12:00 PM", "APL"));
             schedule.add(new ClassSession("DFC5082", "Security", "Encik Nizam", 5, "Thursday", "2:00 PM - 5:00 PM", "NWL"));
             return schedule;
         }
