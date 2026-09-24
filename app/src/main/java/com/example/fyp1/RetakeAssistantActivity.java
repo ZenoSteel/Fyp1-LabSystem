@@ -69,17 +69,19 @@ public class RetakeAssistantActivity extends AppCompatActivity {
     }
 
     private int detectStudentSemester() {
-        int maxSem = 4; // Baseline for DIT4A
+        int maxSem = 5; // Default to Sem 5
 
         SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         String username = getIntent().getStringExtra("USER_NAME");
-        if (username != null) {
+        if (username != null && !username.isEmpty()) {
             String registeredClass = prefs.getString(username + "_class", "");
-            String digits = registeredClass.replaceAll("[^0-9]", "");
-            if (!digits.isEmpty()) {
-                try {
-                    maxSem = Math.max(maxSem, Integer.parseInt(digits));
-                } catch (Exception ignored) {}
+            if (!registeredClass.isEmpty()) {
+                java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)(?:DIT|DDT|SEM|CLASS|S)?\\s*([1-6])\\b").matcher(registeredClass);
+                if (matcher.find()) {
+                    try {
+                        maxSem = Integer.parseInt(matcher.group(1));
+                    } catch (Exception ignored) {}
+                }
             }
         }
 

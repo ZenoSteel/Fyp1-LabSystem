@@ -91,7 +91,7 @@ public class DatabaseManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    public void registerUser(Context context, String username, String password, String role, AuthCallback callback) {
+    public void registerUser(Context context, String username, String password, String role, String className, AuthCallback callback) {
         if (!isFirebaseAvailable()) {
             callback.onFailure("Firebase not configured.");
             return;
@@ -108,6 +108,9 @@ public class DatabaseManager {
                         userData.put("username", username);
                         userData.put("email", email);
                         userData.put("role", role);
+                        if (className != null && !className.trim().isEmpty()) {
+                            userData.put("className", className.trim());
+                        }
                         userData.put("createdAt", System.currentTimeMillis());
 
                         db.collection("users").document(user.getUid())

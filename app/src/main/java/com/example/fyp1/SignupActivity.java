@@ -119,7 +119,7 @@ public class SignupActivity extends AppCompatActivity {
 
         // Attempt Cloud Registration via Firebase if available
         if (DatabaseManager.getInstance().isFirebaseAvailable()) {
-            DatabaseManager.getInstance().registerUser(this, username, password, role, new DatabaseManager.AuthCallback() {
+            DatabaseManager.getInstance().registerUser(this, username, password, role, className, new DatabaseManager.AuthCallback() {
                 @Override
                 public void onSuccess(String user, String r) {
                     Toast.makeText(SignupActivity.this, getString(R.string.msg_signup_success) + " (Cloud)", Toast.LENGTH_LONG).show();
