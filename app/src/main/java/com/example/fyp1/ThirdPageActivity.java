@@ -3,6 +3,7 @@ package com.example.fyp1;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -270,27 +272,114 @@ public class ThirdPageActivity extends AppCompatActivity {
             String userRole = getIntent().getStringExtra("USER_ROLE");
             boolean isAdmin = getString(R.string.role_admin).equals(userRole);
 
-            if (!occupiedSummaries.isEmpty()) {
+            LinearLayout layoutContainer = findViewById(R.id.layoutOccupiedSessionsContainer);
+            if (layoutContainer != null) layoutContainer.removeAllViews();
+
+            boolean hasSessions = !dayMasterSessions.isEmpty() || !dayUserBookings.isEmpty();
+
+            if (hasSessions) {
                 cardOccupied.setVisibility(View.VISIBLE);
                 tvOccupiedLecturer.setText("🗓️ " + getFormattedDateForDisplay());
-                
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < occupiedSummaries.size(); i++) {
-                    sb.append(occupiedSummaries.get(i));
-                    if (i < occupiedSummaries.size() - 1) sb.append("\n\n");
-                }
-                tvOccupiedSubject.setText(sb.toString());
-                tvOccupiedTime.setText("");
 
-                if (isAdmin && btnDeleteSession != null) {
-                    btnDeleteSession.setVisibility(View.VISIBLE);
-                    btnDeleteSession.setOnClickListener(v -> showDeleteSessionPicker(dayMasterSessions, dayUserBookings));
-                } else if (btnDeleteSession != null) {
-                    btnDeleteSession.setVisibility(View.GONE);
+                // 1. Render Master Class Session Cards
+                for (ClassSession cs : dayMasterSessions) {
+                    androidx.cardview.widget.CardView card = new androidx.cardview.widget.CardView(this);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    lp.setMargins(0, 0, 0, 16);
+                    card.setLayoutParams(lp);
+                    card.setRadius(10f);
+                    card.setCardElevation(2f);
+                    card.setCardBackgroundColor(Color.WHITE);
+
+                    LinearLayout item = new LinearLayout(this);
+                    item.setOrientation(LinearLayout.VERTICAL);
+                    item.setPadding(24, 24, 24, 24);
+
+                    TextView tvTitle = new TextView(this);
+                    String code = cs.getClassCode().isEmpty() ? "" : cs.getClassCode() + " • ";
+                    String clsName = cs.getClassName().isEmpty() ? "" : " [" + cs.getClassName() + "]";
+                    tvTitle.setText("📚 " + code + cs.getSubjectName() + clsName);
+                    tvTitle.setTextSize(14f);
+                    tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+                    tvTitle.setTextColor(Color.parseColor("#0F172A"));
+
+                    TextView tvDetails = new TextView(this);
+                    String lect = cs.getLecturerName().isEmpty() ? "Faculty Staff" : cs.getLecturerName();
+                    tvDetails.setText("⏰ Time: " + cs.getTimeSlot() + "\n👨‍🏫 Lecturer: " + lect);
+                    tvDetails.setTextSize(12f);
+                    tvDetails.setPadding(0, 6, 0, 10);
+                    tvDetails.setTextColor(Color.parseColor("#475569"));
+
+                    item.addView(tvTitle);
+                    item.addView(tvDetails);
+
+                    if (isAdmin) {
+                        Button btnRemove = new Button(this);
+                        btnRemove.setText("🗑️ Remove This Class");
+                        btnRemove.setTextSize(12f);
+                        btnRemove.setAllCaps(false);
+                        btnRemove.setBackgroundColor(Color.parseColor("#E11D48"));
+                        btnRemove.setTextColor(Color.WHITE);
+                        final ClassSession targetCs = cs;
+                        btnRemove.setOnClickListener(v -> confirmDeleteMasterSession(targetCs));
+                        item.addView(btnRemove);
+                    }
+
+                    card.addView(item);
+                    if (layoutContainer != null) layoutContainer.addView(card);
                 }
+
+                // 2. Render User Reservation Cards
+                for (JSONObject ub : dayUserBookings) {
+                    androidx.cardview.widget.CardView card = new androidx.cardview.widget.CardView(this);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    lp.setMargins(0, 0, 0, 16);
+                    card.setLayoutParams(lp);
+                    card.setRadius(10f);
+                    card.setCardElevation(2f);
+                    card.setCardBackgroundColor(Color.WHITE);
+
+                    LinearLayout item = new LinearLayout(this);
+                    item.setOrientation(LinearLayout.VERTICAL);
+                    item.setPadding(24, 24, 24, 24);
+
+                    TextView tvTitle = new TextView(this);
+                    tvTitle.setText("🔖 " + currentLabName + " Reservation");
+                    tvTitle.setTextSize(14f);
+                    tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+                    tvTitle.setTextColor(Color.parseColor("#0F172A"));
+
+                    TextView tvDetails = new TextView(this);
+                    String by = ub.optString("bookedBy", "Faculty Staff");
+                    String time = ub.optString("time", "Unknown");
+                    tvDetails.setText("⏰ Time: " + time + "\n👤 Reserved By: " + by);
+                    tvDetails.setTextSize(12f);
+                    tvDetails.setPadding(0, 6, 0, 10);
+                    tvDetails.setTextColor(Color.parseColor("#475569"));
+
+                    item.addView(tvTitle);
+                    item.addView(tvDetails);
+
+                    if (isAdmin) {
+                        Button btnRemove = new Button(this);
+                        btnRemove.setText("🗑️ Remove This Reservation");
+                        btnRemove.setTextSize(12f);
+                        btnRemove.setAllCaps(false);
+                        btnRemove.setBackgroundColor(Color.parseColor("#E11D48"));
+                        btnRemove.setTextColor(Color.WHITE);
+                        final JSONObject targetUb = ub;
+                        btnRemove.setOnClickListener(v -> confirmDeleteUserBooking(targetUb));
+                        item.addView(btnRemove);
+                    }
+
+                    card.addView(item);
+                    if (layoutContainer != null) layoutContainer.addView(card);
+                }
+
             } else {
                 cardOccupied.setVisibility(View.GONE);
-                if (btnDeleteSession != null) btnDeleteSession.setVisibility(View.GONE);
             }
 
             // Accurate AI Recommendation Calculation
