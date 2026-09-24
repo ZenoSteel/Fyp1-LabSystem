@@ -276,7 +276,14 @@ public class SecondPageActivity extends AppCompatActivity {
         Toast.makeText(this, getString(R.string.msg_reservations_cancelled), Toast.LENGTH_SHORT).show();
     }
 
+    private AlertDialog activeStudentScheduleDialog;
+
     private void showStudentScheduleDialog() {
+        if (activeStudentScheduleDialog != null && activeStudentScheduleDialog.isShowing()) {
+            activeStudentScheduleDialog.dismiss();
+            activeStudentScheduleDialog = null;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.dialog_my_schedule_title);
 
@@ -357,8 +364,12 @@ public class SecondPageActivity extends AppCompatActivity {
         sv.addView(container);
         builder.setView(sv);
 
-        builder.setPositiveButton(R.string.close, (dialog, which) -> dialog.dismiss());
-        builder.show();
+        builder.setPositiveButton(R.string.close, (dialog, which) -> {
+            dialog.dismiss();
+            activeStudentScheduleDialog = null;
+        });
+        activeStudentScheduleDialog = builder.create();
+        activeStudentScheduleDialog.show();
     }
 
     private void loadSampleStudentSchedule() {
