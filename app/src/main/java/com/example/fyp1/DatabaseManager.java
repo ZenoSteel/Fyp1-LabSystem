@@ -198,6 +198,7 @@ public class DatabaseManager {
         Map<String, Object> data = new HashMap<>();
         data.put("classCode", session.getClassCode());
         data.put("subjectName", session.getSubjectName());
+        data.put("className", session.getClassName());
         data.put("lecturerName", session.getLecturerName());
         data.put("semester", session.getSemester());
         data.put("day", session.getDay());
@@ -223,6 +224,7 @@ public class DatabaseManager {
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         String code = doc.getString("classCode");
                         String subject = doc.getString("subjectName");
+                        String className = doc.getString("className");
                         String lecturer = doc.getString("lecturerName");
                         Long semLong = doc.getLong("semester");
                         int sem = semLong != null ? semLong.intValue() : 1;
@@ -230,8 +232,12 @@ public class DatabaseManager {
                         String time = doc.getString("timeSlot");
                         String lab = doc.getString("labLocation");
 
+                        if (className == null || className.isEmpty()) {
+                            className = "Class " + sem + "A";
+                        }
+
                         if (subject != null && day != null && time != null && lab != null) {
-                            cloudMaster.add(new ClassSession(code, subject, lecturer, sem, day, time, lab));
+                            cloudMaster.add(new ClassSession(code, subject, className, lecturer, sem, day, time, lab));
                         }
                     }
 
