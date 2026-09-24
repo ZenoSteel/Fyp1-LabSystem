@@ -575,8 +575,10 @@ public class ThirdPageActivity extends AppCompatActivity {
         builder.setMessage(getString(R.string.dialog_confirm_delete_msg, session.getSubjectName(), session.getDay()));
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
             ScheduleManager.removeTimetableSession(this, session);
-            Toast.makeText(this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
-            analyzeLabAvailability();
+            DatabaseManager.getInstance().deleteMasterScheduleCloud(session, () -> {
+                Toast.makeText(ThirdPageActivity.this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
+                analyzeLabAvailability();
+            });
         });
         builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
         builder.show();
@@ -589,6 +591,10 @@ public class ThirdPageActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
             SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
             try {
+                String lab = bookingObj != null ? bookingObj.optString("lab", currentLabName) : currentLabName;
+                String day = bookingObj != null ? bookingObj.optString("day", selectedDay) : selectedDay;
+                String time = bookingObj != null ? bookingObj.optString("time", "") : "";
+
                 JSONArray oldBookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
                 JSONArray newBookings = new JSONArray();
                 for (int i = 0; i < oldBookings.length(); i++) {
@@ -602,9 +608,15 @@ public class ThirdPageActivity extends AppCompatActivity {
                     newBookings.put(b);
                 }
                 prefs.edit().putString("BOOKING_LIST", newBookings.toString()).apply();
-                Toast.makeText(this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
+
+                DatabaseManager.getInstance().deleteBookingCloud(lab, day, time, () -> {
+                    Toast.makeText(ThirdPageActivity.this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
+                    analyzeLabAvailability();
+                });
+            } catch (Exception e) {
+                Toast.makeText(ThirdPageActivity.this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
                 analyzeLabAvailability();
-            } catch (Exception ignored) {}
+            }
         });
         builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
         builder.show();

@@ -211,6 +211,50 @@ public class DatabaseManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    public void deleteMasterScheduleCloud(ClassSession session, Runnable onComplete) {
+        if (!isFirebaseAvailable() || session == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        db.collection("master_timetable")
+                .whereEqualTo("labLocation", session.getLabLocation())
+                .whereEqualTo("day", session.getDay())
+                .whereEqualTo("timeSlot", session.getTimeSlot())
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().delete();
+                    }
+                    if (onComplete != null) onComplete.run();
+                })
+                .addOnFailureListener(e -> {
+                    if (onComplete != null) onComplete.run();
+                });
+    }
+
+    public void deleteBookingCloud(String lab, String day, String time, Runnable onComplete) {
+        if (!isFirebaseAvailable()) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        db.collection("bookings")
+                .whereEqualTo("lab", lab)
+                .whereEqualTo("day", day)
+                .whereEqualTo("time", time)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().delete();
+                    }
+                    if (onComplete != null) onComplete.run();
+                })
+                .addOnFailureListener(e -> {
+                    if (onComplete != null) onComplete.run();
+                });
+    }
+
     public void fetchMasterTimetableCloud(Context context, Runnable onComplete) {
         if (!isFirebaseAvailable()) {
             if (onComplete != null) onComplete.run();
