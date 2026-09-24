@@ -375,8 +375,51 @@ public class ThirdPageActivity extends AppCompatActivity {
             String day = spDay.getSelectedItem().toString();
             String startTime = spStart.getSelectedItem().toString();
             String endTime = spEnd.getSelectedItem().toString();
-            String timeSlot = startTime + " - " + endTime;
 
+            // 1. Time Range Validation
+            int[] hours = BookingUtils.getStartEndHours(startTime + " - " + endTime);
+            if (hours[0] >= hours[1]) {
+                Toast.makeText(this, "⚠️ Invalid Time Slot: End time must be after Start time!", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            String timeSlot = BookingUtils.formatProfessionalTime(startTime + " - " + endTime);
+
+            // 2. Check Clash against existing Master Timetable entries
+            List<ClassSession> existingMaster = ScheduleManager.getMasterTimetable(this);
+            for (ClassSession cs : existingMaster) {
+                if (cs.getLabLocation().equalsIgnoreCase(currentLabName) && cs.getDay().equalsIgnoreCase(day)) {
+                    if (BookingUtils.isOverlap(timeSlot, cs.getTimeSlot())) {
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("⚠️ Course Schedule Clash!")
+                                .setMessage(currentLabName + " is already scheduled for " + cs.getSubjectName() + " (" + cs.getTimeSlot() + ") on " + day + ".\n\nPlease select another time slot or lab.")
+                                .setPositiveButton(R.string.ok, null)
+                                .show();
+                        return;
+                    }
+                }
+            }
+
+            // 3. Check Clash against existing User Bookings
+            SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+            try {
+                JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+                for (int i = 0; i < bookings.length(); i++) {
+                    JSONObject b = bookings.getJSONObject(i);
+                    if (b.getString("lab").equalsIgnoreCase(currentLabName) && b.getString("day").equalsIgnoreCase(day)) {
+                        if (BookingUtils.isOverlap(timeSlot, b.getString("time"))) {
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("⚠️ Reservation Clash!")
+                                    .setMessage(currentLabName + " is already reserved on " + day + " at " + b.getString("time") + ".\n\nPlease select another time slot or lab.")
+                                    .setPositiveButton(R.string.ok, null)
+                                    .show();
+                            return;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+
+            // 4. No clash -> Save locally & to Cloud
             ClassSession session = new ClassSession(code, subject, className, lecturer, sem, day, timeSlot, currentLabName);
             ScheduleManager.addTimetableSession(this, session);
 
