@@ -111,19 +111,36 @@ public class RetakeAssistantActivity extends AppCompatActivity {
         String selectedSubject = spinnerSubjects.getSelectedItem().toString();
 
         List<ClassSession> availableSlots = new ArrayList<>();
-
         boolean isAllMode = selectedSubject.startsWith("🎓 All Retake Subjects");
 
-        // AI Conflict Analysis Engine: Filter out sessions that overlap with current schedule
+        // Pass 1: Strict semester filter (targetSession.getSemester() < studentSemester)
         for (ClassSession targetSession : masterTimetable) {
-            // RETAKE RULE: Retake subjects belong to PREVIOUS semesters (targetSession.getSemester() < studentSemester)
             boolean isPreviousSemester = (targetSession.getSemester() < studentSemester);
 
             if (isAllMode && !isPreviousSemester && studentSemester > 1) {
-                continue; // Skip current or future semester subjects in All Retake mode
+                continue; // Skip current or future semester subjects in Pass 1
             }
 
             if (isAllMode || targetSession.getSubjectName().equalsIgnoreCase(selectedSubject)) {
+                boolean hasClash = false;
+                for (ClassSession currentSession : studentCurrentSchedule) {
+                    if (targetSession.getDay().equalsIgnoreCase(currentSession.getDay())) {
+                        if (BookingUtils.isOverlap(targetSession.getTimeSlot(), currentSession.getTimeSlot())) {
+                            hasClash = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!hasClash) {
+                    availableSlots.add(targetSession);
+                }
+            }
+        }
+
+        // Pass 2 Fallback: If no slots found under strict semester filter, evaluate ALL master subjects for clash-free slots
+        if (availableSlots.isEmpty() && isAllMode) {
+            for (ClassSession targetSession : masterTimetable) {
                 boolean hasClash = false;
                 for (ClassSession currentSession : studentCurrentSchedule) {
                     if (targetSession.getDay().equalsIgnoreCase(currentSession.getDay())) {
