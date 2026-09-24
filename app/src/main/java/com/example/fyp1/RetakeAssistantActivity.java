@@ -69,13 +69,26 @@ public class RetakeAssistantActivity extends AppCompatActivity {
     }
 
     private int detectStudentSemester() {
-        // Detect semester from enrolled classes or registered class name (e.g. DIT4A -> Sem 4)
-        for (ClassSession cs : studentCurrentSchedule) {
-            if (cs.getSemester() > 0) {
-                return cs.getSemester();
+        int maxSem = 4; // Baseline for DIT4A
+
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String username = getIntent().getStringExtra("USER_NAME");
+        if (username != null) {
+            String registeredClass = prefs.getString(username + "_class", "");
+            String digits = registeredClass.replaceAll("[^0-9]", "");
+            if (!digits.isEmpty()) {
+                try {
+                    maxSem = Math.max(maxSem, Integer.parseInt(digits));
+                } catch (Exception ignored) {}
             }
         }
-        return 4; // Default to Sem 4
+
+        for (ClassSession cs : studentCurrentSchedule) {
+            if (cs.getSemester() > maxSem) {
+                maxSem = cs.getSemester();
+            }
+        }
+        return maxSem;
     }
 
     private void setupSpinner() {
