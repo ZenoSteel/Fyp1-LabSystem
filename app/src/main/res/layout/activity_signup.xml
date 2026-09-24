@@ -61,31 +61,69 @@
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/etSignupPassword"
+            <!-- Password Input Container -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_input_modern"
-                android:hint="@string/hint_password"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
+                android:layout_marginTop="14dp">
 
-            <EditText
-                android:id="@+id/etConfirmPassword"
+                <EditText
+                    android:id="@+id/etSignupPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_input_modern"
+                    android:hint="@string/hint_password"
+                    android:inputType="textPassword"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="48dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <ImageButton
+                    android:id="@+id/btnToggleSignupPassword"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="6dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Toggle Password Visibility"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@android:drawable/ic_menu_view"
+                    app:tint="@color/text_secondary" />
+            </FrameLayout>
+
+            <!-- Confirm Password Input Container -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_input_modern"
-                android:hint="@string/hint_confirm_password"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
+                android:layout_marginTop="14dp">
+
+                <EditText
+                    android:id="@+id/etConfirmPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_input_modern"
+                    android:hint="@string/hint_confirm_password"
+                    android:inputType="textPassword"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="48dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <ImageButton
+                    android:id="@+id/btnToggleConfirmPassword"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="6dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Toggle Password Visibility"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@android:drawable/ic_menu_view"
+                    app:tint="@color/text_secondary" />
+            </FrameLayout>
 
             <TextView
                 android:layout_width="wrap_content"

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 public class MainActivity extends AppCompatActivity {
 
     private EditText etUsername, etPassword;
+    private boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,19 @@ public class MainActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         Button btnLogin = findViewById(R.id.btnLogin);
         TextView tvSignup = findViewById(R.id.tvSignup);
+        ImageButton btnTogglePassword = findViewById(R.id.btnTogglePassword);
+
+        if (btnTogglePassword != null) {
+            btnTogglePassword.setOnClickListener(v -> {
+                isPasswordVisible = !isPasswordVisible;
+                if (isPasswordVisible) {
+                    etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                } else {
+                    etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                }
+                etPassword.setSelection(etPassword.getText().length());
+            });
+        }
 
         btnLogin.setOnClickListener(this::onClick);
 

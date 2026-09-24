@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,8 +36,28 @@ public class SignupActivity extends AppCompatActivity {
 
         setupRoleSpinner();
 
+        ImageButton btnToggleSignupPassword = findViewById(R.id.btnToggleSignupPassword);
+        ImageButton btnToggleConfirmPassword = findViewById(R.id.btnToggleConfirmPassword);
+
+        if (btnToggleSignupPassword != null) {
+            btnToggleSignupPassword.setOnClickListener(v -> toggleVisibility(etPassword));
+        }
+        if (btnToggleConfirmPassword != null) {
+            btnToggleConfirmPassword.setOnClickListener(v -> toggleVisibility(etConfirmPassword));
+        }
+
         btnSignup.setOnClickListener(v -> registerUser());
         tvBackToLogin.setOnClickListener(v -> finish());
+    }
+
+    private void toggleVisibility(EditText editText) {
+        if (editText == null) return;
+        if (editText.getInputType() == (android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)) {
+            editText.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        } else {
+            editText.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        }
+        editText.setSelection(editText.getText().length());
     }
 
     private void setupRoleSpinner() {

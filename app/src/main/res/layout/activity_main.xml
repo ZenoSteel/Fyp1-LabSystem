@@ -94,21 +94,39 @@
                 android:textColorHint="@color/text_secondary"
                 android:textSize="14sp" />
 
-            <!-- Password Input -->
-            <EditText
-                android:id="@+id/etPassword"
+            <!-- Password Input Container with Visibility Toggle -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_input_modern"
-                android:hint="@string/hint_password"
-                android:importantForAutofill="no"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:textSize="14sp" />
+                android:layout_marginTop="14dp">
+
+                <EditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_input_modern"
+                    android:hint="@string/hint_password"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="48dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="14sp" />
+
+                <ImageButton
+                    android:id="@+id/btnTogglePassword"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="6dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Toggle Password Visibility"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@android:drawable/ic_menu_view"
+                    app:tint="@color/text_secondary" />
+            </FrameLayout>
 
             <!-- Login Button -->
             <Button
