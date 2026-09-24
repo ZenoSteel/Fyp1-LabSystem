@@ -36,8 +36,10 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Main Dashboard Activity.
@@ -169,6 +171,7 @@ public class SecondPageActivity extends AppCompatActivity {
     }
 
     private com.google.firebase.firestore.ListenerRegistration cloudListener;
+    private Map<String, Boolean> activeMaintenanceMap = new java.util.HashMap<>();
 
     @Override
     protected void onResume() {
@@ -178,6 +181,10 @@ public class SecondPageActivity extends AppCompatActivity {
         // Attach Real-Time Cloud Firestore Listener for instant green/red status updates
         if (DatabaseManager.getInstance().isFirebaseAvailable()) {
             cloudListener = DatabaseManager.getInstance().listenToBookings(cloudBookings -> refreshLabAvailability());
+            DatabaseManager.getInstance().listenToLabMaintenanceStatus(map -> {
+                activeMaintenanceMap = map;
+                refreshLabAvailability();
+            });
         }
     }
 
@@ -200,6 +207,8 @@ public class SecondPageActivity extends AppCompatActivity {
         String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL2", "CSD", "PGL1", "HYP", "APL", "MML"};
         int[] statusViewIds = {R.id.statusDCN, R.id.statusNWL, R.id.statusLab1, R.id.statusSAD, R.id.statusNetwork, R.id.statusPGL2, R.id.statusLab2, R.id.statusPGL1, R.id.statusHYP, R.id.statusLab3, R.id.statusMML};
 
+        List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
+
         try {
             JSONArray bookingArray = new JSONArray(existingBookingsJson);
 
@@ -210,13 +219,34 @@ public class SecondPageActivity extends AppCompatActivity {
                 
                 boolean isOccupied = false;
 
-                for (int j = 0; j < bookingArray.length(); j++) {
-                    JSONObject booking = bookingArray.getJSONObject(j);
-                    if (booking.getString("lab").equalsIgnoreCase(labName) && booking.getString("day").equalsIgnoreCase(currentDay)) {
-                        int[] range = BookingUtils.getStartEndHours(booking.getString("time"));
-                        if (range != null && currentHour >= range[0] && currentHour < range[1]) {
-                            isOccupied = true;
-                            break;
+                // 1. Check Realtime DB Maintenance status
+                if (activeMaintenanceMap != null && Boolean.TRUE.equals(activeMaintenanceMap.get(labName.toLowerCase(Locale.US)))) {
+                    isOccupied = true;
+                }
+
+                // 2. Check User Bookings for current day & hour
+                if (!isOccupied) {
+                    for (int j = 0; j < bookingArray.length(); j++) {
+                        JSONObject booking = bookingArray.getJSONObject(j);
+                        if (booking.getString("lab").equalsIgnoreCase(labName) && booking.getString("day").equalsIgnoreCase(currentDay)) {
+                            int[] range = BookingUtils.getStartEndHours(booking.getString("time"));
+                            if (range != null && currentHour >= range[0] && currentHour < range[1]) {
+                                isOccupied = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Check Master Class Timetable for current day & hour
+                if (!isOccupied) {
+                    for (ClassSession cs : masterList) {
+                        if (cs.getLabLocation().equalsIgnoreCase(labName) && cs.getDay().equalsIgnoreCase(currentDay)) {
+                            int[] range = BookingUtils.getStartEndHours(cs.getTimeSlot());
+                            if (range != null && currentHour >= range[0] && currentHour < range[1]) {
+                                isOccupied = true;
+                                break;
+                            }
                         }
                     }
                 }

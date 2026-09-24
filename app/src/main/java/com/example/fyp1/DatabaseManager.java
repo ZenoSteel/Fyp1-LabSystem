@@ -15,6 +15,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -299,8 +300,33 @@ public class DatabaseManager {
     // 5. REALTIME DATABASE MAINTENANCE TOGGLES
     // ==========================================
 
+    public interface MaintenanceStatusCallback {
+        void onStatusChanged(Map<String, Boolean> maintenanceMap);
+    }
+
     public void updateLabMaintenanceStatus(String labName, boolean isAvailable) {
         if (rtdb == null) return;
         rtdb.getReference("lab_status").child(labName).setValue(isAvailable ? "AVAILABLE" : "UNDER MAINTENANCE");
+    }
+
+    public void listenToLabMaintenanceStatus(MaintenanceStatusCallback callback) {
+        if (rtdb == null || callback == null) return;
+
+        rtdb.getReference("lab_status").addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+            @Override
+            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                Map<String, Boolean> map = new HashMap<>();
+                for (com.google.firebase.database.DataSnapshot child : snapshot.getChildren()) {
+                    String lab = child.getKey();
+                    String val = child.getValue(String.class);
+                    boolean isMaint = "UNDER MAINTENANCE".equalsIgnoreCase(val);
+                    if (lab != null) map.put(lab.toLowerCase(Locale.US), isMaint);
+                }
+                callback.onStatusChanged(map);
+            }
+
+            @Override
+            public void onCancelled(com.google.firebase.database.DatabaseError error) {}
+        });
     }
 }
