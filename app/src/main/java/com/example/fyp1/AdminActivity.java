@@ -199,33 +199,55 @@ public class AdminActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 0, 0, 16);
         card.setLayoutParams(params);
-        card.setRadius(16f);
-        card.setCardElevation(2f);
+        card.setRadius(14f);
+        card.setCardElevation(3f);
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(32, 32, 32, 32);
 
-        TextView tvHeader = new TextView(this);
-        tvHeader.setText("[" + priority + "] " + lab + " - " + category);
-        tvHeader.setTextSize(14);
-        tvHeader.setTypeface(null, android.graphics.Typeface.BOLD);
-        
-        if (priority.equals("HIGH")) {
-            tvHeader.setTextColor(Color.parseColor("#EF4444"));
-        } else if (priority.equals("MEDIUM")) {
-            tvHeader.setTextColor(Color.parseColor("#F59E0B"));
+        LinearLayout headerRow = new LinearLayout(this);
+        headerRow.setOrientation(LinearLayout.HORIZONTAL);
+        headerRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        TextView tvBadge = new TextView(this);
+        tvBadge.setTextSize(11f);
+        tvBadge.setTypeface(null, android.graphics.Typeface.BOLD);
+        tvBadge.setPadding(16, 6, 16, 6);
+
+        if ("HIGH".equalsIgnoreCase(priority)) {
+            tvBadge.setText("🔴 HIGH PRIORITY");
+            tvBadge.setTextColor(Color.parseColor("#991B1B"));
+            tvBadge.setBackgroundResource(R.drawable.bg_status_occupied);
+            card.setCardBackgroundColor(Color.parseColor("#FEF2F2"));
+        } else if ("MEDIUM".equalsIgnoreCase(priority)) {
+            tvBadge.setText("🟡 MEDIUM PRIORITY");
+            tvBadge.setTextColor(Color.parseColor("#92400E"));
+            tvBadge.setBackgroundColor(Color.parseColor("#FEF3C7"));
+            card.setCardBackgroundColor(Color.parseColor("#FFFBEB"));
         } else {
-            tvHeader.setTextColor(Color.parseColor("#3B82F6"));
+            tvBadge.setText("🔵 LOW PRIORITY");
+            tvBadge.setTextColor(Color.parseColor("#1E40AF"));
+            tvBadge.setBackgroundColor(Color.parseColor("#DBEAFE"));
+            card.setCardBackgroundColor(Color.parseColor("#EFF6FF"));
         }
+
+        TextView tvLabTitle = new TextView(this);
+        tvLabTitle.setText(" • " + lab + " (" + category + ")");
+        tvLabTitle.setTextSize(14f);
+        tvLabTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+        tvLabTitle.setTextColor(Color.parseColor("#0F172A"));
+
+        headerRow.addView(tvBadge);
+        headerRow.addView(tvLabTitle);
 
         TextView tvDesc = new TextView(this);
         tvDesc.setText(desc);
-        tvDesc.setTextSize(14);
-        tvDesc.setTextColor(Color.parseColor("#475569"));
+        tvDesc.setTextSize(13f);
+        tvDesc.setTextColor(Color.parseColor("#334155"));
         tvDesc.setPadding(0, 12, 0, 0);
 
-        layout.addView(tvHeader);
+        layout.addView(headerRow);
         layout.addView(tvDesc);
         card.addView(layout);
         layoutIssueFeed.addView(card);
