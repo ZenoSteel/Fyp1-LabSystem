@@ -237,7 +237,8 @@ public class SecondPageActivity extends AppCompatActivity {
                 boolean isOccupied = false;
 
                 // 1. Check Realtime DB Maintenance status
-                if (activeMaintenanceMap != null && Boolean.TRUE.equals(activeMaintenanceMap.get(labName.toLowerCase(Locale.US)))) {
+                String normKey = labName.replaceAll("\\s+", "").toLowerCase(Locale.US);
+                if (activeMaintenanceMap != null && Boolean.TRUE.equals(activeMaintenanceMap.get(normKey))) {
                     isOccupied = true;
                 }
 

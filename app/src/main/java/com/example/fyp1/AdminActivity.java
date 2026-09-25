@@ -31,6 +31,23 @@ public class AdminActivity extends AppCompatActivity {
         loadAIInsights();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+            DatabaseManager.getInstance().listenToLabMaintenanceStatus(map -> {
+                int count = 0;
+                for (Boolean isMaint : map.values()) {
+                    if (Boolean.TRUE.equals(isMaint)) count++;
+                }
+                TextView tvMaint = findViewById(R.id.tvMaintenanceCount);
+                if (tvMaint != null) {
+                    tvMaint.setText(String.valueOf(count));
+                }
+            });
+        }
+    }
+
     private void initializeUI() {
         layoutIssueFeed = findViewById(R.id.layoutAdminIssues);
         ImageButton btnLogout = findViewById(R.id.btnLogoutAdmin);

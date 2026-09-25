@@ -360,7 +360,10 @@ public class DatabaseManager {
                     String lab = child.getKey();
                     String val = child.getValue(String.class);
                     boolean isMaint = "UNDER MAINTENANCE".equalsIgnoreCase(val);
-                    if (lab != null) map.put(lab.toLowerCase(Locale.US), isMaint);
+                    if (lab != null) {
+                        String normalized = lab.replaceAll("\\s+", "").toLowerCase(Locale.US);
+                        map.put(normalized, isMaint);
+                    }
                 }
                 callback.onStatusChanged(map);
             }
