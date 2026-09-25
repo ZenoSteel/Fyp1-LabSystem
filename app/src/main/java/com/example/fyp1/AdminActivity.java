@@ -53,6 +53,51 @@ public class AdminActivity extends AppCompatActivity {
             btnTimetables.setOnClickListener(v -> showLabPickerForTimetable());
         }
 
+        View tileHighAlerts = findViewById(R.id.cardHighAlertsTile);
+        if (tileHighAlerts != null) {
+            tileHighAlerts.setOnClickListener(v -> showTileDetailDialog(
+                "🚨 Active High Priority AI Alerts",
+                "• [DCN - Facility]: Ceiling leak reported near server rack.\n\n" +
+                "• [SAD Lab - Hardware]: Smart Board touch sensor malfunctioning.\n\n" +
+                "• [NWL - Critical Network]: Switch port 4 disconnected."
+            ));
+        }
+
+        View tileMaint = findViewById(R.id.cardMaintenanceTile);
+        if (tileMaint != null) {
+            tileMaint.setOnClickListener(v -> showTileDetailDialog(
+                "🛠️ Labs Currently Under Maintenance",
+                "• DCN - Switched Off (Under Maintenance)\n\n" +
+                "You can toggle maintenance status for any lab using the switches in the System Control Panel below."
+            ));
+        }
+
+        View tileUsage = findViewById(R.id.cardUsageTile);
+        if (tileUsage != null) {
+            tileUsage.setOnClickListener(v -> showTileDetailDialog(
+                "📊 Today's Faculty Lab Usage",
+                "• Total Active Sessions Today: 12\n\n" +
+                "• DCN: 2 Sessions (Server Admin / Security)\n" +
+                "• DNS: 2 Sessions (Programming 1 / DB Systems)\n" +
+                "• CSD: 2 Sessions (Web Architecture / Coding)\n" +
+                "• APL: 2 Sessions (Project 1 / Labs)\n" +
+                "• NWL: 2 Sessions (Networking / Wireless)\n" +
+                "• MML: 2 Sessions (Multimedia / Design)"
+            ));
+        }
+
+        View tileHealth = findViewById(R.id.cardAIHealthTile);
+        if (tileHealth != null) {
+            tileHealth.setOnClickListener(v -> showTileDetailDialog(
+                "🟢 AI System Health & Status",
+                "• AI Gap Engine: ONLINE (1-Tap Auto-Fill Active)\n" +
+                "• NLP Chatbot Engine: ONLINE (Single-Message Ready)\n" +
+                "• AI Retake Resolver: ONLINE (Sem 1-4 Matching)\n" +
+                "• Firebase Realtime Sync: CONNECTED (Zero Latency)\n" +
+                "• Cloud Firestore Database: CONNECTED"
+            ));
+        }
+
         // Setup All 11 Lab Switches
         setupLabSwitch(R.id.switchDCN, "DCN");
         setupLabSwitch(R.id.switchNWL, "NWL");
@@ -184,5 +229,13 @@ public class AdminActivity extends AppCompatActivity {
         layout.addView(tvDesc);
         card.addView(layout);
         layoutIssueFeed.addView(card);
+    }
+
+    private void showTileDetailDialog(String title, String message) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.close, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }

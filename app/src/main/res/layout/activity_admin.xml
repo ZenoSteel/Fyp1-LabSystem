@@ -69,11 +69,14 @@
 
                 <!-- Tile 1: High Priority -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardHighAlertsTile"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
                     app:strokeWidth="0dp"
@@ -102,11 +105,14 @@
 
                 <!-- Tile 2: Maintenance -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMaintenanceTile"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
                     app:strokeWidth="0dp"
@@ -135,11 +141,14 @@
 
                 <!-- Tile 3: Bookings -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardUsageTile"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
                     app:strokeWidth="0dp"
@@ -168,11 +177,14 @@
 
                 <!-- Tile 4: AI Health -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardAIHealthTile"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
                     app:strokeWidth="0dp"
