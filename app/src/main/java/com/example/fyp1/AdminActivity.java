@@ -46,9 +46,7 @@ public class AdminActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        findViewById(R.id.btnBroadcast).setOnClickListener(v -> 
-            Toast.makeText(this, "Broadcasting faculty-wide alert...", Toast.LENGTH_SHORT).show()
-        );
+        findViewById(R.id.btnBroadcast).setOnClickListener(v -> showBroadcastAlertDialog());
 
         View btnTimetables = findViewById(R.id.btnManageTimetables);
         if (btnTimetables != null) {
@@ -67,6 +65,52 @@ public class AdminActivity extends AppCompatActivity {
         setupLabSwitch(R.id.switchHYP, "HYP");
         setupLabSwitch(R.id.switchLab3, "APL");
         setupLabSwitch(R.id.switchMML, "MML");
+    }
+
+    private void showBroadcastAlertDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Broadcast Faculty Alert");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final android.widget.EditText etAlertMsg = new android.widget.EditText(this);
+        etAlertMsg.setHint("e.g. ⚠️ EMERGENCY: Power outage! All labs closed until 5:00 PM.");
+        layout.addView(etAlertMsg);
+
+        final android.widget.CheckBox cbEmergencyMode = new android.widget.CheckBox(this);
+        cbEmergencyMode.setText("🔴 Set ALL Labs to Under Maintenance (Red)");
+        cbEmergencyMode.setPadding(0, 16, 0, 16);
+        layout.addView(cbEmergencyMode);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Broadcast Now", (dialog, which) -> {
+            String msg = etAlertMsg.getText().toString().trim();
+            if (msg.isEmpty()) msg = "⚠️ EMERGENCY FACULTY ALERT: All computer labs are temporarily unavailable due to system maintenance.";
+            
+            boolean setMaint = cbEmergencyMode.isChecked();
+            DatabaseManager.getInstance().broadcastFacultyAlert(msg, setMaint);
+            
+            if (setMaint) {
+                int[] switchIds = {R.id.switchDCN, R.id.switchNWL, R.id.switchLab1, R.id.switchSAD, R.id.switchNetwork, R.id.switchPGL1, R.id.switchPGL2, R.id.switchLab2, R.id.switchHYP, R.id.switchLab3, R.id.switchMML};
+                for (int id : switchIds) {
+                    SwitchMaterial sw = findViewById(id);
+                    if (sw != null) sw.setChecked(false);
+                }
+            }
+
+            Toast.makeText(this, "Broadcast alert sent to all users!", Toast.LENGTH_LONG).show();
+        });
+
+        builder.setNeutralButton("Clear Active Alert", (dialog, which) -> {
+            DatabaseManager.getInstance().clearFacultyAlert();
+            Toast.makeText(this, "Active broadcast alert cleared.", Toast.LENGTH_SHORT).show();
+        });
+
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 
     private void setupLabSwitch(int id, String labName) {

@@ -53,6 +53,41 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- Live Broadcast Alert Banner (Red) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardFacultyAlertBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FFF1F2"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🚨 FACULTY-WIDE ALERT BROADCAST"
+                        android:textColor="#E11D48"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvFacultyAlertMsg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Emergency maintenance in progress."
+                        android:textColor="#881337"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- Campus Facility Banner Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

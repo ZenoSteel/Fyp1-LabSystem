@@ -185,6 +185,21 @@ public class SecondPageActivity extends AppCompatActivity {
                 activeMaintenanceMap = map;
                 refreshLabAvailability();
             });
+            DatabaseManager.getInstance().listenToFacultyAlert(this::handleFacultyAlertBroadcast);
+        }
+    }
+
+    private void handleFacultyAlertBroadcast(String alertMsg) {
+        androidx.cardview.widget.CardView cardAlert = findViewById(R.id.cardFacultyAlertBanner);
+        TextView tvMsg = findViewById(R.id.tvFacultyAlertMsg);
+
+        if (cardAlert != null && tvMsg != null) {
+            if (alertMsg != null && !alertMsg.trim().isEmpty()) {
+                tvMsg.setText(alertMsg.trim());
+                cardAlert.setVisibility(android.view.View.VISIBLE);
+            } else {
+                cardAlert.setVisibility(android.view.View.GONE);
+            }
         }
     }
 

@@ -300,16 +300,53 @@ public class DatabaseManager {
     }
 
     // ==========================================
-    // 5. REALTIME DATABASE MAINTENANCE TOGGLES
+    // 5. REALTIME DATABASE MAINTENANCE TOGGLES & BROADCAST ALERTS
     // ==========================================
 
     public interface MaintenanceStatusCallback {
         void onStatusChanged(Map<String, Boolean> maintenanceMap);
     }
 
+    public interface FacultyAlertCallback {
+        void onAlertReceived(String alertMessage);
+    }
+
     public void updateLabMaintenanceStatus(String labName, boolean isAvailable) {
         if (rtdb == null) return;
         rtdb.getReference("lab_status").child(labName).setValue(isAvailable ? "AVAILABLE" : "UNDER MAINTENANCE");
+    }
+
+    public void broadcastFacultyAlert(String alertMessage, boolean setAllMaintenance) {
+        if (rtdb == null) return;
+
+        rtdb.getReference("faculty_alert").setValue(alertMessage);
+
+        if (setAllMaintenance) {
+            String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL1", "PGL2", "CSD", "HYP", "APL", "MML"};
+            for (String lab : labs) {
+                updateLabMaintenanceStatus(lab, false);
+            }
+        }
+    }
+
+    public void clearFacultyAlert() {
+        if (rtdb == null) return;
+        rtdb.getReference("faculty_alert").removeValue();
+    }
+
+    public void listenToFacultyAlert(FacultyAlertCallback callback) {
+        if (rtdb == null || callback == null) return;
+
+        rtdb.getReference("faculty_alert").addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+            @Override
+            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                String msg = snapshot.getValue(String.class);
+                callback.onAlertReceived(msg != null ? msg : "");
+            }
+
+            @Override
+            public void onCancelled(com.google.firebase.database.DatabaseError error) {}
+        });
     }
 
     public void listenToLabMaintenanceStatus(MaintenanceStatusCallback callback) {
