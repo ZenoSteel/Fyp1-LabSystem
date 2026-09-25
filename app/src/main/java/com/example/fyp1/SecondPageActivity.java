@@ -423,6 +423,56 @@ public class SecondPageActivity extends AppCompatActivity {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(40, 20, 40, 20);
 
+        TextView tvHeader = new TextView(this);
+        tvHeader.setText("Select Course from Master Database:");
+        tvHeader.setTextSize(13f);
+        tvHeader.setTypeface(null, android.graphics.Typeface.BOLD);
+        tvHeader.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_navy));
+        layout.addView(tvHeader);
+
+        List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
+        List<String> masterDisplayList = new ArrayList<>();
+
+        for (ClassSession cs : masterList) {
+            String code = cs.getClassCode().isEmpty() ? "DFC" : cs.getClassCode();
+            String item = code + " • " + cs.getSubjectName() + "\n   📅 " + cs.getDay() + " (" + cs.getTimeSlot() + ") @ " + cs.getLabLocation();
+            masterDisplayList.add(item);
+        }
+        masterDisplayList.add("✏️ Custom Manual Class Input...");
+
+        final Spinner spMasterCourses = new Spinner(this);
+        ArrayAdapter<String> masterAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, masterDisplayList);
+        spMasterCourses.setAdapter(masterAdapter);
+        spMasterCourses.setPadding(0, 10, 0, 20);
+        layout.addView(spMasterCourses);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            int selectedIdx = spMasterCourses.getSelectedItemPosition();
+            if (selectedIdx >= 0 && selectedIdx < masterList.size()) {
+                // Selected directly from database
+                ClassSession selectedCourse = masterList.get(selectedIdx);
+                ScheduleManager.addStudentClass(this, selectedCourse);
+                Toast.makeText(this, selectedCourse.getSubjectName() + " added to your schedule!", Toast.LENGTH_SHORT).show();
+                showStudentScheduleDialog();
+            } else {
+                showManualAddStudentClassDialog();
+            }
+        });
+
+        builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showManualAddStudentClassDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Custom Manual Class Input");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
         final android.widget.EditText etCode = new android.widget.EditText(this);
         etCode.setHint(R.string.hint_class_code);
         layout.addView(etCode);
@@ -478,7 +528,6 @@ public class SecondPageActivity extends AppCompatActivity {
 
             ClassSession session = new ClassSession(code, subject, lecturer, 5, day, timeSlot, room);
             ScheduleManager.addStudentClass(this, session);
-
             Toast.makeText(this, "Class added to your schedule!", Toast.LENGTH_SHORT).show();
             showStudentScheduleDialog();
         });
