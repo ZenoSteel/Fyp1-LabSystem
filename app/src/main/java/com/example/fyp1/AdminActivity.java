@@ -204,10 +204,17 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void loadAIInsights() {
-        addIssueCard("DCN", "HIGH", "Facility", "Ceiling leak reported near server rack.");
-        addIssueCard("SAD Lab", "HIGH", "Hardware", "Smart Board touch sensor malfunctioning.");
-        addIssueCard("APL", "MEDIUM", "Hardware", "PC #15 mouse is unresponsive.");
-        addIssueCard("NWL", "LOW", "Software", "Need Visual Studio updated to 2024.");
+        if (layoutIssueFeed != null) layoutIssueFeed.removeAllViews();
+
+        ((TextView)findViewById(R.id.tvActiveAlertsCount)).setText("0");
+        ((TextView)findViewById(R.id.tvUsageCount)).setText("0");
+
+        TextView tvEmpty = new TextView(this);
+        tvEmpty.setText("🟢 All 11 Labs Operational • No Active Facility Issues Reported");
+        tvEmpty.setTextSize(13f);
+        tvEmpty.setTextColor(Color.parseColor("#15803D"));
+        tvEmpty.setPadding(32, 32, 32, 32);
+        layoutIssueFeed.addView(tvEmpty);
     }
 
     private void addIssueCard(String lab, String priority, String category, String desc) {
