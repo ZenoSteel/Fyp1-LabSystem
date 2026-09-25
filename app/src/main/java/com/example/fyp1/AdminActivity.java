@@ -9,6 +9,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -31,11 +34,15 @@ public class AdminActivity extends AppCompatActivity {
         loadAIInsights();
     }
 
+    private Map<String, Boolean> currentMaintenanceMap = new java.util.HashMap<>();
+    private boolean isUpdatingSwitchesProgrammatically = false;
+
     @Override
     protected void onResume() {
         super.onResume();
         if (DatabaseManager.getInstance().isFirebaseAvailable()) {
             DatabaseManager.getInstance().listenToLabMaintenanceStatus(map -> {
+                currentMaintenanceMap = map;
                 int count = 0;
                 for (Boolean isMaint : map.values()) {
                     if (Boolean.TRUE.equals(isMaint)) count++;
@@ -44,8 +51,28 @@ public class AdminActivity extends AppCompatActivity {
                 if (tvMaint != null) {
                     tvMaint.setText(String.valueOf(count));
                 }
+                syncSwitchesWithDatabase(map);
             });
         }
+    }
+
+    private void syncSwitchesWithDatabase(Map<String, Boolean> map) {
+        if (map == null) return;
+        isUpdatingSwitchesProgrammatically = true;
+
+        int[] switchIds = {R.id.switchDCN, R.id.switchNWL, R.id.switchLab1, R.id.switchSAD, R.id.switchNetwork, R.id.switchPGL1, R.id.switchPGL2, R.id.switchLab2, R.id.switchHYP, R.id.switchLab3, R.id.switchMML};
+        String[] labNames = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
+
+        for (int i = 0; i < switchIds.length; i++) {
+            SwitchMaterial sw = findViewById(switchIds[i]);
+            if (sw != null) {
+                String norm = labNames[i].replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                boolean isMaint = Boolean.TRUE.equals(map.get(norm));
+                sw.setChecked(!isMaint); // Checked = AVAILABLE, Unchecked = UNDER MAINTENANCE
+            }
+        }
+
+        isUpdatingSwitchesProgrammatically = false;
     }
 
     private void initializeUI() {
@@ -82,11 +109,23 @@ public class AdminActivity extends AppCompatActivity {
 
         View tileMaint = findViewById(R.id.cardMaintenanceTile);
         if (tileMaint != null) {
-            tileMaint.setOnClickListener(v -> showTileDetailDialog(
-                "🛠️ Labs Currently Under Maintenance",
-                "• DCN - Switched Off (Under Maintenance)\n\n" +
-                "You can toggle maintenance status for any lab using the switches in the System Control Panel below."
-            ));
+            tileMaint.setOnClickListener(v -> {
+                StringBuilder sb = new StringBuilder("🛠️ Labs Currently Under Maintenance:\n\n");
+                int count = 0;
+                String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
+                for (String l : labs) {
+                    String norm = l.replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                    if (Boolean.TRUE.equals(currentMaintenanceMap.get(norm))) {
+                        sb.append("• ").append(l).append(" - Switched Off (Under Maintenance)\n");
+                        count++;
+                    }
+                }
+                if (count == 0) {
+                    sb.append("🟢 All 11 Labs are currently AVAILABLE and operational.\n");
+                }
+                sb.append("\nYou can toggle maintenance status for any lab using the switches in the System Control Panel below.");
+                showTileDetailDialog("🛠️ Maintenance Overview", sb.toString());
+            });
         }
 
         View tileUsage = findViewById(R.id.cardUsageTile);
@@ -179,6 +218,7 @@ public class AdminActivity extends AppCompatActivity {
         SwitchMaterial sw = findViewById(id);
         if (sw != null) {
             sw.setOnCheckedChangeListener((btn, isChecked) -> {
+                if (isUpdatingSwitchesProgrammatically) return;
                 String status = isChecked ? "AVAILABLE" : "UNDER MAINTENANCE";
                 Toast.makeText(this, labName + " status updated to: " + status, Toast.LENGTH_SHORT).show();
                 DatabaseManager.getInstance().updateLabMaintenanceStatus(labName, isChecked);
