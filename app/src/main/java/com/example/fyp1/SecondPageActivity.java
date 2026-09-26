@@ -180,7 +180,24 @@ public class SecondPageActivity extends AppCompatActivity {
 
         // Attach Real-Time Cloud Firestore Listener for instant green/red status updates
         if (DatabaseManager.getInstance().isFirebaseAvailable()) {
-            cloudListener = DatabaseManager.getInstance().listenToBookings(cloudBookings -> refreshLabAvailability());
+            cloudListener = DatabaseManager.getInstance().listenToBookings(cloudBookings -> {
+                try {
+                    JSONArray cloudArray = new JSONArray();
+                    for (java.util.Map<String, Object> map : cloudBookings) {
+                        JSONObject obj = new JSONObject();
+                        obj.put("lab", map.get("lab"));
+                        obj.put("day", map.get("day"));
+                        obj.put("time", map.get("time"));
+                        obj.put("bookedBy", map.get("bookedBy"));
+                        Number w = (Number) map.get("week_offset");
+                        if (w != null) obj.put("week_offset", w.intValue());
+                        cloudArray.put(obj);
+                    }
+                    getSharedPreferences("LabBookings", Context.MODE_PRIVATE).edit().putString("BOOKING_LIST", cloudArray.toString()).apply();
+                } catch (Exception ignored) {}
+                refreshLabAvailability();
+            });
+
             DatabaseManager.getInstance().listenToLabMaintenanceStatus(map -> {
                 activeMaintenanceMap = map;
                 refreshLabAvailability();
