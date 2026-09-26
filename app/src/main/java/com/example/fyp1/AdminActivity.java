@@ -44,8 +44,12 @@ public class AdminActivity extends AppCompatActivity {
             DatabaseManager.getInstance().listenToLabMaintenanceStatus(map -> {
                 currentMaintenanceMap = map;
                 int count = 0;
-                for (Boolean isMaint : map.values()) {
-                    if (Boolean.TRUE.equals(isMaint)) count++;
+                String[] allLabs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
+                for (String lab : allLabs) {
+                    String norm = lab.replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                    if (Boolean.TRUE.equals(map.get(norm))) {
+                        count++;
+                    }
                 }
                 TextView tvMaint = findViewById(R.id.tvMaintenanceCount);
                 if (tvMaint != null) {
@@ -79,10 +83,9 @@ public class AdminActivity extends AppCompatActivity {
         layoutIssueFeed = findViewById(R.id.layoutAdminIssues);
         ImageButton btnLogout = findViewById(R.id.btnLogoutAdmin);
 
-        // Update Dynamic Metrics
-        ((TextView)findViewById(R.id.tvActiveAlertsCount)).setText("3");
-        ((TextView)findViewById(R.id.tvMaintenanceCount)).setText("1");
-        ((TextView)findViewById(R.id.tvUsageCount)).setText("12");
+        ((TextView)findViewById(R.id.tvActiveAlertsCount)).setText("0");
+        ((TextView)findViewById(R.id.tvMaintenanceCount)).setText("0");
+        ((TextView)findViewById(R.id.tvUsageCount)).setText("0");
 
         btnLogout.setOnClickListener(v -> {
             Intent intent = new Intent(AdminActivity.this, MainActivity.class);
