@@ -56,6 +56,7 @@ public class AdminActivity extends AppCompatActivity {
                     tvMaint.setText(String.valueOf(count));
                 }
                 syncSwitchesWithDatabase(map);
+                loadAIInsights(); // Refresh the feed with maintenance alerts
             });
         }
     }
@@ -249,15 +250,30 @@ public class AdminActivity extends AppCompatActivity {
     private void loadAIInsights() {
         if (layoutIssueFeed != null) layoutIssueFeed.removeAllViews();
 
-        ((TextView)findViewById(R.id.tvActiveAlertsCount)).setText("0");
-        ((TextView)findViewById(R.id.tvUsageCount)).setText("0");
+        int alerts = 0;
 
-        TextView tvEmpty = new TextView(this);
-        tvEmpty.setText("🟢 All 11 Labs Operational • No Active Facility Issues Reported");
-        tvEmpty.setTextSize(13f);
-        tvEmpty.setTextColor(Color.parseColor("#15803D"));
-        tvEmpty.setPadding(32, 32, 32, 32);
-        layoutIssueFeed.addView(tvEmpty);
+        if (currentMaintenanceMap != null) {
+            String[] allLabs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
+            for (String lab : allLabs) {
+                String norm = lab.replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                if (Boolean.TRUE.equals(currentMaintenanceMap.get(norm))) {
+                    addIssueCard(lab, "HIGH", "Facility Maintenance", "Lab has been manually switched offline by Admin. Status: UNDER MAINTENANCE.");
+                    alerts++;
+                }
+            }
+        }
+
+        TextView tvAlerts = findViewById(R.id.tvActiveAlertsCount);
+        if (tvAlerts != null) tvAlerts.setText(String.valueOf(alerts));
+
+        if (alerts == 0) {
+            TextView tvEmpty = new TextView(this);
+            tvEmpty.setText("🟢 All 11 Labs Operational • No Active Facility Issues Reported");
+            tvEmpty.setTextSize(13f);
+            tvEmpty.setTextColor(Color.parseColor("#15803D"));
+            tvEmpty.setPadding(32, 32, 32, 32);
+            layoutIssueFeed.addView(tvEmpty);
+        }
     }
 
     private void addIssueCard(String lab, String priority, String category, String desc) {

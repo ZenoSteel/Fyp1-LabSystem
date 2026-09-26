@@ -17,8 +17,8 @@ public class BotBrain {
         LAB_SYNONYMS.put("DNS", new String[]{"dns", "lab 1", "lab1", "general lab 1"});
         LAB_SYNONYMS.put("SAD Lab", new String[]{"sad lab", "sad", "system analysis"});
         LAB_SYNONYMS.put("Network Lab", new String[]{"network lab", "network"});
-        LAB_SYNONYMS.put("PGL1", new String[]{"pgl1", "programming lab 1", "pgl 1", "coding 1"});
-        LAB_SYNONYMS.put("PGL2", new String[]{"pgl2", "programming lab 2", "pgl 2", "coding 2"});
+        LAB_SYNONYMS.put("PGL 1", new String[]{"pgl1", "programming lab 1", "pgl 1", "coding 1"});
+        LAB_SYNONYMS.put("PGL 2", new String[]{"pgl2", "programming lab 2", "pgl 2", "coding 2"});
         LAB_SYNONYMS.put("CSD", new String[]{"csd", "lab 2", "lab2", "general lab 2"});
         LAB_SYNONYMS.put("HYP", new String[]{"hyp", "hyper", "high performance", "hypermedia"});
         LAB_SYNONYMS.put("APL", new String[]{"apl", "lab 3", "lab3", "general lab 3"});

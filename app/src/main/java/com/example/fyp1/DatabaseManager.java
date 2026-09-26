@@ -322,7 +322,7 @@ public class DatabaseManager {
         rtdb.getReference("faculty_alert").setValue(alertMessage);
 
         if (setAllMaintenance) {
-            String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL1", "PGL2", "CSD", "HYP", "APL", "MML"};
+            String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
             for (String lab : labs) {
                 updateLabMaintenanceStatus(lab, false);
             }
