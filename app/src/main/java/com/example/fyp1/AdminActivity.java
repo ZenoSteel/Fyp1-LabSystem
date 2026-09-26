@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,12 +104,22 @@ public class AdminActivity extends AppCompatActivity {
 
         View tileHighAlerts = findViewById(R.id.cardHighAlertsTile);
         if (tileHighAlerts != null) {
-            tileHighAlerts.setOnClickListener(v -> showTileDetailDialog(
-                "🚨 Active High Priority AI Alerts",
-                "• [DCN - Facility]: Ceiling leak reported near server rack.\n\n" +
-                "• [SAD Lab - Hardware]: Smart Board touch sensor malfunctioning.\n\n" +
-                "• [NWL - Critical Network]: Switch port 4 disconnected."
-            ));
+            tileHighAlerts.setOnClickListener(v -> {
+                StringBuilder sb = new StringBuilder();
+                int count = 0;
+                String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
+                for (String l : labs) {
+                    String norm = l.replaceAll("\\s+", "").toLowerCase(Locale.US);
+                    if (Boolean.TRUE.equals(currentMaintenanceMap.get(norm))) {
+                        sb.append("• [").append(l).append(" - Facility]: Lab is currently marked UNDER MAINTENANCE by Admin.\n\n");
+                        count++;
+                    }
+                }
+                if (count == 0) {
+                    sb.append("🟢 All 11 Labs Operational.\nNo active High Priority issues reported.");
+                }
+                showTileDetailDialog("🚨 Active High Priority AI Alerts", sb.toString().trim());
+            });
         }
 
         View tileMaint = findViewById(R.id.cardMaintenanceTile);
@@ -134,16 +145,15 @@ public class AdminActivity extends AppCompatActivity {
 
         View tileUsage = findViewById(R.id.cardUsageTile);
         if (tileUsage != null) {
-            tileUsage.setOnClickListener(v -> showTileDetailDialog(
-                "📊 Today's Faculty Lab Usage",
-                "• Total Active Sessions Today: 12\n\n" +
-                "• DCN: 2 Sessions (Server Admin / Security)\n" +
-                "• DNS: 2 Sessions (Programming 1 / DB Systems)\n" +
-                "• CSD: 2 Sessions (Web Architecture / Coding)\n" +
-                "• APL: 2 Sessions (Project 1 / Labs)\n" +
-                "• NWL: 2 Sessions (Networking / Wireless)\n" +
-                "• MML: 2 Sessions (Multimedia / Design)"
-            ));
+            tileUsage.setOnClickListener(v -> {
+                TextView tvUsage = findViewById(R.id.tvUsageCount);
+                String usageStr = tvUsage != null ? tvUsage.getText().toString() : "0";
+                if (usageStr.equals("0")) {
+                    showTileDetailDialog("📊 Today's Faculty Lab Usage", "No active lab sessions scheduled for today yet.");
+                } else {
+                    showTileDetailDialog("📊 Today's Faculty Lab Usage", "• Total Active Sessions Today: " + usageStr + "\n\nRefer to individual Lab Timetables for full breakdown.");
+                }
+            });
         }
 
         View tileHealth = findViewById(R.id.cardAIHealthTile);
