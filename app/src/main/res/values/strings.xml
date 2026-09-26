@@ -213,10 +213,10 @@
     <string name="label_ai_meeting">AI Recommended Meeting:</string>
     <string name="btn_whatsapp">Contact via WhatsApp</string>
     <string name="btn_ask_ai">Ask AI Assistant</string>
-    <string name="label_select_office">Select Office</string>
-    <string name="all_offices">All Offices</string>
-    <string name="office_1">Office 1</string>
-    <string name="office_2">Office 2</string>
+    <string name="label_select_office">Select Category</string>
+    <string name="all_offices">All Lecturers</string>
+    <string name="office_1">Programming</string>
+    <string name="office_2">Networking</string>
     <string name="id_username">ID / Username</string>
 
     <string name="msg_loading_ai">Initializing AI Engine...</string>
