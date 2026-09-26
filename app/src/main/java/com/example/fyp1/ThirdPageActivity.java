@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -866,6 +867,15 @@ public class ThirdPageActivity extends AppCompatActivity {
     }
 
     private void processBooking() {
+        if (DatabaseManager.getInstance().isLabUnderMaintenance(currentLabName)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("⚠️ Maintenance Alert")
+                    .setMessage(currentLabName + " is currently marked as 'Under Maintenance' by the Admin and cannot be booked at this time.")
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+            return;
+        }
+
         if (spinnerStartTime.getSelectedItem() == null || spinnerEndTime.getSelectedItem() == null) return;
         
         String rawStart = spinnerStartTime.getSelectedItem().toString();

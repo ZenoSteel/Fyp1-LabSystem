@@ -358,6 +358,11 @@ public class ChatbotActivity extends AppCompatActivity {
     }
 
     private boolean saveBookingDirectly(String lab, String day, String time) {
+        if (DatabaseManager.getInstance().isLabUnderMaintenance(lab)) {
+            addBotBubble("⚠️ Maintenance Alert! " + lab + " is currently offline for maintenance and cannot be booked.");
+            return false;
+        }
+
         SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
         try {
             JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));

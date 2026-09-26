@@ -5,8 +5,11 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -31,6 +34,7 @@ public class DatabaseManager {
     private FirebaseFirestore db;
     private FirebaseDatabase rtdb;
     private FirebaseAuth auth;
+    private Map<String, Boolean> globalMaintenanceMap = new HashMap<>();
 
     public interface AuthCallback {
         void onSuccess(String username, String role);
@@ -51,6 +55,26 @@ public class DatabaseManager {
             db = FirebaseFirestore.getInstance();
             auth = FirebaseAuth.getInstance();
             rtdb = FirebaseDatabase.getInstance(RTDB_URL);
+
+            if (rtdb != null) {
+                rtdb.getReference("lab_status").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        Map<String, Boolean> map = new HashMap<>();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String lab = child.getKey();
+                            String val = child.getValue(String.class);
+                            boolean isMaint = "UNDER MAINTENANCE".equalsIgnoreCase(val);
+                            if (lab != null) {
+                                map.put(lab.replaceAll("\\s+", "").toLowerCase(Locale.US), isMaint);
+                            }
+                        }
+                        globalMaintenanceMap = map;
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError error) {}
+                });
+            }
         } catch (Exception e) {
             Log.e(TAG, "Firebase SDK initialization deferred or missing config", e);
         }
@@ -65,6 +89,12 @@ public class DatabaseManager {
 
     public boolean isFirebaseAvailable() {
         return db != null && auth != null;
+    }
+
+    public boolean isLabUnderMaintenance(String labName) {
+        if (labName == null || globalMaintenanceMap == null) return false;
+        String norm = labName.replaceAll("\\s+", "").toLowerCase(Locale.US);
+        return Boolean.TRUE.equals(globalMaintenanceMap.get(norm));
     }
 
     // ==========================================
@@ -337,26 +367,26 @@ public class DatabaseManager {
     public void listenToFacultyAlert(FacultyAlertCallback callback) {
         if (rtdb == null || callback == null) return;
 
-        rtdb.getReference("faculty_alert").addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+        rtdb.getReference("faculty_alert").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+            public void onDataChange(DataSnapshot snapshot) {
                 String msg = snapshot.getValue(String.class);
                 callback.onAlertReceived(msg != null ? msg : "");
             }
 
             @Override
-            public void onCancelled(com.google.firebase.database.DatabaseError error) {}
+            public void onCancelled(DatabaseError error) {}
         });
     }
 
     public void listenToLabMaintenanceStatus(MaintenanceStatusCallback callback) {
         if (rtdb == null || callback == null) return;
 
-        rtdb.getReference("lab_status").addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+        rtdb.getReference("lab_status").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+            public void onDataChange(DataSnapshot snapshot) {
                 Map<String, Boolean> map = new HashMap<>();
-                for (com.google.firebase.database.DataSnapshot child : snapshot.getChildren()) {
+                for (DataSnapshot child : snapshot.getChildren()) {
                     String lab = child.getKey();
                     String val = child.getValue(String.class);
                     boolean isMaint = "UNDER MAINTENANCE".equalsIgnoreCase(val);
@@ -369,7 +399,7 @@ public class DatabaseManager {
             }
 
             @Override
-            public void onCancelled(com.google.firebase.database.DatabaseError error) {}
+            public void onCancelled(DatabaseError error) {}
         });
     }
 }
