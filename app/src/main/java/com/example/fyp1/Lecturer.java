@@ -11,15 +11,13 @@ public class Lecturer implements Serializable {
     private String office;
     private String phone;
     private String labCoordinator;
-    private boolean isAvailable;
     private int profileImageResId;
 
-    public Lecturer(String name, String office, String phone, String labCoordinator, boolean isAvailable, int profileImageResId) {
+    public Lecturer(String name, String office, String phone, String labCoordinator, int profileImageResId) {
         this.name = name;
         this.office = office;
         this.phone = phone;
         this.labCoordinator = labCoordinator;
-        this.isAvailable = isAvailable;
         this.profileImageResId = profileImageResId;
     }
 
@@ -28,6 +26,5 @@ public class Lecturer implements Serializable {
     public String getOffice() { return office; }
     public String getPhone() { return phone; }
     public String getLabCoordinator() { return labCoordinator; }
-    public boolean isAvailable() { return isAvailable; }
     public int getProfileImageResId() { return profileImageResId; }
 }

@@ -28,8 +28,6 @@ public class LecturerDetailActivity extends AppCompatActivity {
 
         ImageButton btnBack = findViewById(R.id.btnBack);
         ImageView ivProfile = findViewById(R.id.ivDetailProfile);
-        View viewStatus = findViewById(R.id.viewStatusIndicator);
-        TextView tvStatus = findViewById(R.id.tvStatusText);
         TextView tvName = findViewById(R.id.tvDetailName);
         TextView tvOffice = findViewById(R.id.tvDetailOffice);
         TextView tvLab = findViewById(R.id.tvDetailLab);
@@ -44,14 +42,6 @@ public class LecturerDetailActivity extends AppCompatActivity {
         tvOffice.setText(lecturer.getOffice());
         tvLab.setText(lecturer.getLabCoordinator());
         tvPhone.setText(lecturer.getPhone());
-
-        if (lecturer.isAvailable()) {
-            viewStatus.setBackgroundColor(getResources().getColor(R.color.status_available));
-            tvStatus.setText(getString(R.string.status_in_office));
-        } else {
-            viewStatus.setBackgroundColor(getResources().getColor(R.color.status_not_available));
-            tvStatus.setText(getString(R.string.status_not_in_office));
-        }
 
         btnWhatsApp.setOnClickListener(v -> {
             String url = "https://api.whatsapp.com/send?phone=" + lecturer.getPhone();

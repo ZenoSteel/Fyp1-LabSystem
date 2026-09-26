@@ -64,35 +64,6 @@
                     android:src="@android:drawable/ic_menu_gallery" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Status Indicator -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_input_modern"
-                android:gravity="center_vertical"
-                android:paddingStart="12dp"
-                android:paddingTop="6dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="6dp">
-
-                <View
-                    android:id="@+id/viewStatusIndicator"
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@color/status_available" />
-
-                <TextView
-                    android:id="@+id/tvStatusText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/status_in_office"
-                    android:textColor="@color/text_primary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
             <!-- Detailed Info Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
