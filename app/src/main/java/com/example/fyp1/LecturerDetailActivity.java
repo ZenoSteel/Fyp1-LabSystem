@@ -34,9 +34,7 @@ public class LecturerDetailActivity extends AppCompatActivity {
         TextView tvOffice = findViewById(R.id.tvDetailOffice);
         TextView tvLab = findViewById(R.id.tvDetailLab);
         TextView tvPhone = findViewById(R.id.tvDetailPhone);
-        TextView tvAiTime = findViewById(R.id.tvDetailAiTime);
         Button btnWhatsApp = findViewById(R.id.btnContactWhatsApp);
-        Button btnAiAssistant = findViewById(R.id.btnAiAssistant);
 
         btnBack.setOnClickListener(v -> finish());
 
@@ -46,7 +44,6 @@ public class LecturerDetailActivity extends AppCompatActivity {
         tvOffice.setText(lecturer.getOffice());
         tvLab.setText(lecturer.getLabCoordinator());
         tvPhone.setText(lecturer.getPhone());
-        tvAiTime.setText(lecturer.getAiMeetingTime());
 
         if (lecturer.isAvailable()) {
             viewStatus.setBackgroundColor(getResources().getColor(R.color.status_available));
@@ -60,11 +57,6 @@ public class LecturerDetailActivity extends AppCompatActivity {
             String url = "https://api.whatsapp.com/send?phone=" + lecturer.getPhone();
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
-            startActivity(i);
-        });
-
-        btnAiAssistant.setOnClickListener(v -> {
-            Intent i = new Intent(LecturerDetailActivity.this, ChatbotActivity.class);
             startActivity(i);
         });
     }
