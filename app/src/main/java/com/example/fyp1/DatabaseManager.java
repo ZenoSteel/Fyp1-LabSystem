@@ -57,6 +57,10 @@ public class DatabaseManager {
             rtdb = FirebaseDatabase.getInstance(RTDB_URL);
 
             if (rtdb != null) {
+                // Permanently delete legacy duplicate keys causing maintenance conflicts
+                rtdb.getReference("lab_status").child("PGL1").removeValue();
+                rtdb.getReference("lab_status").child("PGL2").removeValue();
+                
                 rtdb.getReference("lab_status").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {

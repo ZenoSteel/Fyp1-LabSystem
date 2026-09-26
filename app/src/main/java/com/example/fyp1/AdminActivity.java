@@ -198,14 +198,6 @@ public class AdminActivity extends AppCompatActivity {
             boolean setMaint = cbEmergencyMode.isChecked();
             DatabaseManager.getInstance().broadcastFacultyAlert(msg, setMaint);
             
-            if (setMaint) {
-                int[] switchIds = {R.id.switchDCN, R.id.switchNWL, R.id.switchLab1, R.id.switchSAD, R.id.switchNetwork, R.id.switchPGL1, R.id.switchPGL2, R.id.switchLab2, R.id.switchHYP, R.id.switchLab3, R.id.switchMML};
-                for (int id : switchIds) {
-                    SwitchMaterial sw = findViewById(id);
-                    if (sw != null) sw.setChecked(false);
-                }
-            }
-
             Toast.makeText(this, "Broadcast alert sent to all users!", Toast.LENGTH_LONG).show();
         });
 
