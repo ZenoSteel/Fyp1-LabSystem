@@ -36,11 +36,17 @@ public class MainActivity extends AppCompatActivity {
             String loggedInUser = auth.getCurrentUser().getEmail() != null ? auth.getCurrentUser().getEmail().split("@")[0] : "Student";
             String savedRole = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).getString(loggedInUser + "_role", getString(R.string.role_student));
             
-            // Bypass login and go straight to Dashboard
-            Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
-            intent.putExtra("USER_NAME", loggedInUser);
-            intent.putExtra("USER_ROLE", savedRole);
-            startActivity(intent);
+            if (getString(R.string.role_admin).equals(savedRole)) {
+                Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+                intent.putExtra("USER_NAME", loggedInUser);
+                intent.putExtra("USER_ROLE", savedRole);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
+                intent.putExtra("USER_NAME", loggedInUser);
+                intent.putExtra("USER_ROLE", savedRole);
+                startActivity(intent);
+            }
             finish();
             return;
         }

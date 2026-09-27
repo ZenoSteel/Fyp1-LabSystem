@@ -20,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
@@ -167,6 +168,10 @@ public class SecondPageActivity extends AppCompatActivity {
 
         findViewById(R.id.menuLogOut).setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(SecondPageActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         });
     }

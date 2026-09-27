@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * Administrative Command Center Activity.
@@ -91,9 +92,11 @@ public class AdminActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.tvUsageCount)).setText("0");
 
         btnLogout.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(AdminActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+            finish();
         });
 
         findViewById(R.id.btnBroadcast).setOnClickListener(v -> showBroadcastAlertDialog());
