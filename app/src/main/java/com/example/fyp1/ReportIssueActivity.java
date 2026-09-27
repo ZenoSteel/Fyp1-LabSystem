@@ -1,5 +1,6 @@
 package com.example.fyp1;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 /**
  * Activity for students/lecturers to report lab issues.
@@ -88,12 +90,24 @@ public class ReportIssueActivity extends AppCompatActivity {
         tvCategory.setText(getString(R.string.label_category) + category);
         
         if (priority.equals("HIGH")) {
-            tvPriority.setTextColor(android.graphics.Color.RED);
+            tvPriority.setTextColor(Color.RED);
         } else {
-            tvPriority.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.campus_blue));
+            tvPriority.setTextColor(ContextCompat.getColor(this, R.color.campus_blue));
         }
 
         cardResult.setVisibility(View.VISIBLE);
-        Toast.makeText(this, getString(R.string.msg_report_success, priority), Toast.LENGTH_LONG).show();
+        
+        final String finalPriority = priority;
+        DatabaseManager.getInstance().submitIssueReport(currentLab, text, priority, category, new DatabaseManager.OperationCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(ReportIssueActivity.this, getString(R.string.msg_report_success, finalPriority), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(ReportIssueActivity.this, "Failed to submit report.", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

@@ -13,6 +13,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -427,5 +428,51 @@ public class DatabaseManager {
             @Override
             public void onCancelled(DatabaseError error) {}
         });
+    }
+
+    // ==========================================
+    // 6. FACILITY ISSUE REPORTING (FIRESTORE)
+    // ==========================================
+
+    public interface IssueReportCallback {
+        void onIssuesLoaded(List<Map<String, Object>> issues);
+    }
+
+    public void submitIssueReport(String lab, String desc, String priority, String category, OperationCallback callback) {
+        if (!isFirebaseAvailable()) {
+            callback.onFailure("Firebase unavailable.");
+            return;
+        }
+
+        Map<String, Object> issue = new HashMap<>();
+        issue.put("lab", lab);
+        issue.put("desc", desc);
+        issue.put("priority", priority);
+        issue.put("category", category);
+        issue.put("timestamp", System.currentTimeMillis());
+
+        db.collection("reported_issues").add(issue)
+                .addOnSuccessListener(doc -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public ListenerRegistration listenToReportedIssues(IssueReportCallback callback) {
+        if (!isFirebaseAvailable()) return null;
+
+        return db.collection("reported_issues")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null || snapshots == null) return;
+                    
+                    List<Map<String, Object>> issueList = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshots) {
+                        Map<String, Object> data = doc.getData();
+                        if (data != null) {
+                            data.put("id", doc.getId());
+                            issueList.add(data);
+                        }
+                    }
+                    callback.onIssuesLoaded(issueList);
+                });
     }
 }

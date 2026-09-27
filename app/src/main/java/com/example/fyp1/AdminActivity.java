@@ -2,14 +2,20 @@ package com.example.fyp1;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -34,11 +40,11 @@ public class AdminActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin);
 
         initializeUI();
-        loadAIInsights();
     }
 
-    private Map<String, Boolean> currentMaintenanceMap = new java.util.HashMap<>();
+    private Map<String, Boolean> currentMaintenanceMap = new HashMap<>();
     private boolean isUpdatingSwitchesProgrammatically = false;
+    private List<Map<String, Object>> currentReportedIssues = new ArrayList<>();
 
     @Override
     protected void onResume() {
@@ -46,22 +52,27 @@ public class AdminActivity extends AppCompatActivity {
         if (DatabaseManager.getInstance().isFirebaseAvailable()) {
             DatabaseManager.getInstance().listenToLabMaintenanceStatus(map -> {
                 currentMaintenanceMap = map;
-                int count = 0;
-                String[] allLabs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
-                for (String lab : allLabs) {
-                    String norm = lab.replaceAll("\\s+", "").toLowerCase(Locale.US);
-                    if (Boolean.TRUE.equals(map.get(norm))) {
-                        count++;
-                    }
-                }
-                TextView tvMaint = findViewById(R.id.tvMaintenanceCount);
-                if (tvMaint != null) {
-                    tvMaint.setText(String.valueOf(count));
-                }
-                syncSwitchesWithDatabase(map);
-                loadAIInsights(); // Refresh the feed with maintenance alerts
+                updateMaintenanceUI();
+                renderCombinedIssueFeed();
+            });
+
+            DatabaseManager.getInstance().listenToReportedIssues(issues -> {
+                currentReportedIssues = issues;
+                renderCombinedIssueFeed();
             });
         }
+    }
+
+    private void updateMaintenanceUI() {
+        int count = 0;
+        String[] allLabs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
+        for (String lab : allLabs) {
+            String norm = lab.replaceAll("\\s+", "").toLowerCase(Locale.US);
+            if (Boolean.TRUE.equals(currentMaintenanceMap.get(norm))) count++;
+        }
+        TextView tvMaint = findViewById(R.id.tvMaintenanceCount);
+        if (tvMaint != null) tvMaint.setText(String.valueOf(count));
+        syncSwitchesWithDatabase(currentMaintenanceMap);
     }
 
     private void syncSwitchesWithDatabase(Map<String, Boolean> map) {
@@ -187,18 +198,18 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void showBroadcastAlertDialog() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Broadcast Faculty Alert");
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(40, 20, 40, 20);
 
-        final android.widget.EditText etAlertMsg = new android.widget.EditText(this);
+        final EditText etAlertMsg = new EditText(this);
         etAlertMsg.setHint("e.g. ⚠️ EMERGENCY: Power outage! All labs closed until 5:00 PM.");
         layout.addView(etAlertMsg);
 
-        final android.widget.CheckBox cbEmergencyMode = new android.widget.CheckBox(this);
+        final CheckBox cbEmergencyMode = new CheckBox(this);
         cbEmergencyMode.setText("🔴 Set ALL Labs to Under Maintenance (Red)");
         cbEmergencyMode.setPadding(0, 16, 0, 16);
         layout.addView(cbEmergencyMode);
@@ -253,26 +264,41 @@ public class AdminActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void loadAIInsights() {
+    private void renderCombinedIssueFeed() {
         if (layoutIssueFeed != null) layoutIssueFeed.removeAllViews();
+        int activeHighAlerts = 0;
 
-        int alerts = 0;
-
+        // 1. Render Maintenance Overrides as HIGH priority
         if (currentMaintenanceMap != null) {
             String[] allLabs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
             for (String lab : allLabs) {
-                String norm = lab.replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                String norm = lab.replaceAll("\\s+", "").toLowerCase(Locale.US);
                 if (Boolean.TRUE.equals(currentMaintenanceMap.get(norm))) {
                     addIssueCard(lab, "HIGH", "Facility Maintenance", "Lab has been manually switched offline by Admin. Status: UNDER MAINTENANCE.");
-                    alerts++;
+                    activeHighAlerts++;
+                }
+            }
+        }
+
+        // 2. Render Student/Lecturer Reported Issues
+        if (currentReportedIssues != null) {
+            for (Map<String, Object> issue : currentReportedIssues) {
+                String lab = (String) issue.get("lab");
+                String desc = (String) issue.get("desc");
+                String priority = (String) issue.get("priority");
+                String cat = (String) issue.get("category");
+                
+                if (lab != null && desc != null && priority != null) {
+                    addIssueCard(lab, priority, cat != null ? cat : "General", desc);
+                    if ("HIGH".equalsIgnoreCase(priority)) activeHighAlerts++;
                 }
             }
         }
 
         TextView tvAlerts = findViewById(R.id.tvActiveAlertsCount);
-        if (tvAlerts != null) tvAlerts.setText(String.valueOf(alerts));
+        if (tvAlerts != null) tvAlerts.setText(String.valueOf(activeHighAlerts));
 
-        if (alerts == 0) {
+        if (layoutIssueFeed != null && layoutIssueFeed.getChildCount() == 0) {
             TextView tvEmpty = new TextView(this);
             tvEmpty.setText("🟢 All 11 Labs Operational • No Active Facility Issues Reported");
             tvEmpty.setTextSize(13f);
@@ -297,11 +323,11 @@ public class AdminActivity extends AppCompatActivity {
 
         LinearLayout headerRow = new LinearLayout(this);
         headerRow.setOrientation(LinearLayout.HORIZONTAL);
-        headerRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        headerRow.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView tvBadge = new TextView(this);
         tvBadge.setTextSize(11f);
-        tvBadge.setTypeface(null, android.graphics.Typeface.BOLD);
+        tvBadge.setTypeface(null, Typeface.BOLD);
         tvBadge.setPadding(16, 6, 16, 6);
 
         if ("HIGH".equalsIgnoreCase(priority)) {
@@ -324,7 +350,7 @@ public class AdminActivity extends AppCompatActivity {
         TextView tvLabTitle = new TextView(this);
         tvLabTitle.setText(" • " + lab + " (" + category + ")");
         tvLabTitle.setTextSize(14f);
-        tvLabTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+        tvLabTitle.setTypeface(null, Typeface.BOLD);
         tvLabTitle.setTextColor(Color.parseColor("#0F172A"));
 
         headerRow.addView(tvBadge);
@@ -343,7 +369,7 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void showTileDetailDialog(String title, String message) {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
+        new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.close, (dialog, which) -> dialog.dismiss())
