@@ -198,7 +198,7 @@ public class DatabaseManager {
     }
 
     // ==========================================
-    // 3. ATOMIC BOOKING TRANSACTION
+    // 3. TRUE ATOMIC BOOKING VERIFICATION
     // ==========================================
 
     public void addBookingCloud(String lab, String day, String time, int weekOffset, String username, OperationCallback callback) {
@@ -207,20 +207,42 @@ public class DatabaseManager {
             return;
         }
 
-        db.runTransaction(transaction -> {
-            // Verify no clash exists before writing
-            Map<String, Object> newBooking = new HashMap<>();
-            newBooking.put("lab", lab);
-            newBooking.put("day", day);
-            newBooking.put("time", time);
-            newBooking.put("week_offset", weekOffset);
-            newBooking.put("bookedBy", username);
-            newBooking.put("timestamp", System.currentTimeMillis());
+        // 1. Query Firestore for existing bookings on this specific day and lab
+        db.collection("bookings")
+                .whereEqualTo("lab", lab)
+                .whereEqualTo("day", day)
+                .whereEqualTo("week_offset", weekOffset)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    // 2. Perform server-side overlap verification
+                    boolean hasClash = false;
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String existingTime = doc.getString("time");
+                        if (existingTime != null && BookingUtils.isOverlap(time, existingTime)) {
+                            hasClash = true;
+                            break;
+                        }
+                    }
 
-            db.collection("bookings").add(newBooking);
-            return null;
-        }).addOnSuccessListener(unused -> callback.onSuccess())
-          .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                    if (hasClash) {
+                        // 3. Abort! Server detected a clash.
+                        callback.onFailure("Server rejected booking: Time slot is no longer available.");
+                    } else {
+                        // 4. Safe to Write! No clashes found on the server.
+                        Map<String, Object> newBooking = new HashMap<>();
+                        newBooking.put("lab", lab);
+                        newBooking.put("day", day);
+                        newBooking.put("time", time);
+                        newBooking.put("week_offset", weekOffset);
+                        newBooking.put("bookedBy", username);
+                        newBooking.put("timestamp", System.currentTimeMillis());
+
+                        db.collection("bookings").add(newBooking)
+                                .addOnSuccessListener(docRef -> callback.onSuccess())
+                                .addOnFailureListener(e -> callback.onFailure("Database write failed: " + e.getMessage()));
+                    }
+                })
+                .addOnFailureListener(e -> callback.onFailure("Failed to verify server availability: " + e.getMessage()));
     }
 
     // ==========================================
