@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Locale;
+
 /**
  * Activity that allows new users to register by saving credentials to SharedPreferences.
  */
@@ -108,8 +110,9 @@ public class SignupActivity extends AppCompatActivity {
         // Save metadata locally to SharedPreferences (DO NOT SAVE PASSWORD)
         SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(username + "_role", role);
-        if (!className.isEmpty()) editor.putString(username + "_class", className);
+        String normalizedKey = username.toLowerCase(Locale.US);
+        editor.putString(normalizedKey + "_role", role);
+        if (!className.isEmpty()) editor.putString(normalizedKey + "_class", className);
         editor.apply();
 
         // Auto-populate student's schedule with master timetable classes matching their class/section

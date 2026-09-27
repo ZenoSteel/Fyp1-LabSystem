@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Locale;
+
 /**
  * The main login screen that handles user authentication.
  */
@@ -34,16 +36,17 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
             String loggedInUser = auth.getCurrentUser().getEmail() != null ? auth.getCurrentUser().getEmail().split("@")[0] : "Student";
-            String savedRole = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).getString(loggedInUser + "_role", getString(R.string.role_student));
+            String normalizedKey = loggedInUser.toLowerCase(Locale.US);
+            String savedRole = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).getString(normalizedKey + "_role", getString(R.string.role_student));
             
             if (getString(R.string.role_admin).equals(savedRole)) {
                 Intent intent = new Intent(MainActivity.this, AdminActivity.class);
-                intent.putExtra("USER_NAME", loggedInUser);
+                intent.putExtra("USER_NAME", loggedInUser.toUpperCase(Locale.US));
                 intent.putExtra("USER_ROLE", savedRole);
                 startActivity(intent);
             } else {
                 Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
-                intent.putExtra("USER_NAME", loggedInUser);
+                intent.putExtra("USER_NAME", loggedInUser.toUpperCase(Locale.US));
                 intent.putExtra("USER_ROLE", savedRole);
                 startActivity(intent);
             }
@@ -116,9 +119,10 @@ public class MainActivity extends AppCompatActivity {
             DatabaseManager.getInstance().loginUser(this, username, password, new DatabaseManager.AuthCallback() {
                 @Override
                 public void onSuccess(String user, String role) {
-                    getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).edit().putString(user + "_role", role).apply();
+                    String normalizedKey = user.toLowerCase(Locale.US);
+                    getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).edit().putString(normalizedKey + "_role", role).apply();
                     Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
-                    intent.putExtra("USER_NAME", user);
+                    intent.putExtra("USER_NAME", user.toUpperCase(Locale.US));
                     intent.putExtra("USER_ROLE", role);
                     startActivity(intent);
                     finish();
