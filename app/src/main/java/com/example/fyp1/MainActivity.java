@@ -34,28 +34,42 @@ public class MainActivity extends AppCompatActivity {
 
         // Firebase Persistent Offline Session Check
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            String loggedInUser = auth.getCurrentUser().getEmail() != null ? auth.getCurrentUser().getEmail().split("@")[0] : "Student";
-            String normalizedKey = loggedInUser.toLowerCase(Locale.US);
-            String savedRole = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).getString(normalizedKey + "_role", getString(R.string.role_student));
-            
-            if (getString(R.string.role_admin).equals(savedRole)) {
-                Intent intent = new Intent(MainActivity.this, AdminActivity.class);
-                intent.putExtra("USER_NAME", loggedInUser.toUpperCase(Locale.US));
-                intent.putExtra("USER_ROLE", savedRole);
-                startActivity(intent);
-            } else {
-                Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
-                intent.putExtra("USER_NAME", loggedInUser.toUpperCase(Locale.US));
-                intent.putExtra("USER_ROLE", savedRole);
-                startActivity(intent);
-            }
-            finish();
+        if (auth.getCurrentUser() != null && DatabaseManager.getInstance().isFirebaseAvailable()) {
+            String uid = auth.getCurrentUser().getUid();
+            String emailPrefix = auth.getCurrentUser().getEmail() != null ? auth.getCurrentUser().getEmail().split("@")[0] : "User";
+            String displayUser = emailPrefix.toUpperCase(Locale.US);
+
+            DatabaseManager.getInstance().fetchUserRolePublic(uid, displayUser, new DatabaseManager.AuthCallback() {
+                @Override
+                public void onSuccess(String user, String role) {
+                    if (getString(R.string.role_admin).equals(role)) {
+                        Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+                        intent.putExtra("USER_NAME", user);
+                        intent.putExtra("USER_ROLE", role);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
+                        intent.putExtra("USER_NAME", user);
+                        intent.putExtra("USER_ROLE", role);
+                        startActivity(intent);
+                    }
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    setContentView(R.layout.activity_main);
+                    setupLoginUI();
+                }
+            });
             return;
         }
 
         setContentView(R.layout.activity_main);
+        setupLoginUI();
+    }
 
+    private void setupLoginUI() {
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         Button btnLogin = findViewById(R.id.btnLogin);

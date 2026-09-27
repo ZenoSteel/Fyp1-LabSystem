@@ -118,7 +118,7 @@ public class DatabaseManager {
                 .addOnSuccessListener(authResult -> {
                     FirebaseUser user = authResult.getUser();
                     if (user != null) {
-                        fetchUserRole(user.getUid(), username, callback);
+                        fetchUserRolePublic(user.getUid(), username, callback);
                     } else {
                         callback.onFailure("User profile not found.");
                     }
@@ -157,7 +157,7 @@ public class DatabaseManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    private void fetchUserRole(String uid, String fallbackUsername, AuthCallback callback) {
+    public void fetchUserRolePublic(String uid, String fallbackUsername, AuthCallback callback) {
         db.collection("users").document(uid)
                 .get()
                 .addOnSuccessListener(doc -> {
