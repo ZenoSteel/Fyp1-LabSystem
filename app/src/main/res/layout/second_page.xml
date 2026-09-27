@@ -147,7 +147,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_network" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusDCN" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_dcn" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -174,7 +174,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_network" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusNWL" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_nwl" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -201,7 +201,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_coding" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusLab1" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_lab1" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -249,7 +249,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_desktop" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusSAD" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_sad" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -276,7 +276,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_network" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusNetwork" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_network" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -324,7 +324,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_coding" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusPGL2" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_pgl2" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -351,7 +351,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_desktop" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusLab2" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_lab2" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -378,7 +378,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_coding" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusPGL1" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_pgl1" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -426,7 +426,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_multimedia" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusHYP" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_hyp" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -453,7 +453,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_desktop" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusLab3" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_lab3" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
@@ -480,7 +480,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_lab_multimedia" app:tint="@color/campus_blue" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
                             <View android:id="@+id/statusMML" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp" android:background="@color/status_available" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:text="@string/lab_mml" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
                         </LinearLayout>
