@@ -117,9 +117,9 @@ public class SecondPageActivity extends AppCompatActivity {
         setupLabCard(R.id.cardNetwork, "Network Lab");
         
         // Second Floor
-        setupLabCard(R.id.cardPGL2, "PGL2");
+        setupLabCard(R.id.cardPGL2, "PGL 2");
         setupLabCard(R.id.cardLab2, "CSD");
-        setupLabCard(R.id.cardPGL1, "PGL1");
+        setupLabCard(R.id.cardPGL1, "PGL 1");
         
         // Third Floor
         setupLabCard(R.id.cardHYP, "HYP");
@@ -237,7 +237,7 @@ public class SecondPageActivity extends AppCompatActivity {
         String currentDay = new SimpleDateFormat("EEEE", Locale.US).format(Calendar.getInstance().getTime());
         int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-        String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL2", "CSD", "PGL1", "HYP", "APL", "MML"};
+        String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 2", "CSD", "PGL 1", "HYP", "APL", "MML"};
         int[] statusViewIds = {R.id.statusDCN, R.id.statusNWL, R.id.statusLab1, R.id.statusSAD, R.id.statusNetwork, R.id.statusPGL2, R.id.statusLab2, R.id.statusPGL1, R.id.statusHYP, R.id.statusLab3, R.id.statusMML};
 
         List<ClassSession> masterList = ScheduleManager.getMasterTimetable(this);
