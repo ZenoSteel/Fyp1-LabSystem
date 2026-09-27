@@ -164,7 +164,8 @@ public class DatabaseManager {
                     if (doc.exists()) {
                         String role = doc.getString("role");
                         String username = doc.getString("username");
-                        callback.onSuccess(username != null ? username : fallbackUsername, role != null ? role : "Student");
+                        String fetchedRole = role != null ? role : "Student";
+                        callback.onSuccess(username != null ? username : fallbackUsername, fetchedRole);
                     } else {
                         callback.onSuccess(fallbackUsername, "Student");
                     }

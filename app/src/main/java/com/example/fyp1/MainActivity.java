@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
             DatabaseManager.getInstance().loginUser(this, username, password, new DatabaseManager.AuthCallback() {
                 @Override
                 public void onSuccess(String user, String role) {
+                    getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).edit().putString(user + "_role", role).apply();
                     Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
                     intent.putExtra("USER_NAME", user);
                     intent.putExtra("USER_ROLE", role);

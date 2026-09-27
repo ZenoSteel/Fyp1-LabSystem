@@ -250,8 +250,6 @@ public class SecondPageActivity extends AppCompatActivity {
         try {
             JSONArray bookingArray = new JSONArray(existingBookingsJson);
 
-            int availableCount = 0;
-
             for (int i = 0; i < labs.length; i++) {
                 String labName = labs[i];
                 View statusDot = findViewById(statusViewIds[i]);
@@ -292,16 +290,15 @@ public class SecondPageActivity extends AppCompatActivity {
                     }
                 }
 
-                if (!isOccupied) availableCount++;
                 statusDot.setBackgroundResource(isOccupied ? R.drawable.dot_red : R.drawable.dot_green);
             }
 
-            // Update Header Banner with live stats
+            // Update Header Banner
             String username = getIntent().getStringExtra("USER_NAME");
             if (username == null || username.isEmpty()) username = "User";
             String roleDisplay = userRole != null ? " (" + userRole + ")" : "";
             if (tvUserGreeting != null) {
-                tvUserGreeting.setText("HI, " + username.toUpperCase(Locale.US) + roleDisplay + "  •  🟢 " + availableCount + "/" + labs.length + " Labs Free");
+                tvUserGreeting.setText("HI, " + username.toUpperCase(Locale.US) + roleDisplay);
             }
         } catch (JSONException e) {
             Log.e(TAG, "Error refreshing availability", e);
