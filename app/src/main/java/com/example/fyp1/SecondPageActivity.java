@@ -10,6 +10,7 @@ import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -248,7 +249,7 @@ public class SecondPageActivity extends AppCompatActivity {
 
             for (int i = 0; i < labs.length; i++) {
                 String labName = labs[i];
-                android.view.View statusDot = findViewById(statusViewIds[i]);
+                View statusDot = findViewById(statusViewIds[i]);
                 if (statusDot == null) continue;
                 
                 boolean isOccupied = false;

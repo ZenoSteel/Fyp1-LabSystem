@@ -240,7 +240,7 @@
                     <LinearLayout
                         android:id="@+id/cardSAD"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"
@@ -267,7 +267,7 @@
                     <LinearLayout
                         android:id="@+id/cardNetwork"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"

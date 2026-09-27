@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -47,7 +48,7 @@ public class AdminActivity extends AppCompatActivity {
                 int count = 0;
                 String[] allLabs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
                 for (String lab : allLabs) {
-                    String norm = lab.replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                    String norm = lab.replaceAll("\\s+", "").toLowerCase(Locale.US);
                     if (Boolean.TRUE.equals(map.get(norm))) {
                         count++;
                     }
@@ -72,7 +73,7 @@ public class AdminActivity extends AppCompatActivity {
         for (int i = 0; i < switchIds.length; i++) {
             SwitchMaterial sw = findViewById(switchIds[i]);
             if (sw != null) {
-                String norm = labNames[i].replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                String norm = labNames[i].replaceAll("\\s+", "").toLowerCase(Locale.US);
                 boolean isMaint = Boolean.TRUE.equals(map.get(norm));
                 sw.setChecked(!isMaint); // Checked = AVAILABLE, Unchecked = UNDER MAINTENANCE
             }
@@ -129,7 +130,7 @@ public class AdminActivity extends AppCompatActivity {
                 int count = 0;
                 String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
                 for (String l : labs) {
-                    String norm = l.replaceAll("\\s+", "").toLowerCase(java.util.Locale.US);
+                    String norm = l.replaceAll("\\s+", "").toLowerCase(Locale.US);
                     if (Boolean.TRUE.equals(currentMaintenanceMap.get(norm))) {
                         sb.append("• ").append(l).append(" - Switched Off (Under Maintenance)\n");
                         count++;
@@ -234,7 +235,7 @@ public class AdminActivity extends AppCompatActivity {
 
     private void showLabPickerForTimetable() {
         final String[] labs = {"DCN", "NWL", "DNS", "SAD Lab", "Network Lab", "PGL 1", "PGL 2", "CSD", "HYP", "APL", "MML"};
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Lab to Edit Timetable");
         builder.setItems(labs, (dialog, which) -> openLabTimetable(labs[which]));
         builder.setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss());
