@@ -3,6 +3,7 @@ package com.example.fyp1;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -87,7 +88,7 @@ public class SignupActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirm = etConfirmPassword.getText().toString().trim();
         String role = spinnerRole.getSelectedItem().toString();
-        String className = (etClassSection != null && etClassSection.getVisibility() == android.view.View.VISIBLE) ? 
+        String className = (etClassSection != null && etClassSection.getVisibility() == View.VISIBLE) ?
                 etClassSection.getText().toString().trim() : "";
 
         if (username.isEmpty() || password.isEmpty()) {
@@ -104,10 +105,9 @@ public class SignupActivity extends AppCompatActivity {
             Toast.makeText(this, "Firebase requires password to be at least 6 characters.", Toast.LENGTH_LONG).show();
         }
 
-        // Save locally to SharedPreferences
+        // Save metadata locally to SharedPreferences (DO NOT SAVE PASSWORD)
         SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(username, password);
         editor.putString(username + "_role", role);
         if (!className.isEmpty()) editor.putString(username + "_class", className);
         editor.apply();

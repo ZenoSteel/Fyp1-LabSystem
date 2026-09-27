@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * The main login screen that handles user authentication.
@@ -26,6 +29,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
+
+        // Firebase Persistent Offline Session Check
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            String loggedInUser = auth.getCurrentUser().getEmail() != null ? auth.getCurrentUser().getEmail().split("@")[0] : "Student";
+            String savedRole = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).getString(loggedInUser + "_role", getString(R.string.role_student));
+            
+            // Bypass login and go straight to Dashboard
+            Intent intent = new Intent(MainActivity.this, SecondPageActivity.class);
+            intent.putExtra("USER_NAME", loggedInUser);
+            intent.putExtra("USER_ROLE", savedRole);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         etUsername = findViewById(R.id.etUsername);
@@ -38,9 +57,9 @@ public class MainActivity extends AppCompatActivity {
             btnTogglePassword.setOnClickListener(v -> {
                 isPasswordVisible = !isPasswordVisible;
                 if (isPasswordVisible) {
-                    etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                 } else {
-                    etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 }
                 etPassword.setSelection(etPassword.getText().length());
             });
@@ -111,19 +130,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void performLocalLogin(String username, String password) {
-        SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-        String savedPassword = prefs.getString(username, null);
-
-        if (savedPassword != null && savedPassword.equals(password)) {
-            String role = prefs.getString(username + "_role", getString(R.string.role_student));
-            Toast.makeText(MainActivity.this, getString(R.string.msg_logging_in, username), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
-            intent.putExtra("USER_NAME", username);
-            intent.putExtra("USER_ROLE", role);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(MainActivity.this, getString(R.string.error_invalid_credentials), Toast.LENGTH_SHORT).show();
-        }
+        // Local login is disabled to prevent unencrypted password access.
+        // All authentication must go through Firebase Cloud.
+        Toast.makeText(MainActivity.this, getString(R.string.error_invalid_credentials), Toast.LENGTH_SHORT).show();
     }
 }
