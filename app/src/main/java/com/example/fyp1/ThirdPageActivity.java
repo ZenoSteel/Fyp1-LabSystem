@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -101,6 +102,21 @@ public class ThirdPageActivity extends AppCompatActivity {
         String labName = getIntent().getStringExtra("LAB_NAME");
         if (labName != null) currentLabName = labName;
         if (tvNavTitle != null) tvNavTitle.setText(getString(R.string.title_lab_schedule, currentLabName));
+
+        // Dynamically change header image based on lab category
+        ImageView ivPreview = findViewById(R.id.ivLabPreview);
+        if (ivPreview != null) {
+            String upperLab = currentLabName.toUpperCase(Locale.US);
+            if (upperLab.equals("DCN") || upperLab.equals("NWL") || upperLab.equals("NETWORK LAB")) {
+                ivPreview.setImageResource(R.drawable.lab_networking);
+            } else if (upperLab.equals("DNS") || upperLab.equals("PGL 1") || upperLab.equals("PGL 2")) {
+                ivPreview.setImageResource(R.drawable.lab_programming);
+            } else if (upperLab.equals("MML") || upperLab.equals("HYP")) {
+                ivPreview.setImageResource(R.drawable.lab_multimedia);
+            } else {
+                ivPreview.setImageResource(R.drawable.lab_general);
+            }
+        }
 
         String userRole = getIntent().getStringExtra("USER_ROLE");
 

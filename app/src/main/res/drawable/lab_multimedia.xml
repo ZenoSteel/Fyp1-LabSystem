@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="100dp"
+    android:viewportWidth="800"
+    android:viewportHeight="400">
+    <path android:fillColor="#4C1D95" android:pathData="M0,0h800v400h-800z" />
+    <!-- Abstract Play Button / Film Reel -->
+    <path android:fillColor="#A78BFA" android:pathData="M350,150L480,200L350,250Z" />
+    <path android:strokeColor="#8B5CF6" android:strokeWidth="16" android:pathData="M250,100H550V300H250Z" />
+    <path android:fillColor="#C4B5FD" android:pathData="M250,100h50v30h-50zM250,150h50v30h-50zM250,200h50v30h-50zM250,250h50v30h-50z" />
+    <path android:fillColor="#C4B5FD" android:pathData="M500,100h50v30h-50zM500,150h50v30h-50zM500,200h50v30h-50zM500,250h50v30h-50z" />
+</vector>

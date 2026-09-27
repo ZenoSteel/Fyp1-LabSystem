@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="100dp"
+    android:viewportWidth="800"
+    android:viewportHeight="400">
+    <path android:fillColor="#1E293B" android:pathData="M0,0h800v400h-800z" />
+    <!-- Abstract Desktop Monitor -->
+    <path android:fillColor="#94A3B8" android:pathData="M200,100h400v180h-400z" />
+    <path android:fillColor="#334155" android:pathData="M220,120h360v140h-360z" />
+    <path android:fillColor="#64748B" android:pathData="M370,280h60v40h-60z" />
+    <path android:fillColor="#94A3B8" android:pathData="M300,320h200v20h-200z" />
+</vector>
