@@ -1,5 +1,6 @@
 package com.example.fyp1;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -98,7 +99,11 @@ public class ReportIssueActivity extends AppCompatActivity {
         cardResult.setVisibility(View.VISIBLE);
         
         final String finalPriority = priority;
-        DatabaseManager.getInstance().submitIssueReport(currentLab, text, priority, category, new DatabaseManager.OperationCallback() {
+        String username = getIntent().getStringExtra("USER_NAME");
+        if (username == null || username.isEmpty()) username = "User";
+        String role = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE).getString(username + "_role", "Student");
+
+        DatabaseManager.getInstance().submitIssueReport(currentLab, text, priority, category, role, new DatabaseManager.OperationCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(ReportIssueActivity.this, getString(R.string.msg_report_success, finalPriority), Toast.LENGTH_LONG).show();

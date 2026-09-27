@@ -439,7 +439,7 @@ public class DatabaseManager {
         void onIssuesLoaded(List<Map<String, Object>> issues);
     }
 
-    public void submitIssueReport(String lab, String desc, String priority, String category, OperationCallback callback) {
+    public void submitIssueReport(String lab, String desc, String priority, String category, String reporterRole, OperationCallback callback) {
         if (!isFirebaseAvailable()) {
             callback.onFailure("Firebase unavailable.");
             return;
@@ -450,10 +450,21 @@ public class DatabaseManager {
         issue.put("desc", desc);
         issue.put("priority", priority);
         issue.put("category", category);
+        issue.put("reporterRole", reporterRole != null ? reporterRole : "Student");
         issue.put("timestamp", System.currentTimeMillis());
 
         db.collection("reported_issues").add(issue)
                 .addOnSuccessListener(doc -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public void deleteIssueReportCloud(String documentId, OperationCallback callback) {
+        if (!isFirebaseAvailable()) {
+            callback.onFailure("Firebase unavailable.");
+            return;
+        }
+        db.collection("reported_issues").document(documentId).delete()
+                .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 

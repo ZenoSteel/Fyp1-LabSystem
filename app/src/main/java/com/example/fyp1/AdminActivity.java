@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -274,7 +275,7 @@ public class AdminActivity extends AppCompatActivity {
             for (String lab : allLabs) {
                 String norm = lab.replaceAll("\\s+", "").toLowerCase(Locale.US);
                 if (Boolean.TRUE.equals(currentMaintenanceMap.get(norm))) {
-                    addIssueCard(lab, "HIGH", "Facility Maintenance", "Lab has been manually switched offline by Admin. Status: UNDER MAINTENANCE.");
+                    addIssueCard(lab, "HIGH", "Facility Maintenance", "Lab has been manually switched offline by Admin. Status: UNDER MAINTENANCE.", null);
                     activeHighAlerts++;
                 }
             }
@@ -282,14 +283,36 @@ public class AdminActivity extends AppCompatActivity {
 
         // 2. Render Student/Lecturer Reported Issues
         if (currentReportedIssues != null) {
+            Map<String, Map<String, Object>> deduplicatedIssues = new HashMap<>();
+            
             for (Map<String, Object> issue : currentReportedIssues) {
+                String lab = (String) issue.get("lab");
+                String cat = (String) issue.get("category");
+                String role = (String) issue.get("reporterRole");
+                if (cat == null) cat = "General";
+                if (role == null) role = "Student";
+
+                String hash = lab + "_" + cat;
+
+                if (deduplicatedIssues.containsKey(hash)) {
+                    String existingRole = (String) deduplicatedIssues.get(hash).get("reporterRole");
+                    if ("Lecturer".equalsIgnoreCase(role) || !"Lecturer".equalsIgnoreCase(existingRole)) {
+                        deduplicatedIssues.put(hash, issue); 
+                    }
+                } else {
+                    deduplicatedIssues.put(hash, issue);
+                }
+            }
+
+            for (Map<String, Object> issue : deduplicatedIssues.values()) {
                 String lab = (String) issue.get("lab");
                 String desc = (String) issue.get("desc");
                 String priority = (String) issue.get("priority");
                 String cat = (String) issue.get("category");
+                String id = (String) issue.get("id");
                 
                 if (lab != null && desc != null && priority != null) {
-                    addIssueCard(lab, priority, cat != null ? cat : "General", desc);
+                    addIssueCard(lab, priority, cat != null ? cat : "General", desc, id);
                     if ("HIGH".equalsIgnoreCase(priority)) activeHighAlerts++;
                 }
             }
@@ -308,7 +331,7 @@ public class AdminActivity extends AppCompatActivity {
         }
     }
 
-    private void addIssueCard(String lab, String priority, String category, String desc) {
+    private void addIssueCard(String lab, String priority, String category, String desc, String documentId) {
         CardView card = new CardView(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -364,6 +387,32 @@ public class AdminActivity extends AppCompatActivity {
 
         layout.addView(headerRow);
         layout.addView(tvDesc);
+        
+        if (documentId != null) {
+            Button btnResolve = new Button(this);
+            btnResolve.setText("✓ Mark as Resolved");
+            btnResolve.setTextSize(12f);
+            btnResolve.setAllCaps(false);
+            btnResolve.setBackgroundColor(Color.parseColor("#10B981"));
+            btnResolve.setTextColor(Color.WHITE);
+            LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            btnParams.setMargins(0, 16, 0, 0);
+            btnResolve.setLayoutParams(btnParams);
+            
+            btnResolve.setOnClickListener(v -> {
+                DatabaseManager.getInstance().deleteIssueReportCloud(documentId, new DatabaseManager.OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(AdminActivity.this, "Issue marked as resolved and cleared.", Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onFailure(String errorMessage) {}
+                });
+            });
+            layout.addView(btnResolve);
+        }
+
         card.addView(layout);
         layoutIssueFeed.addView(card);
     }
