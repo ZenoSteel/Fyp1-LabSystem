@@ -130,7 +130,7 @@
                 <!-- DCN Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -157,7 +157,7 @@
                 <!-- NWL Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -184,7 +184,7 @@
                 <!-- Lab1 Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -232,7 +232,7 @@
                 <!-- SAD Lab Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -259,7 +259,7 @@
                 <!-- Network Lab Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -307,7 +307,7 @@
                 <!-- PGL2 Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -334,7 +334,7 @@
                 <!-- Lab2 Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -361,7 +361,7 @@
                 <!-- PGL1 Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -409,7 +409,7 @@
                 <!-- HYP Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -436,7 +436,7 @@
                 <!-- Lab3 Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
@@ -463,7 +463,7 @@
                 <!-- MML Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="12dp"
