@@ -315,7 +315,7 @@
                     <LinearLayout
                         android:id="@+id/cardPGL2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"
@@ -342,7 +342,7 @@
                     <LinearLayout
                         android:id="@+id/cardLab2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"
@@ -369,7 +369,7 @@
                     <LinearLayout
                         android:id="@+id/cardPGL1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"
@@ -417,7 +417,7 @@
                     <LinearLayout
                         android:id="@+id/cardHYP"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"
@@ -444,7 +444,7 @@
                     <LinearLayout
                         android:id="@+id/cardLab3"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"
@@ -471,7 +471,7 @@
                     <LinearLayout
                         android:id="@+id/cardMML"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="@color/surface_white"
                         android:clickable="true"
                         android:focusable="true"
