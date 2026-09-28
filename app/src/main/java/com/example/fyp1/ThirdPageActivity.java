@@ -611,14 +611,16 @@ public class ThirdPageActivity extends AppCompatActivity {
                 String lab = bookingObj != null ? bookingObj.optString("lab", currentLabName) : currentLabName;
                 String day = bookingObj != null ? bookingObj.optString("day", selectedDay) : selectedDay;
                 String time = bookingObj != null ? bookingObj.optString("time", "") : "";
+                String bookedBy = bookingObj != null ? bookingObj.optString("bookedBy", "") : "";
+                String docId = bookingObj != null ? bookingObj.optString("id", "") : "";
 
                 JSONArray oldBookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
                 JSONArray newBookings = new JSONArray();
                 for (int i = 0; i < oldBookings.length(); i++) {
                     JSONObject b = oldBookings.getJSONObject(i);
                     int bOffset = b.optInt("week_offset", 0);
-                    if (b.getString("lab").equalsIgnoreCase(currentLabName) && 
-                        b.getString("day").equalsIgnoreCase(selectedDay) && 
+                    if (b.optString("lab", "").equalsIgnoreCase(currentLabName) && 
+                        b.optString("day", "").equalsIgnoreCase(selectedDay) && 
                         bOffset == currentWeekOffset) {
                         continue; // Remove target booking
                     }
@@ -626,7 +628,7 @@ public class ThirdPageActivity extends AppCompatActivity {
                 }
                 prefs.edit().putString("BOOKING_LIST", newBookings.toString()).apply();
 
-                DatabaseManager.getInstance().deleteBookingCloud(bookingObj != null ? bookingObj.optString("id", "") : "", () -> {
+                DatabaseManager.getInstance().deleteBookingCloud(docId, lab, day, time, bookedBy, () -> {
                     Toast.makeText(ThirdPageActivity.this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
                     analyzeLabAvailability();
                 });

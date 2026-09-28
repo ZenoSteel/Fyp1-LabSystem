@@ -295,19 +295,33 @@ public class DatabaseManager {
                 });
     }
 
-    public void deleteBookingCloud(String documentId, Runnable onComplete) {
-        if (!isFirebaseAvailable() || documentId == null || documentId.isEmpty()) {
+    public void deleteBookingCloud(String documentId, String lab, String day, String time, String bookedBy, Runnable onComplete) {
+        if (!isFirebaseAvailable()) {
             if (onComplete != null) onComplete.run();
             return;
         }
 
-        db.collection("bookings").document(documentId).delete()
-                .addOnSuccessListener(unused -> {
-                    if (onComplete != null) onComplete.run();
-                })
-                .addOnFailureListener(e -> {
-                    if (onComplete != null) onComplete.run();
-                });
+        if (documentId != null && !documentId.isEmpty()) {
+            db.collection("bookings").document(documentId).delete()
+                    .addOnSuccessListener(unused -> { if (onComplete != null) onComplete.run(); })
+                    .addOnFailureListener(e -> { if (onComplete != null) onComplete.run(); });
+        } else {
+            db.collection("bookings")
+                    .whereEqualTo("lab", lab)
+                    .whereEqualTo("day", day)
+                    .whereEqualTo("time", time)
+                    .whereEqualTo("bookedBy", bookedBy)
+                    .get()
+                    .addOnSuccessListener(querySnapshot -> {
+                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                            doc.getReference().delete();
+                        }
+                        if (onComplete != null) onComplete.run();
+                    })
+                    .addOnFailureListener(e -> {
+                        if (onComplete != null) onComplete.run();
+                    });
+        }
     }
 
     public void fetchMasterTimetableCloud(Context context, Runnable onComplete) {

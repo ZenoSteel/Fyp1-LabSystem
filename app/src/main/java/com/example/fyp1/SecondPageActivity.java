@@ -363,8 +363,8 @@ public class SecondPageActivity extends AppCompatActivity {
                     String bookedBy = b.optString("bookedBy", "");
                     String id = b.optString("id", "");
                     
-                    if (bookedBy.equalsIgnoreCase(username) && !id.isEmpty()) {
-                        DatabaseManager.getInstance().deleteBookingCloud(id, null);
+                    if (bookedBy.equalsIgnoreCase(username)) {
+                        DatabaseManager.getInstance().deleteBookingCloud(id, b.optString("lab", ""), b.optString("day", ""), b.optString("time", ""), bookedBy, null);
                     }
                 }
             } catch (Exception ignored) {}
