@@ -281,30 +281,9 @@ public class AdminActivity extends AppCompatActivity {
             }
         }
 
-        // 2. Render Student/Lecturer Reported Issues
+        // 2. Render Student/Lecturer Reported Issues Directly (No Deduplication)
         if (currentReportedIssues != null) {
-            Map<String, Map<String, Object>> deduplicatedIssues = new HashMap<>();
-            
             for (Map<String, Object> issue : currentReportedIssues) {
-                String lab = (String) issue.get("lab");
-                String cat = (String) issue.get("category");
-                String role = (String) issue.get("reporterRole");
-                if (cat == null) cat = "General";
-                if (role == null) role = "Student";
-
-                String hash = lab + "_" + cat;
-
-                if (deduplicatedIssues.containsKey(hash)) {
-                    String existingRole = (String) deduplicatedIssues.get(hash).get("reporterRole");
-                    if ("Lecturer".equalsIgnoreCase(role) || !"Lecturer".equalsIgnoreCase(existingRole)) {
-                        deduplicatedIssues.put(hash, issue); 
-                    }
-                } else {
-                    deduplicatedIssues.put(hash, issue);
-                }
-            }
-
-            for (Map<String, Object> issue : deduplicatedIssues.values()) {
                 String lab = (String) issue.get("lab");
                 String desc = (String) issue.get("desc");
                 String priority = (String) issue.get("priority");
