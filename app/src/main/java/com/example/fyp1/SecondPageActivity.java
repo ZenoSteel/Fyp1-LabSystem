@@ -349,7 +349,26 @@ public class SecondPageActivity extends AppCompatActivity {
     }
 
     private void cancelAllBookings() {
-        getSharedPreferences("LabBookings", Context.MODE_PRIVATE).edit().clear().apply();
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+
+        if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+            try {
+                JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+                String username = getIntent().getStringExtra("USER_NAME");
+                if (username == null || username.isEmpty()) username = "Authorized User";
+                
+                for (int i = 0; i < bookings.length(); i++) {
+                    JSONObject b = bookings.getJSONObject(i);
+                    String bookedBy = b.optString("bookedBy", "");
+                    
+                    if (bookedBy.equalsIgnoreCase(username)) {
+                        DatabaseManager.getInstance().deleteBookingCloud(b.getString("lab"), b.getString("day"), b.getString("time"), null);
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
+        prefs.edit().clear().apply();
         Toast.makeText(this, getString(R.string.msg_reservations_cancelled), Toast.LENGTH_SHORT).show();
     }
 
