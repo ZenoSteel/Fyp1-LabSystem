@@ -562,6 +562,7 @@ public class SecondPageActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, ThirdPageActivity.class);
                 intent.putExtra("LAB_NAME", labName);
                 intent.putExtra("USER_ROLE", userRole);
+                intent.putExtra("USER_NAME", getIntent().getStringExtra("USER_NAME"));
                 startActivity(intent);
             });
         }
