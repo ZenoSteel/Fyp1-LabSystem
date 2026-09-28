@@ -308,13 +308,16 @@ public class DatabaseManager {
         } else {
             db.collection("bookings")
                     .whereEqualTo("lab", lab)
-                    .whereEqualTo("day", day)
-                    .whereEqualTo("time", time)
-                    .whereEqualTo("bookedBy", bookedBy)
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
                         for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                            doc.getReference().delete();
+                            String docDay = doc.getString("day");
+                            String docTime = doc.getString("time");
+                            String docUser = doc.getString("bookedBy");
+
+                            if (day.equalsIgnoreCase(docDay) && time.equalsIgnoreCase(docTime) && bookedBy.equalsIgnoreCase(docUser)) {
+                                doc.getReference().delete();
+                            }
                         }
                         if (onComplete != null) onComplete.run();
                     })
