@@ -465,9 +465,10 @@ public class ChatbotActivity extends AppCompatActivity {
                 for (int i = 0; i < bookings.length(); i++) {
                     JSONObject b = bookings.getJSONObject(i);
                     String bookedBy = b.optString("bookedBy", "");
+                    String id = b.optString("id", "");
                     
-                    if (bookedBy.equalsIgnoreCase(username)) {
-                        DatabaseManager.getInstance().deleteBookingCloud(b.getString("lab"), b.getString("day"), b.getString("time"), null);
+                    if (bookedBy.equalsIgnoreCase(username) && !id.isEmpty()) {
+                        DatabaseManager.getInstance().deleteBookingCloud(id, null);
                     }
                 }
             } catch (Exception ignored) {}

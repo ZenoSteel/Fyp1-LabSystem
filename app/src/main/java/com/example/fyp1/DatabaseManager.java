@@ -295,21 +295,14 @@ public class DatabaseManager {
                 });
     }
 
-    public void deleteBookingCloud(String lab, String day, String time, Runnable onComplete) {
-        if (!isFirebaseAvailable()) {
+    public void deleteBookingCloud(String documentId, Runnable onComplete) {
+        if (!isFirebaseAvailable() || documentId == null || documentId.isEmpty()) {
             if (onComplete != null) onComplete.run();
             return;
         }
 
-        db.collection("bookings")
-                .whereEqualTo("lab", lab)
-                .whereEqualTo("day", day)
-                .whereEqualTo("time", time)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        doc.getReference().delete();
-                    }
+        db.collection("bookings").document(documentId).delete()
+                .addOnSuccessListener(unused -> {
                     if (onComplete != null) onComplete.run();
                 })
                 .addOnFailureListener(e -> {

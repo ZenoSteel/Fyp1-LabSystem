@@ -626,7 +626,7 @@ public class ThirdPageActivity extends AppCompatActivity {
                 }
                 prefs.edit().putString("BOOKING_LIST", newBookings.toString()).apply();
 
-                DatabaseManager.getInstance().deleteBookingCloud(lab, day, time, () -> {
+                DatabaseManager.getInstance().deleteBookingCloud(bookingObj != null ? bookingObj.optString("id", "") : "", () -> {
                     Toast.makeText(ThirdPageActivity.this, R.string.msg_session_removed, Toast.LENGTH_SHORT).show();
                     analyzeLabAvailability();
                 });
