@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -64,24 +65,26 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void setupRoleSpinner() {
-        String[] roles = {getString(R.string.role_student), getString(R.string.role_lecturer), getString(R.string.role_admin)};
+        // SECURITY UPDATE: Removed R.string.role_admin from the array.
+        // Admins can only be assigned directly via Firebase Firestore backend to prevent unauthorized access.
+        String[] roles = {getString(R.string.role_student), getString(R.string.role_lecturer)};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerRole.setAdapter(adapter);
 
-        spinnerRole.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+        spinnerRole.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selected = roles[position];
                 if (getString(R.string.role_student).equals(selected)) {
-                    if (etClassSection != null) etClassSection.setVisibility(android.view.View.VISIBLE);
+                    if (etClassSection != null) etClassSection.setVisibility(View.VISIBLE);
                 } else {
-                    if (etClassSection != null) etClassSection.setVisibility(android.view.View.GONE);
+                    if (etClassSection != null) etClassSection.setVisibility(View.GONE);
                 }
             }
 
             @Override
-            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
