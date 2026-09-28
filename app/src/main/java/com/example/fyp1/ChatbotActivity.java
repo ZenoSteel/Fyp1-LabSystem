@@ -139,11 +139,15 @@ public class ChatbotActivity extends AppCompatActivity {
         String lower = query.toLowerCase().trim();
 
         // 1. GLOBAL COMMANDS (Always work)
-        boolean isClear = Pattern.compile("\\b(clear|delete|wipe|cancel)\\b").matcher(lower).find();
-        if (isClear) {
+        if (lower.contains("clear booking") || lower.contains("cancel booking") || lower.contains("clear reservation") || lower.contains("clear my booking")) {
             clearAllBookings();
+            currentState = STATE_IDLE;
+            return;
+        }
+
+        if (lower.contains("clear history") || lower.contains("clear chat") || lower.equals("clear")) {
             clearChatHistory();
-            currentState = STATE_IDLE; // Reset state just in case
+            currentState = STATE_IDLE;
             return;
         }
 
@@ -450,7 +454,26 @@ public class ChatbotActivity extends AppCompatActivity {
     }
 
     private void clearAllBookings() {
-        getSharedPreferences("LabBookings", Context.MODE_PRIVATE).edit().clear().apply();
+        SharedPreferences prefs = getSharedPreferences("LabBookings", Context.MODE_PRIVATE);
+        
+        if (DatabaseManager.getInstance().isFirebaseAvailable()) {
+            try {
+                JSONArray bookings = new JSONArray(prefs.getString("BOOKING_LIST", "[]"));
+                String username = getIntent().getStringExtra("USER_NAME");
+                if (username == null || username.isEmpty()) username = "Authorized User";
+                
+                for (int i = 0; i < bookings.length(); i++) {
+                    JSONObject b = bookings.getJSONObject(i);
+                    String bookedBy = b.optString("bookedBy", "");
+                    
+                    if (bookedBy.equalsIgnoreCase(username)) {
+                        DatabaseManager.getInstance().deleteBookingCloud(b.getString("lab"), b.getString("day"), b.getString("time"), null);
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+        
+        prefs.edit().clear().apply();
         addBotBubble(getString(R.string.bot_msg_clear_success));
     }
 
